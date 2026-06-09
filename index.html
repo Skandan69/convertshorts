@@ -7,7 +7,6 @@
 <meta name="description" content="Free online tool to convert landscape video to portrait (16:9 to 9:16). Segment crop editing, zoom per scene. No upload, no watermark, no account.">
 <link rel="canonical" href="https://convertshorts.com/">
 <meta property="og:title" content="Convert Video 16:9 to 9:16 Free — ConvertShorts">
-<meta property="og:description" content="Convert landscape to portrait video free. Segment crop + zoom editing, no watermark.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://convertshorts.com/">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"ConvertShorts","description":"Convert landscape video to portrait (16:9 to 9:16) free.","url":"https://convertshorts.com","applicationCategory":"MultimediaApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
@@ -245,7 +244,6 @@ hr.div{border:none;border-top:1px solid var(--border);}
 <hr class="div">
 <footer><p style="margin-bottom:5px;"><strong>ConvertShorts</strong> — Free video aspect ratio converter</p><p>Convert 16:9 to 9:16 · Landscape to portrait · Segment crop & zoom · No upload · No watermark</p></footer>
 
-<!-- FFmpeg 0.11.x — no Web Workers, works on any domain -->
 <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
 <script>
 const $=id=>document.getElementById(id);
@@ -386,42 +384,84 @@ window.setZoom=v=>{if(segments[activeSeg]){segments[activeSeg].zoom=v/100;$('zoo
 $('segStart').oninput=()=>{if(segments[activeSeg]){segments[activeSeg].start=Math.max(0,parseFloat($('segStart').value)||0);if(activeSeg>0)segments[activeSeg-1].end=segments[activeSeg].start;renderSegs();updatePanel();}};
 $('segEnd').oninput=()=>{if(segments[activeSeg]){segments[activeSeg].end=Math.min(videoDuration,parseFloat($('segEnd').value)||0);if(activeSeg<segments.length-1)segments[activeSeg+1].start=segments[activeSeg].end;renderSegs();updatePanel();}};
 
-// EXPORT — using ffmpeg 0.11.x which has no Worker, works on any domain
+// EXPORT — process each segment separately then concatenate
 $('xbtn').onclick=async()=>{
   if(!file)return;
   $('xbtn').disabled=true;$('pw').style.display='block';$('pf').style.width='0%';$('fn').textContent='';
   try{
     const {createFFmpeg,fetchFile}=FFmpeg;
     const ff=createFFmpeg({
-      log:false,
-      corePath:'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js',
-      progress:({ratio})=>{const p=Math.round(Math.min(ratio,1)*100);$('pf').style.width=p+'%';$('pl').textContent='Exporting… '+p+'%';}
+      log:true,
+      corePath:'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js'
     });
     $('pl').textContent='Loading engine (first run ~15s)…';
     await ff.load();
+
     $('pl').textContent='Reading video…';
     ff.FS('writeFile','input.mp4',await fetchFile(file));
+
     const vw=vid.videoWidth,vh=vid.videoHeight;
-    let fp=[],cp=[];
-    segments.forEach((s,i)=>{
+
+    // Calculate output dimensions once
+    let outW,outH;
+    if(mode==='l2p'){outW=Math.round(vh*9/16);outH=vh;}
+    else{outW=vw;outH=Math.round(vw*9/16);}
+
+    // Process each segment one at a time into seg0.mp4, seg1.mp4 etc
+    const total=segments.length;
+    for(let i=0;i<total;i++){
+      const s=segments[i];
       const zoom=s.zoom||1;
-      let bsw,bsh;
-      if(mode==='l2p'){bsw=Math.round(vh*9/16);bsh=vh;}else{bsh=Math.round(vw*9/16);bsw=vw;}
-      const sw=Math.round(bsw/zoom),sh=Math.round(bsh/zoom);
-      const sx=Math.max(0,Math.round((vw-sw)*s.cx)),sy=Math.max(0,Math.round((vh-sh)*s.cy));
-      fp.push(`[0:v]trim=start=${s.start.toFixed(3)}:end=${s.end.toFixed(3)},setpts=PTS-STARTPTS,crop=${sw}:${sh}:${sx}:${sy},scale=${bsw}:${bsh}[v${i}]`);
-      fp.push(`[0:a]atrim=start=${s.start.toFixed(3)}:end=${s.end.toFixed(3)},asetpts=PTS-STARTPTS[a${i}]`);
-      cp.push(`[v${i}][a${i}]`);
-    });
-    fp.push(`${cp.join('')}concat=n=${segments.length}:v=1:a=1[outv][outa]`);
-    $('pl').textContent='Exporting…';
-    await ff.run('-i','input.mp4','-filter_complex',fp.join(';'),'-map','[outv]','-map','[outa]','-c:v','libx264','-preset','fast','-crf','23','output.mp4');
-    const out=ff.FS('readFile','output.mp4');
+      const sw=Math.round(outW/zoom), sh=Math.round(outH/zoom);
+      const sx=Math.max(0,Math.round((vw-sw)*s.cx));
+      const sy=Math.max(0,Math.round((vh-sh)*s.cy));
+      const dur=(s.end-s.start).toFixed(3);
+
+      $('pl').textContent=`Processing segment ${i+1} of ${total}…`;
+      $('pf').style.width=Math.round((i/total)*80)+'%';
+
+      // Simple approach: trim → crop → scale to exact output size
+      await ff.run(
+        '-ss', s.start.toFixed(3),
+        '-i', 'input.mp4',
+        '-t', dur,
+        '-vf', `crop=${sw}:${sh}:${sx}:${sy},scale=${outW}:${outH}`,
+        '-c:v', 'libx264',
+        '-preset', 'ultrafast',
+        '-crf', '23',
+        '-c:a', 'aac',
+        '-avoid_negative_ts', 'make_zero',
+        `seg${i}.mp4`
+      );
+    }
+
+    $('pf').style.width='85%';
+
+    let finalFile;
+    if(segments.length===1){
+      // Only one segment — just use it directly
+      finalFile=ff.FS('readFile','seg0.mp4');
+    } else {
+      // Write concat list file
+      $('pl').textContent='Joining segments…';
+      const concatList=segments.map((_,i)=>`file 'seg${i}.mp4'`).join('\n');
+      ff.FS('writeFile','list.txt', new TextEncoder().encode(concatList));
+
+      await ff.run(
+        '-f','concat',
+        '-safe','0',
+        '-i','list.txt',
+        '-c','copy',
+        'final.mp4'
+      );
+      finalFile=ff.FS('readFile','final.mp4');
+    }
+
+    $('pf').style.width='100%';
     const a=document.createElement('a');
-    a.href=URL.createObjectURL(new Blob([out.buffer],{type:'video/mp4'}));
+    a.href=URL.createObjectURL(new Blob([finalFile.buffer],{type:'video/mp4'}));
     a.download=file.name.replace(/\.[^.]+$/,'')+(mode==='l2p'?'_portrait':'_landscape')+'.mp4';
     a.click();
-    $('pf').style.width='100%';
     $('pl').textContent='Done! Your file is downloading.';
     $('fn').textContent='Processed entirely in your browser — your video was never uploaded.';
   }catch(e){

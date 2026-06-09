@@ -256,6 +256,7 @@ hr.div{border:none;border-top:1px solid var(--border);}
 
 <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
 <script>
+document.addEventListener('DOMContentLoaded',function(){
 const $=id=>document.getElementById(id);
 const COLORS=['#1a9e6e','#378add','#d85a30','#7f77dd','#ba7517','#d4537e','#639922','#888780'];
 let file=null,mode='l2p',raf=null,segments=[],activeSeg=0,videoDuration=0;
@@ -285,14 +286,30 @@ function fmtT(s){const m=Math.floor(s/60),sc=(s%60).toFixed(1);return m+':'+(par
 function fmtT2(s){return Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');}
 
 function loadFile(f){
-  file=f;vid.src=URL.createObjectURL(f);
-  vid.onloadedmetadata=()=>{
-    videoDuration=vid.duration;
+  if(!f)return;
+  file=f;
+  const url=URL.createObjectURL(f);
+  vid.src=url;
+  vid.load();
+
+  // Use both onloadedmetadata and onloadeddata as fallback
+  function onReady(){
+    vid.removeEventListener('loadedmetadata',onReady);
+    vid.removeEventListener('loadeddata',onReady);
+    videoDuration=vid.duration||0;
     $('ibSpans').innerHTML=`<span>📄 ${f.name}</span><span>📐 ${vid.videoWidth}×${vid.videoHeight}</span><span>⏱ ${fmtT2(vid.duration)}</span><span>💾 ${fmtSz(f.size)}</span>`;
     $('dz').style.display='none';
     $('editor').style.display='block';
     segments=[{start:0,end:vid.duration,cx:0.5,cy:0.5,zoom:1.0}];
     activeSeg=0;setupCvs();renderSegs();updatePanel();startLoop();vid.pause();
+  }
+
+  vid.addEventListener('loadedmetadata',onReady);
+  vid.addEventListener('loadeddata',onReady);
+
+  vid.onerror=()=>{
+    alert('Could not load this video file. Please try an MP4 file.');
+    file=null;
   };
 }
 
@@ -692,6 +709,7 @@ function triggerDownload(buffer, filename){
   a.click();
   setTimeout(()=>{URL.revokeObjectURL(a.href);document.body.removeChild(a);},1000);
 }
+}); // end DOMContentLoaded
 </script>
 </body>
 </html>

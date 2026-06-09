@@ -432,7 +432,8 @@ document.getElementById('exportBtn').addEventListener('click', async () => {
     const { createFFmpeg, fetchFile } = FFmpeg;
     const ff = createFFmpeg({
       log: false,
-      corePath: 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js'
+      corePath: 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js',
+      mainName: 'main'
     });
 
     progressLabel.textContent = 'Loading engine (first run ~15s)…';

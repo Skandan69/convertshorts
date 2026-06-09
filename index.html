@@ -177,8 +177,11 @@ hr.div{border:none;border-top:1px solid var(--border);}
         <div class="editor-left">
           <div class="video-row">
             <div class="vid-panel">
-              <div class="vid-label">Source</div>
-              <video id="vid" muted playsinline></video>
+              <div class="vid-label">Source — <span id="modeLabel">drag output to reframe</span></div>
+              <div style="position:relative;">
+                <video id="vid" muted playsinline></video>
+                <canvas id="srcOverlay" style="position:absolute;top:0;left:0;width:100%;height:100%;cursor:crosshair;display:none;"></canvas>
+              </div>
             </div>
             <div class="vid-panel">
               <div class="vid-label">Output · drag while playing = auto-split · scroll to zoom</div>
@@ -208,7 +211,14 @@ hr.div{border:none;border-top:1px solid var(--border);}
               <button class="mbtn" id="mP2L"><svg viewBox="0 0 24 40"><rect x="1" y="1" width="22" height="38" rx="3"/><rect x="4" y="13" width="16" height="14" rx="1.5" fill="currentColor" opacity=".25"/></svg><span>Portrait → Landscape<small>9:16 → 16:9 (YouTube, TV)</small></span></button>
             </div>
           </div>
-          <div class="rp-section" style="flex:1;">
+          <div class="rp-section">
+            <p class="rp-label">Crop mode</p>
+            <div style="display:flex;gap:6px;">
+              <button id="modeAuto" onclick="setCropMode('auto')" style="flex:1;padding:7px;border:1.5px solid var(--green);border-radius:8px;background:var(--gl);color:var(--gd);font-size:12px;font-weight:700;cursor:pointer;">✦ Drag output</button>
+              <button id="modeManual" onclick="setCropMode('manual')" style="flex:1;padding:7px;border:1.5px solid var(--border);border-radius:8px;background:var(--white);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;">⊡ Draw on source</button>
+            </div>
+            <p style="font-size:11px;color:var(--muted);margin-top:6px;" id="cropModeHint">Drag the output preview to reframe. Drag while playing to auto-split.</p>
+          </div>
             <div class="cp-header"><div class="cp-dot" id="cpDot"></div><span class="cp-title">Segment <span id="cpNum">1</span></span><span class="cp-time" id="cpTime"></span></div>
             <div class="time-inputs">
               <div class="tig"><label>Start (s)</label><input type="number" id="segStart" min="0" step="0.1"></div>
@@ -217,10 +227,10 @@ hr.div{border:none;border-top:1px solid var(--border);}
             <div class="arow"><label>Horizontal</label><input type="range" id="cx" min="0" max="100" value="50" step="1"><span id="cxv">50%</span></div>
             <div class="arow"><label>Vertical</label><input type="range" id="cy" min="0" max="100" value="50" step="1"><span id="cyv">50%</span></div>
             <div class="zoom-divider"></div>
-            <div class="zoom-row"><label>🔍 Zoom</label><input type="range" id="zoom" min="100" max="300" value="100" step="1"><span id="zoomv">1.0×</span></div>
+            <div class="zoom-row"><label>🔍 Zoom</label><input type="range" id="zoom" min="50" max="300" value="100" step="1"><span id="zoomv">1.0×</span></div>
             <div class="zoom-presets">
+              <button class="zoom-preset" onclick="setZoom(50)">0.5× Wide</button>
               <button class="zoom-preset" onclick="setZoom(100)">1× Normal</button>
-              <button class="zoom-preset" onclick="setZoom(133)">1.3× Close</button>
               <button class="zoom-preset" onclick="setZoom(150)">1.5× Tight</button>
               <button class="zoom-preset" onclick="setZoom(200)">2× Zoom</button>
             </div>
@@ -251,7 +261,7 @@ const COLORS=['#1a9e6e','#378add','#d85a30','#7f77dd','#ba7517','#d4537e','#6399
 let file=null,mode='l2p',raf=null,segments=[],activeSeg=0,videoDuration=0;
 const vid=$('vid'),cropCvs=$('cropCanvas');
 let isDragging=false,dragSX=0,dragSY=0,dragCX=0,dragCY=0;
-let dragMoved=false, dragStartTime=0, dragStartSeg=0;
+let dragMoved=false,hasSplit=false,dragStartTime=0,dragStartSeg=0;
 
 document.querySelectorAll('.faq-q').forEach(b=>{b.onclick=()=>{const o=b.classList.toggle('open');b.setAttribute('aria-expanded',o);b.nextElementSibling.classList.toggle('open',o);};});
 $('mL2P').onclick=()=>{mode='l2p';$('mL2P').classList.add('active');$('mP2L').classList.remove('active');if(file)setupCvs();};
@@ -314,7 +324,7 @@ function startLoop(){
 }
 
 cropCvs.addEventListener('mousedown',e=>{
-  isDragging=true; dragMoved=false;
+  isDragging=true; dragMoved=false; hasSplit=false;
   dragSX=e.clientX; dragSY=e.clientY;
   dragStartTime=vid.currentTime;
   dragStartSeg=activeSeg;
@@ -325,14 +335,12 @@ cropCvs.addEventListener('mousedown',e=>{
 document.addEventListener('mousemove',e=>{
   if(!isDragging||!segments[activeSeg])return;
   const rect=cropCvs.getBoundingClientRect();
-  const newCX=Math.max(0,Math.min(1,dragCX+(e.clientX-dragSX)/rect.width));
-  const newCY=Math.max(0,Math.min(1,dragCY+(e.clientY-dragSY)/rect.height));
-  const moved=Math.abs(newCX-dragCX)>0.01||Math.abs(newCY-dragCY)>0.01;
-  // Auto-split: if video is playing and we drag significantly, split at current time
-  if(moved && !dragMoved && !vid.paused){
+  const pxMoved=Math.sqrt(Math.pow(e.clientX-dragSX,2)+Math.pow(e.clientY-dragSY,2));
+  // Only auto-split once per drag, after moving at least 20px, while playing
+  if(!hasSplit && pxMoved>20 && !vid.paused){
     const t=vid.currentTime;
-    if(t>segments[activeSeg].start+0.2 && t<segments[activeSeg].end-0.2){
-      dragMoved=true;
+    if(t>segments[activeSeg].start+0.3 && t<segments[activeSeg].end-0.3){
+      hasSplit=true;
       const o=segments[activeSeg];
       const ns={start:t,end:o.end,cx:o.cx,cy:o.cy,zoom:o.zoom||1};
       o.end=t;
@@ -340,6 +348,7 @@ document.addEventListener('mousemove',e=>{
       activeSeg=activeSeg+1;
       dragCX=segments[activeSeg].cx;
       dragCY=segments[activeSeg].cy;
+      dragSX=e.clientX; dragSY=e.clientY; // reset drag origin after split
     }
   }
   dragMoved=true;
@@ -347,10 +356,10 @@ document.addEventListener('mousemove',e=>{
   segments[activeSeg].cy=Math.max(0,Math.min(1,dragCY+(e.clientY-dragSY)/rect.height));
   syncSliders();
 });
-document.addEventListener('mouseup',()=>{if(isDragging){isDragging=false;dragMoved=false;renderSegs();}});
-cropCvs.addEventListener('wheel',e=>{e.preventDefault();if(!segments[activeSeg])return;segments[activeSeg].zoom=Math.max(1,Math.min(3,(segments[activeSeg].zoom||1)+(e.deltaY<0?0.05:-0.05)));syncSliders();renderSegs();},{passive:false});
+document.addEventListener('mouseup',()=>{if(isDragging){isDragging=false;dragMoved=false;hasSplit=false;renderSegs();}});
+cropCvs.addEventListener('wheel',e=>{e.preventDefault();if(!segments[activeSeg])return;segments[activeSeg].zoom=Math.max(0.5,Math.min(3,(segments[activeSeg].zoom||1)+(e.deltaY<0?0.05:-0.05)));syncSliders();renderSegs();},{passive:false});
 cropCvs.addEventListener('touchstart',e=>{
-  isDragging=true; dragMoved=false;
+  isDragging=true; dragMoved=false; hasSplit=false;
   dragSX=e.touches[0].clientX; dragSY=e.touches[0].clientY;
   const s=segments[activeSeg]||{cx:.5,cy:.5};
   dragCX=s.cx; dragCY=s.cy;
@@ -358,15 +367,16 @@ cropCvs.addEventListener('touchstart',e=>{
 document.addEventListener('touchmove',e=>{
   if(!isDragging||!segments[activeSeg])return;
   const rect=cropCvs.getBoundingClientRect();
-  const newCX=Math.max(0,Math.min(1,dragCX+(e.touches[0].clientX-dragSX)/rect.width));
-  const newCY=Math.max(0,Math.min(1,dragCY+(e.touches[0].clientY-dragSY)/rect.height));
-  if(!dragMoved && !vid.paused){
+  const pxMoved=Math.sqrt(Math.pow(e.touches[0].clientX-dragSX,2)+Math.pow(e.touches[0].clientY-dragSY,2));
+  if(!hasSplit && pxMoved>20 && !vid.paused){
     const t=vid.currentTime;
-    if(t>segments[activeSeg].start+0.2&&t<segments[activeSeg].end-0.2){
+    if(t>segments[activeSeg].start+0.3&&t<segments[activeSeg].end-0.3){
+      hasSplit=true;
       const o=segments[activeSeg];
       const ns={start:t,end:o.end,cx:o.cx,cy:o.cy,zoom:o.zoom||1};
       o.end=t;segments.splice(activeSeg+1,0,ns);activeSeg++;
       dragCX=segments[activeSeg].cx;dragCY=segments[activeSeg].cy;
+      dragSX=e.touches[0].clientX;dragSY=e.touches[0].clientY;
     }
   }
   dragMoved=true;
@@ -374,7 +384,7 @@ document.addEventListener('touchmove',e=>{
   segments[activeSeg].cy=Math.max(0,Math.min(1,dragCY+(e.touches[0].clientY-dragSY)/rect.height));
   syncSliders();
 },{passive:true});
-document.addEventListener('touchend',()=>{isDragging=false;dragMoved=false;renderSegs();});
+document.addEventListener('touchend',()=>{isDragging=false;dragMoved=false;hasSplit=false;renderSegs();});
 
 $('playBtn').onclick=()=>{vid.paused?vid.play():vid.pause();updatePlayIcon();};
 vid.addEventListener('play',updatePlayIcon);vid.addEventListener('pause',updatePlayIcon);
@@ -437,7 +447,98 @@ $('cx').oninput=()=>{if(segments[activeSeg]){segments[activeSeg].cx=$('cx').valu
 $('cy').oninput=()=>{if(segments[activeSeg]){segments[activeSeg].cy=$('cy').value/100;$('cyv').textContent=$('cy').value+'%';renderSegs();}};
 $('zoom').oninput=()=>{if(segments[activeSeg]){const z=$('zoom').value/100;segments[activeSeg].zoom=z;$('zoomv').textContent=z.toFixed(2)+'×';renderSegs();}};
 window.setZoom=v=>{if(segments[activeSeg]){segments[activeSeg].zoom=v/100;$('zoom').value=v;$('zoomv').textContent=(v/100).toFixed(2)+'×';renderSegs();}};
-$('segStart').oninput=()=>{if(segments[activeSeg]){segments[activeSeg].start=Math.max(0,parseFloat($('segStart').value)||0);if(activeSeg>0)segments[activeSeg-1].end=segments[activeSeg].start;renderSegs();updatePanel();}};
+
+// MANUAL CROP MODE
+let cropMode='auto';
+const srcOverlay=$('srcOverlay');
+let manualDragging=false,manualSX=0,manualSY=0,manualEX=0,manualEY=0;
+
+window.setCropMode=function(m){
+  cropMode=m;
+  $('modeAuto').style.cssText='flex:1;padding:7px;border-radius:8px;font-size:12px;font-weight:'+(m==='auto'?'700':'600')+';cursor:pointer;border:1.5px solid '+(m==='auto'?'var(--green)':'var(--border)')+';background:'+(m==='auto'?'var(--gl)':'var(--white)')+';color:'+(m==='auto'?'var(--gd)':'var(--muted)')+';';
+  $('modeManual').style.cssText='flex:1;padding:7px;border-radius:8px;font-size:12px;font-weight:'+(m==='manual'?'700':'600')+';cursor:pointer;border:1.5px solid '+(m==='manual'?'var(--green)':'var(--border)')+';background:'+(m==='manual'?'var(--gl)':'var(--white)')+';color:'+(m==='manual'?'var(--gd)':'var(--muted)')+';';
+  srcOverlay.style.display=m==='manual'?'block':'none';
+  $('cropModeHint').textContent=m==='manual'?'Draw a box on the source video to set the crop area for this segment.':'Drag the output preview to reframe. Drag while playing to auto-split.';
+  $('modeLabel').textContent=m==='manual'?'draw crop box here':'drag output to reframe';
+  if(m==='manual') drawManualOverlay();
+};
+
+function drawManualOverlay(){
+  const ctx=srcOverlay.getContext('2d');
+  srcOverlay.width=srcOverlay.offsetWidth;
+  srcOverlay.height=srcOverlay.offsetHeight;
+  ctx.clearRect(0,0,srcOverlay.width,srcOverlay.height);
+  if(!segments[activeSeg])return;
+  // Draw current crop region
+  const s=segments[activeSeg];
+  const vw=vid.videoWidth,vh=vid.videoHeight;
+  const zoom=s.zoom||1;
+  let bsw,bsh;
+  if(mode==='l2p'){bsw=Math.round(vh*9/16);bsh=vh;}else{bsh=Math.round(vw*9/16);bsw=vw;}
+  const sw=Math.round(bsw/zoom),sh=Math.round(bsh/zoom);
+  const maxSX=Math.max(0,vw-sw),maxSY=Math.max(0,vh-sh);
+  const sx=Math.round(maxSX*s.cx),sy=Math.round(maxSY*s.cy);
+  // Map video coords to canvas coords
+  const scaleX=srcOverlay.width/vw,scaleY=srcOverlay.height/vh;
+  const rx=sx*scaleX,ry=sy*scaleY,rw=sw*scaleX,rh=sh*scaleY;
+  // Dim outside
+  ctx.fillStyle='rgba(0,0,0,0.5)';
+  ctx.fillRect(0,0,srcOverlay.width,srcOverlay.height);
+  ctx.clearRect(rx,ry,rw,rh);
+  // Border
+  ctx.strokeStyle='#1a9e6e';ctx.lineWidth=2;ctx.strokeRect(rx,ry,rw,rh);
+  // Corner handles
+  [[rx,ry],[rx+rw,ry],[rx,ry+rh],[rx+rw,ry+rh]].forEach(([hx,hy])=>{
+    ctx.fillStyle='#1a9e6e';ctx.fillRect(hx-4,hy-4,8,8);
+  });
+}
+
+srcOverlay.addEventListener('mousedown',e=>{
+  manualDragging=true;
+  const rect=srcOverlay.getBoundingClientRect();
+  manualSX=(e.clientX-rect.left)/rect.width;
+  manualSY=(e.clientY-rect.top)/rect.height;
+  manualEX=manualSX;manualEY=manualSY;
+});
+srcOverlay.addEventListener('mousemove',e=>{
+  if(!manualDragging)return;
+  const rect=srcOverlay.getBoundingClientRect();
+  manualEX=(e.clientX-rect.left)/rect.width;
+  manualEY=(e.clientY-rect.top)/rect.height;
+  // Draw live box
+  const ctx=srcOverlay.getContext('2d');
+  srcOverlay.width=srcOverlay.offsetWidth;srcOverlay.height=srcOverlay.offsetHeight;
+  ctx.clearRect(0,0,srcOverlay.width,srcOverlay.height);
+  ctx.fillStyle='rgba(0,0,0,0.45)';ctx.fillRect(0,0,srcOverlay.width,srcOverlay.height);
+  const x=Math.min(manualSX,manualEX)*srcOverlay.width;
+  const y=Math.min(manualSY,manualEY)*srcOverlay.height;
+  const w=Math.abs(manualEX-manualSX)*srcOverlay.width;
+  const h=Math.abs(manualEY-manualSY)*srcOverlay.height;
+  ctx.clearRect(x,y,w,h);
+  ctx.strokeStyle='#1a9e6e';ctx.lineWidth=2;ctx.strokeRect(x,y,w,h);
+});
+srcOverlay.addEventListener('mouseup',e=>{
+  if(!manualDragging)return;
+  manualDragging=false;
+  const rect=srcOverlay.getBoundingClientRect();
+  manualEX=(e.clientX-rect.left)/rect.width;
+  manualEY=(e.clientY-rect.top)/rect.height;
+  if(!segments[activeSeg])return;
+  // Convert drawn box to cx/cy values
+  const x1=Math.min(manualSX,manualEX),y1=Math.min(manualSY,manualEY);
+  const x2=Math.max(manualSX,manualEX),y2=Math.max(manualSY,manualEY);
+  const boxCX=(x1+x2)/2,boxCY=(y1+y2)/2;
+  segments[activeSeg].cx=Math.max(0,Math.min(1,boxCX));
+  segments[activeSeg].cy=Math.max(0,Math.min(1,boxCY));
+  // Estimate zoom from box size vs expected crop size
+  const vw=vid.videoWidth,vh=vid.videoHeight;
+  let bsw,bsh;
+  if(mode==='l2p'){bsw=Math.round(vh*9/16);bsh=vh;}else{bsh=Math.round(vw*9/16);bsw=vw;}
+  const drawnW=(x2-x1)*vw,drawnH=(y2-y1)*vh;
+  const zoomW=bsw/Math.max(drawnW,10),zoomH=bsh/Math.max(drawnH,10);
+  segments[activeSeg].zoom=Math.max(0.5,Math.min(3,(zoomW+zoomH)/2));
+  syncSliders();renderSegs();drawManualOverlay();
+});=()=>{if(segments[activeSeg]){segments[activeSeg].start=Math.max(0,parseFloat($('segStart').value)||0);if(activeSeg>0)segments[activeSeg-1].end=segments[activeSeg].start;renderSegs();updatePanel();}};
 $('segEnd').oninput=()=>{if(segments[activeSeg]){segments[activeSeg].end=Math.min(videoDuration,parseFloat($('segEnd').value)||0);if(activeSeg<segments.length-1)segments[activeSeg+1].start=segments[activeSeg].end;renderSegs();updatePanel();}};
 
 // EXPORT — encode each segment separately, download as zip or individual files
@@ -474,15 +575,42 @@ $('xbtn').onclick=async()=>{
     for(let i=0;i<total;i++){
       const s=segments[i];
       const zoom=s.zoom||1;
-      // Source crop region
-      const sw=Math.max(2,Math.round(outW/zoom));
-      const sh=Math.max(2,Math.round(outH/zoom));
-      const maxSX=Math.max(0,vw-sw);
-      const maxSY=Math.max(0,vh-sh);
-      const sx=Math.round(maxSX*s.cx);
-      const sy=Math.round(maxSY*s.cy);
+
+      // For zoom > 1: crop a smaller region (punch in)
+      // For zoom < 1: crop a larger region (zoom out = show more = letterbox/pillarbox)
+      // Either way we crop from source then scale to output size
+      let sw,sh,sx,sy;
+      if(zoom>=1){
+        // Crop smaller region and scale up = zoom in
+        sw=Math.max(2,Math.round(outW/zoom));
+        sh=Math.max(2,Math.round(outH/zoom));
+        sw=sw%2===0?sw:sw-1;
+        sh=sh%2===0?sh:sh-1;
+        const maxSX=Math.max(0,vw-sw);
+        const maxSY=Math.max(0,vh-sh);
+        sx=Math.round(maxSX*s.cx);
+        sy=Math.round(maxSY*s.cy);
+      } else {
+        // zoom out: use full source dimensions, add padding via scale+pad
+        sw=vw; sh=vh; sx=0; sy=0;
+      }
       const segDur=Math.max(0.1,s.end-s.start);
       const outName=`out${i}.mp4`;
+
+      $('pl').textContent=`Exporting segment ${i+1} of ${total}…`;
+      $('pf').style.width=Math.round((i/total)*90)+'%';
+
+      let vf;
+      if(zoom>=1){
+        vf=`crop=${sw}:${sh}:${sx}:${sy},scale=${outW}:${outH}:flags=lanczos`;
+      } else {
+        // scale down then pad to output size
+        const scaleW=Math.round(outW*zoom);
+        const scaleH=Math.round(outH*zoom);
+        const padX=Math.round((outW-scaleW)/2);
+        const padY=Math.round((outH-scaleH)/2);
+        vf=`scale=${scaleW}:${scaleH}:flags=lanczos,pad=${outW}:${outH}:${padX}:${padY}:black`;
+      }
 
       $('pl').textContent=`Exporting segment ${i+1} of ${total}…`;
       $('pf').style.width=Math.round((i/total)*90)+'%';
@@ -491,13 +619,13 @@ $('xbtn').onclick=async()=>{
         '-ss', s.start.toFixed(3),
         '-i', 'input.mp4',
         '-t', segDur.toFixed(3),
-        '-vf', `crop=${sw}:${sh}:${sx}:${sy},scale=${outW}:${outH}:flags=lanczos`,
+        '-vf', vf,
         '-c:v', 'libx264',
-        '-preset', 'ultrafast',
-        '-crf', '23',
+        '-preset', 'medium',
+        '-crf', '18',
         '-pix_fmt', 'yuv420p',
         '-c:a', 'aac',
-        '-b:a', '128k',
+        '-b:a', '192k',
         '-movflags', '+faststart',
         outName
       );
@@ -527,9 +655,9 @@ $('xbtn').onclick=async()=>{
       await ff.run(
         '-f','concat','-safe','0',
         '-i','list.txt',
-        '-c:v','libx264','-preset','ultrafast','-crf','23',
+        '-c:v','libx264','-preset','medium','-crf','18',
         '-pix_fmt','yuv420p',
-        '-c:a','aac','-b:a','128k',
+        '-c:a','aac','-b:a','192k',
         '-movflags','+faststart',
         'merged.mp4'
       );

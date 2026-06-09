@@ -181,7 +181,7 @@ hr.div{border:none;border-top:1px solid var(--border);}
               <video id="vid" muted playsinline></video>
             </div>
             <div class="vid-panel">
-              <div class="vid-label">Output · drag to reframe · scroll to zoom</div>
+              <div class="vid-label">Output · drag while playing = auto-split · scroll to zoom</div>
               <div class="crop-wrap"><canvas id="cropCanvas" class="crop-canvas"></canvas></div>
             </div>
           </div>
@@ -251,6 +251,7 @@ const COLORS=['#1a9e6e','#378add','#d85a30','#7f77dd','#ba7517','#d4537e','#6399
 let file=null,mode='l2p',raf=null,segments=[],activeSeg=0,videoDuration=0;
 const vid=$('vid'),cropCvs=$('cropCanvas');
 let isDragging=false,dragSX=0,dragSY=0,dragCX=0,dragCY=0;
+let dragMoved=false, dragStartTime=0, dragStartSeg=0;
 
 document.querySelectorAll('.faq-q').forEach(b=>{b.onclick=()=>{const o=b.classList.toggle('open');b.setAttribute('aria-expanded',o);b.nextElementSibling.classList.toggle('open',o);};});
 $('mL2P').onclick=()=>{mode='l2p';$('mL2P').classList.add('active');$('mP2L').classList.remove('active');if(file)setupCvs();};
@@ -312,13 +313,68 @@ function startLoop(){
   })();
 }
 
-cropCvs.addEventListener('mousedown',e=>{isDragging=true;dragSX=e.clientX;dragSY=e.clientY;const s=segments[activeSeg]||{cx:.5,cy:.5};dragCX=s.cx;dragCY=s.cy;e.preventDefault();});
-document.addEventListener('mousemove',e=>{if(!isDragging||!segments[activeSeg])return;const rect=cropCvs.getBoundingClientRect();segments[activeSeg].cx=Math.max(0,Math.min(1,dragCX+(e.clientX-dragSX)/rect.width));segments[activeSeg].cy=Math.max(0,Math.min(1,dragCY+(e.clientY-dragSY)/rect.height));syncSliders();});
-document.addEventListener('mouseup',()=>{if(isDragging){isDragging=false;renderSegs();}});
+cropCvs.addEventListener('mousedown',e=>{
+  isDragging=true; dragMoved=false;
+  dragSX=e.clientX; dragSY=e.clientY;
+  dragStartTime=vid.currentTime;
+  dragStartSeg=activeSeg;
+  const s=segments[activeSeg]||{cx:.5,cy:.5};
+  dragCX=s.cx; dragCY=s.cy;
+  e.preventDefault();
+});
+document.addEventListener('mousemove',e=>{
+  if(!isDragging||!segments[activeSeg])return;
+  const rect=cropCvs.getBoundingClientRect();
+  const newCX=Math.max(0,Math.min(1,dragCX+(e.clientX-dragSX)/rect.width));
+  const newCY=Math.max(0,Math.min(1,dragCY+(e.clientY-dragSY)/rect.height));
+  const moved=Math.abs(newCX-dragCX)>0.01||Math.abs(newCY-dragCY)>0.01;
+  // Auto-split: if video is playing and we drag significantly, split at current time
+  if(moved && !dragMoved && !vid.paused){
+    const t=vid.currentTime;
+    if(t>segments[activeSeg].start+0.2 && t<segments[activeSeg].end-0.2){
+      dragMoved=true;
+      const o=segments[activeSeg];
+      const ns={start:t,end:o.end,cx:o.cx,cy:o.cy,zoom:o.zoom||1};
+      o.end=t;
+      segments.splice(activeSeg+1,0,ns);
+      activeSeg=activeSeg+1;
+      dragCX=segments[activeSeg].cx;
+      dragCY=segments[activeSeg].cy;
+    }
+  }
+  dragMoved=true;
+  segments[activeSeg].cx=Math.max(0,Math.min(1,dragCX+(e.clientX-dragSX)/rect.width));
+  segments[activeSeg].cy=Math.max(0,Math.min(1,dragCY+(e.clientY-dragSY)/rect.height));
+  syncSliders();
+});
+document.addEventListener('mouseup',()=>{if(isDragging){isDragging=false;dragMoved=false;renderSegs();}});
 cropCvs.addEventListener('wheel',e=>{e.preventDefault();if(!segments[activeSeg])return;segments[activeSeg].zoom=Math.max(1,Math.min(3,(segments[activeSeg].zoom||1)+(e.deltaY<0?0.05:-0.05)));syncSliders();renderSegs();},{passive:false});
-cropCvs.addEventListener('touchstart',e=>{isDragging=true;dragSX=e.touches[0].clientX;dragSY=e.touches[0].clientY;const s=segments[activeSeg]||{cx:.5,cy:.5};dragCX=s.cx;dragCY=s.cy;},{passive:true});
-document.addEventListener('touchmove',e=>{if(!isDragging||!segments[activeSeg])return;const rect=cropCvs.getBoundingClientRect();segments[activeSeg].cx=Math.max(0,Math.min(1,dragCX+(e.touches[0].clientX-dragSX)/rect.width));segments[activeSeg].cy=Math.max(0,Math.min(1,dragCY+(e.touches[0].clientY-dragSY)/rect.height));syncSliders();},{passive:true});
-document.addEventListener('touchend',()=>{isDragging=false;renderSegs();});
+cropCvs.addEventListener('touchstart',e=>{
+  isDragging=true; dragMoved=false;
+  dragSX=e.touches[0].clientX; dragSY=e.touches[0].clientY;
+  const s=segments[activeSeg]||{cx:.5,cy:.5};
+  dragCX=s.cx; dragCY=s.cy;
+},{passive:true});
+document.addEventListener('touchmove',e=>{
+  if(!isDragging||!segments[activeSeg])return;
+  const rect=cropCvs.getBoundingClientRect();
+  const newCX=Math.max(0,Math.min(1,dragCX+(e.touches[0].clientX-dragSX)/rect.width));
+  const newCY=Math.max(0,Math.min(1,dragCY+(e.touches[0].clientY-dragSY)/rect.height));
+  if(!dragMoved && !vid.paused){
+    const t=vid.currentTime;
+    if(t>segments[activeSeg].start+0.2&&t<segments[activeSeg].end-0.2){
+      const o=segments[activeSeg];
+      const ns={start:t,end:o.end,cx:o.cx,cy:o.cy,zoom:o.zoom||1};
+      o.end=t;segments.splice(activeSeg+1,0,ns);activeSeg++;
+      dragCX=segments[activeSeg].cx;dragCY=segments[activeSeg].cy;
+    }
+  }
+  dragMoved=true;
+  segments[activeSeg].cx=Math.max(0,Math.min(1,dragCX+(e.touches[0].clientX-dragSX)/rect.width));
+  segments[activeSeg].cy=Math.max(0,Math.min(1,dragCY+(e.touches[0].clientY-dragSY)/rect.height));
+  syncSliders();
+},{passive:true});
+document.addEventListener('touchend',()=>{isDragging=false;dragMoved=false;renderSegs();});
 
 $('playBtn').onclick=()=>{vid.paused?vid.play():vid.pause();updatePlayIcon();};
 vid.addEventListener('play',updatePlayIcon);vid.addEventListener('pause',updatePlayIcon);

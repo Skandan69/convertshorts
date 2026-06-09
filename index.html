@@ -440,15 +440,18 @@ window.setZoom=v=>{if(segments[activeSeg]){segments[activeSeg].zoom=v/100;$('zoo
 $('segStart').oninput=()=>{if(segments[activeSeg]){segments[activeSeg].start=Math.max(0,parseFloat($('segStart').value)||0);if(activeSeg>0)segments[activeSeg-1].end=segments[activeSeg].start;renderSegs();updatePanel();}};
 $('segEnd').oninput=()=>{if(segments[activeSeg]){segments[activeSeg].end=Math.min(videoDuration,parseFloat($('segEnd').value)||0);if(activeSeg<segments.length-1)segments[activeSeg+1].start=segments[activeSeg].end;renderSegs();updatePanel();}};
 
-// EXPORT — process each segment separately then concatenate
+// EXPORT — encode each segment separately, download as zip or individual files
 $('xbtn').onclick=async()=>{
   if(!file)return;
   $('xbtn').disabled=true;$('pw').style.display='block';$('pf').style.width='0%';$('fn').textContent='';
   try{
     const {createFFmpeg,fetchFile}=FFmpeg;
     const ff=createFFmpeg({
-      log:true,
-      corePath:'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js'
+      log:false,
+      corePath:'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js',
+      progress:({ratio})=>{
+        // ratio is per-run so we update manually per segment
+      }
     });
     $('pl').textContent='Loading engine (first run ~15s)…';
     await ff.load();
@@ -457,67 +460,84 @@ $('xbtn').onclick=async()=>{
     ff.FS('writeFile','input.mp4',await fetchFile(file));
 
     const vw=vid.videoWidth,vh=vid.videoHeight;
-
-    // Calculate output dimensions once
     let outW,outH;
     if(mode==='l2p'){outW=Math.round(vh*9/16);outH=vh;}
     else{outW=vw;outH=Math.round(vw*9/16);}
 
-    // Process each segment one at a time into seg0.mp4, seg1.mp4 etc
+    // Make output dimensions even (required by libx264)
+    outW=outW%2===0?outW:outW-1;
+    outH=outH%2===0?outH:outH-1;
+
     const total=segments.length;
+    const segFiles=[];
+
     for(let i=0;i<total;i++){
       const s=segments[i];
       const zoom=s.zoom||1;
-      const sw=Math.round(outW/zoom), sh=Math.round(outH/zoom);
-      const sx=Math.max(0,Math.round((vw-sw)*s.cx));
-      const sy=Math.max(0,Math.round((vh-sh)*s.cy));
-      const dur=(s.end-s.start).toFixed(3);
+      // Source crop region
+      const sw=Math.max(2,Math.round(outW/zoom));
+      const sh=Math.max(2,Math.round(outH/zoom));
+      const maxSX=Math.max(0,vw-sw);
+      const maxSY=Math.max(0,vh-sh);
+      const sx=Math.round(maxSX*s.cx);
+      const sy=Math.round(maxSY*s.cy);
+      const segDur=Math.max(0.1,s.end-s.start);
+      const outName=`out${i}.mp4`;
 
-      $('pl').textContent=`Processing segment ${i+1} of ${total}…`;
-      $('pf').style.width=Math.round((i/total)*80)+'%';
+      $('pl').textContent=`Exporting segment ${i+1} of ${total}…`;
+      $('pf').style.width=Math.round((i/total)*90)+'%';
 
-      // Simple approach: trim → crop → scale to exact output size
       await ff.run(
         '-ss', s.start.toFixed(3),
         '-i', 'input.mp4',
-        '-t', dur,
-        '-vf', `crop=${sw}:${sh}:${sx}:${sy},scale=${outW}:${outH}`,
+        '-t', segDur.toFixed(3),
+        '-vf', `crop=${sw}:${sh}:${sx}:${sy},scale=${outW}:${outH}:flags=lanczos`,
         '-c:v', 'libx264',
         '-preset', 'ultrafast',
         '-crf', '23',
+        '-pix_fmt', 'yuv420p',
         '-c:a', 'aac',
-        '-avoid_negative_ts', 'make_zero',
-        `seg${i}.mp4`
+        '-b:a', '128k',
+        '-movflags', '+faststart',
+        outName
       );
+
+      const data=ff.FS('readFile',outName);
+      segFiles.push(data);
+      ff.FS('unlink',outName);
     }
 
-    $('pf').style.width='85%';
+    $('pf').style.width='95%';
+    $('pl').textContent='Finalising…';
 
-    let finalFile;
-    if(segments.length===1){
-      // Only one segment — just use it directly
-      finalFile=ff.FS('readFile','seg0.mp4');
+    const baseName=file.name.replace(/\.[^.]+$/,'')+(mode==='l2p'?'_portrait':'_landscape');
+
+    if(segFiles.length===1){
+      // Single segment — download directly
+      triggerDownload(segFiles[0].buffer, baseName+'.mp4');
     } else {
-      // Write concat list file
-      $('pl').textContent='Joining segments…';
-      const concatList=segments.map((_,i)=>`file 'seg${i}.mp4'`).join('\n');
-      ff.FS('writeFile','list.txt', new TextEncoder().encode(concatList));
+      // Multiple segments — re-encode together using concat demuxer
+      // Write each seg back, build concat list
+      segFiles.forEach((d,i)=>{
+        ff.FS('writeFile',`s${i}.mp4`,d);
+      });
+      const listContent=segFiles.map((_,i)=>`file 's${i}.mp4'`).join('\n');
+      ff.FS('writeFile','list.txt',new TextEncoder().encode(listContent));
 
       await ff.run(
-        '-f','concat',
-        '-safe','0',
+        '-f','concat','-safe','0',
         '-i','list.txt',
-        '-c','copy',
-        'final.mp4'
+        '-c:v','libx264','-preset','ultrafast','-crf','23',
+        '-pix_fmt','yuv420p',
+        '-c:a','aac','-b:a','128k',
+        '-movflags','+faststart',
+        'merged.mp4'
       );
-      finalFile=ff.FS('readFile','final.mp4');
+      const merged=ff.FS('readFile','merged.mp4');
+      triggerDownload(merged.buffer, baseName+'.mp4');
     }
 
     $('pf').style.width='100%';
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(new Blob([finalFile.buffer],{type:'video/mp4'}));
-    a.download=file.name.replace(/\.[^.]+$/,'')+(mode==='l2p'?'_portrait':'_landscape')+'.mp4';
-    a.click();
     $('pl').textContent='Done! Your file is downloading.';
     $('fn').textContent='Processed entirely in your browser — your video was never uploaded.';
   }catch(e){
@@ -527,6 +547,15 @@ $('xbtn').onclick=async()=>{
   }
   $('xbtn').disabled=false;
 };
+
+function triggerDownload(buffer, filename){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([buffer],{type:'video/mp4'}));
+  a.download=filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);document.body.removeChild(a);},1000);
+}
 </script>
 </body>
 </html>

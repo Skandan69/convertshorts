@@ -162,12 +162,12 @@ hr.div{border:none;border-top:1px solid var(--border);}
 </header>
 <main class="tool-wrap" id="tool">
   <div class="tool-card">
-    <input type="file" id="fi" accept="video/*" style="position:fixed;left:-9999px;top:-9999px;opacity:0;">
-    <div class="drop-zone" id="dz">
+    <input type="file" id="fi" accept="video/*" style="display:none;">
+    <label for="fi" class="drop-zone" id="dz">
       <div class="drop-icon"><svg viewBox="0 0 24 24"><path d="M15 10l4.553-2.07A1 1 0 0121 8.845v6.31a1 1 0 01-1.447.895L15 14"/><rect x="2" y="6" width="13" height="12" rx="2"/></svg></div>
       <p class="drop-title">Drop your video here or click to browse</p>
       <p class="drop-sub">MP4, MOV, WebM · works best under 500 MB</p>
-    </div>
+    </label>
     <div id="editor" style="display:none;">
       <div class="info-row">
         <div id="ibSpans" style="display:flex;gap:12px;flex-wrap:wrap;font-size:12px;"></div>
@@ -266,14 +266,19 @@ let dragMoved=false,hasSplit=false,dragStartTime=0,dragStartSeg=0;
 document.querySelectorAll('.faq-q').forEach(b=>{b.onclick=()=>{const o=b.classList.toggle('open');b.setAttribute('aria-expanded',o);b.nextElementSibling.classList.toggle('open',o);};});
 $('mL2P').onclick=()=>{mode='l2p';$('mL2P').classList.add('active');$('mP2L').classList.remove('active');if(file)setupCvs();};
 $('mP2L').onclick=()=>{mode='p2l';$('mP2L').classList.add('active');$('mL2P').classList.remove('active');if(file)setupCvs();};
-// File input — must be triggered by direct user gesture
+// File input — label for="fi" handles click natively
 const fiEl=$('fi');
-$('dz').addEventListener('click',()=>fiEl.click());
 $('dz').ondragover=e=>{e.preventDefault();$('dz').classList.add('drag-over');};
 $('dz').ondragleave=()=>$('dz').classList.remove('drag-over');
 $('dz').ondrop=e=>{e.preventDefault();$('dz').classList.remove('drag-over');if(e.dataTransfer.files[0])loadFile(e.dataTransfer.files[0]);};
-fiEl.addEventListener('change',()=>{if(fiEl.files[0])loadFile(fiEl.files[0]);});
-$('changeBtn').onclick=()=>{$('editor').style.display='none';$('dz').style.display='block';if(raf)cancelAnimationFrame(raf);vid.src='';file=null;segments=[];fiEl.value='';$('fn').textContent='';$('pw').style.display='none';};
+fiEl.addEventListener('change',()=>{if(fiEl.files&&fiEl.files[0])loadFile(fiEl.files[0]);});
+$('changeBtn').onclick=()=>{
+  $('editor').style.display='none';
+  $('dz').style.display='block';
+  if(raf)cancelAnimationFrame(raf);
+  vid.src='';file=null;segments=[];fiEl.value='';
+  $('fn').textContent='';$('pw').style.display='none';
+};
 
 function fmtSz(b){return b>1e9?(b/1e9).toFixed(1)+' GB':b>1e6?(b/1e6).toFixed(1)+' MB':(b/1e3).toFixed(0)+' KB';}
 function fmtT(s){const m=Math.floor(s/60),sc=(s%60).toFixed(1);return m+':'+(parseFloat(sc)<10?'0':'')+sc;}
@@ -284,7 +289,8 @@ function loadFile(f){
   vid.onloadedmetadata=()=>{
     videoDuration=vid.duration;
     $('ibSpans').innerHTML=`<span>📄 ${f.name}</span><span>📐 ${vid.videoWidth}×${vid.videoHeight}</span><span>⏱ ${fmtT2(vid.duration)}</span><span>💾 ${fmtSz(f.size)}</span>`;
-    $('dz').style.display='none';$('editor').style.display='block';
+    $('dz').style.display='none';
+    $('editor').style.display='block';
     segments=[{start:0,end:vid.duration,cx:0.5,cy:0.5,zoom:1.0}];
     activeSeg=0;setupCvs();renderSegs();updatePanel();startLoop();vid.pause();
   };

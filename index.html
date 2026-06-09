@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Convert Video 16:9 to 9:16 Free — Landscape to Portrait | ConvertShorts</title>
+<meta name="description" content="Free online tool to convert landscape video to portrait (16:9 to 9:16). Segment crop editing, zoom per scene. No upload, no watermark, no account.">
+<link rel="canonical" href="https://convertshorts.com/">
+<meta property="og:title" content="Convert Video 16:9 to 9:16 Free — ConvertShorts">
+<meta property="og:description" content="Convert landscape to portrait video free. No watermark, nothing uploaded.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://convertshorts.com/">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="logo">Convert<span>Shorts</span></a>
+  <span class="nav-badge">100% Free · No Watermark</span>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-badge">Free · No Upload · Segment Crop + Zoom</div>
+  <h1>Convert video <em>16:9 ↔ 9:16</em> free</h1>
+  <p class="hero-sub">Watch and split in one view. Set crop and zoom per scene. Export one perfect video.</p>
+  <div class="trust-row">
+    <span class="ti">✓ Nothing uploaded</span>
+    <span class="ti">✓ No watermark</span>
+    <span class="ti">✓ Per-segment zoom</span>
+    <span class="ti">✓ Drag to reframe</span>
+  </div>
+</header>
+
+<!-- TOOL -->
+<main class="tool-wrap" id="tool">
+  <div class="tool-card">
+
+    <!-- FILE INPUT — label opens picker natively -->
+    <input type="file" id="fileInput" accept="video/*">
+    <label for="fileInput" class="drop-zone" id="dropZone">
+      <div class="drop-icon">🎬</div>
+      <p class="drop-title">Drop your video here or click to browse</p>
+      <p class="drop-sub">MP4, MOV, WebM · works best under 500 MB</p>
+    </label>
+
+    <!-- EDITOR — shown after file loads -->
+    <div id="editor" style="display:none;">
+
+      <div class="info-row">
+        <span id="fileInfo"></span>
+        <button class="change-btn" id="changeBtn">↺ Change file</button>
+      </div>
+
+      <div class="editor-layout">
+
+        <!-- LEFT: videos + timeline -->
+        <div class="editor-left">
+
+          <div class="video-row">
+            <div class="vid-panel">
+              <div class="vid-label">SOURCE</div>
+              <video id="vid" muted playsinline></video>
+            </div>
+            <div class="vid-panel">
+              <div class="vid-label">OUTPUT — drag to reframe · scroll to zoom</div>
+              <canvas id="outCanvas"></canvas>
+            </div>
+          </div>
+
+          <div class="playback-bar">
+            <button id="playBtn" class="pb-btn">▶</button>
+            <span id="timeDisplay" class="pb-time">0:00 / 0:00</span>
+            <div class="pb-spacer"></div>
+            <button id="splitBtn" class="split-btn">✂ Split here</button>
+          </div>
+
+          <div class="timeline-wrap">
+            <div id="ruler" class="tl-ruler">
+              <div id="rulerTrack" class="tl-track"></div>
+              <div id="playhead" class="playhead"></div>
+            </div>
+          </div>
+
+          <div class="segs-area">
+            <p class="segs-label">Segments — click to edit</p>
+            <div id="segsList"></div>
+            <button id="addSegBtn" class="add-seg-btn">+ Add segment</button>
+          </div>
+
+        </div>
+
+        <!-- RIGHT: controls -->
+        <div class="editor-right">
+
+          <div class="rp-section">
+            <p class="rp-label">Direction</p>
+            <div class="mode-sel">
+              <button class="mbtn active" id="mL2P">▭ Landscape → Portrait<br><small>16:9 → 9:16 (Reels, Shorts)</small></button>
+              <button class="mbtn" id="mP2L">▯ Portrait → Landscape<br><small>9:16 → 16:9 (YouTube, TV)</small></button>
+            </div>
+          </div>
+
+          <div class="rp-section">
+            <p class="rp-label">Active segment: <span id="cpNum">1</span> <span id="cpTime" class="cp-time"></span></p>
+            <div class="time-inputs">
+              <div class="tig"><label>Start (s)</label><input type="number" id="segStart" min="0" step="0.1"></div>
+              <div class="tig"><label>End (s)</label><input type="number" id="segEnd" min="0" step="0.1"></div>
+            </div>
+            <div class="arow"><label>Horizontal</label><input type="range" id="cx" min="0" max="100" value="50"><span id="cxv">50%</span></div>
+            <div class="arow"><label>Vertical</label><input type="range" id="cy" min="0" max="100" value="50"><span id="cyv">50%</span></div>
+            <hr class="divider">
+            <div class="arow"><label>🔍 Zoom</label><input type="range" id="zoom" min="50" max="300" value="100"><span id="zoomv">1.0×</span></div>
+            <div class="zoom-presets">
+              <button onclick="setZoom(50)">0.5× Wide</button>
+              <button onclick="setZoom(100)">1× Normal</button>
+              <button onclick="setZoom(150)">1.5× Tight</button>
+              <button onclick="setZoom(200)">2× Zoom</button>
+            </div>
+          </div>
+
+          <div class="rp-section export-area">
+            <button class="xbtn" id="exportBtn">⬇ Export converted video</button>
+            <div id="progressWrap" style="display:none;">
+              <div class="pbar"><div class="pfill" id="pfill"></div></div>
+              <p id="progressLabel" class="pl">Processing…</p>
+            </div>
+            <p id="exportNote" class="fnote"></p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- SEO SECTIONS -->
+<hr class="div">
+<section class="section">
+  <p class="eyebrow">How it works</p>
+  <h2>Convert in three steps</h2>
+  <div class="steps-grid">
+    <div class="step"><p class="step-n">Step 1</p><p class="step-t">Drop your video</p><p class="step-b">Upload MP4, MOV, or WebM. Nothing is sent to a server.</p></div>
+    <div class="step"><p class="step-n">Step 2</p><p class="step-t">Split & adjust</p><p class="step-b">Play the video. Hit Split when framing needs to change. Drag output to reframe. Scroll to zoom.</p></div>
+    <div class="step"><p class="step-n">Step 3</p><p class="step-t">Export</p><p class="step-b">One click exports the full video with each segment cropped and zoomed as you set.</p></div>
+  </div>
+</section>
+<hr class="div">
+<section class="section">
+  <p class="eyebrow">FAQ</p>
+  <h2>Common questions</h2>
+  <div class="faq-list">
+    <div class="faq-item"><button class="faq-q">How do I convert 16:9 to 9:16 for free?<span>+</span></button><div class="faq-a">Drop your video, select Landscape → Portrait, adjust crop per segment, export. Free, no account, no watermark.</div></div>
+    <div class="faq-item"><button class="faq-q">Is my video uploaded to a server?<span>+</span></button><div class="faq-a">No. All processing happens in your browser. Your video never leaves your device.</div></div>
+    <div class="faq-item"><button class="faq-q">Will there be a watermark?<span>+</span></button><div class="faq-a">No. ConvertShorts never adds watermarks.</div></div>
+    <div class="faq-item"><button class="faq-q">Which browsers work best?<span>+</span></button><div class="faq-a">Chrome and Edge work best. Firefox and Safari also work.</div></div>
+  </div>
+</section>
+<hr class="div">
+<footer>
+  <strong>ConvertShorts</strong> — Free video aspect ratio converter<br>
+  Convert 16:9 to 9:16 · No upload · No watermark
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

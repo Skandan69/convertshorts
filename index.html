@@ -12,7 +12,7 @@
 <meta property="og:url" content="https://convertshorts.com/">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"ConvertShorts","description":"Convert landscape video to portrait (16:9 to 9:16) free. Segment crop and zoom editing.","url":"https://convertshorts.com","applicationCategory":"MultimediaApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
 <style>
-:root{--black:#0f0f0f;--white:#fff;--off:#f7f6f3;--muted:#6b6b6b;--border:#e2e0db;--green:#1a9e6e;--gl:#e6f7f0;--gd:#0d6e4b;--red:#e24b4a;--r:10px;--rl:16px;}
+:root{--black:#0f0f0f;--white:#fff;--off:#f7f6f3;--muted:#6b6b6b;--border:#e2e0db;--green:#1a9e6e;--gl:#e6f7f0;--gd:#0d6e4b;--red:#e24b4a;--r:10px;--rl:16px;--dark:#1a1a1a;--dark2:#242424;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
 body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--off);color:var(--black);line-height:1.6;font-size:16px;}
@@ -20,97 +20,129 @@ nav{display:flex;align-items:center;justify-content:space-between;padding:0 2rem
 .logo{font-size:18px;font-weight:800;letter-spacing:-0.5px;color:var(--black);text-decoration:none;}
 .logo span{color:var(--green);}
 .nav-badge{font-size:12px;background:var(--gl);color:var(--gd);padding:3px 10px;border-radius:20px;font-weight:600;}
-.hero{padding:3rem 2rem 2rem;text-align:center;max-width:700px;margin:0 auto;}
+
+/* HERO */
+.hero{padding:2.5rem 2rem 1.5rem;text-align:center;max-width:700px;margin:0 auto;}
 .hero-badge{display:inline-block;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--gd);background:var(--gl);padding:4px 14px;border-radius:20px;margin-bottom:1rem;}
-h1{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;letter-spacing:-1.5px;line-height:1.1;margin-bottom:.75rem;}
+h1{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:800;letter-spacing:-1.5px;line-height:1.1;margin-bottom:.6rem;}
 h1 em{font-style:normal;color:var(--green);}
-.hero-sub{font-size:16px;color:var(--muted);max-width:500px;margin:0 auto 1.5rem;}
-.trust-row{display:flex;align-items:center;justify-content:center;gap:1.5rem;flex-wrap:wrap;margin-bottom:2rem;}
+.hero-sub{font-size:15px;color:var(--muted);max-width:480px;margin:0 auto 1.25rem;}
+.trust-row{display:flex;align-items:center;justify-content:center;gap:1.5rem;flex-wrap:wrap;margin-bottom:1.5rem;}
 .ti{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--muted);font-weight:500;}
-.ti svg{stroke:var(--green);fill:none;width:14px;height:14px;stroke-width:2.5;}
-.tool-wrap{max-width:940px;margin:0 auto;padding:0 1.5rem 4rem;}
+.ti svg{stroke:var(--green);fill:none;width:13px;height:13px;stroke-width:2.5;}
+
+/* TOOL WRAPPER */
+.tool-wrap{max-width:1100px;margin:0 auto;padding:0 1.5rem 4rem;}
 .tool-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--rl);overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.06);}
-.drop-zone{border:2px dashed var(--border);border-radius:var(--r);padding:2.5rem 2rem;text-align:center;cursor:pointer;transition:all .2s;background:var(--off);margin:1.5rem;}
+
+/* DROP */
+.drop-zone{border:2px dashed var(--border);border-radius:var(--r);padding:3rem 2rem;text-align:center;cursor:pointer;transition:all .2s;background:var(--off);margin:1.5rem;}
 .drop-zone:hover,.drop-zone.drag-over{border-color:var(--green);background:var(--gl);}
-.drop-icon{width:44px;height:44px;background:var(--white);border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;border:1px solid var(--border);}
-.drop-icon svg{width:22px;height:22px;stroke:var(--green);fill:none;stroke-width:1.8;}
-.drop-title{font-size:15px;font-weight:600;margin-bottom:3px;}
+.drop-icon{width:48px;height:48px;background:var(--white);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;border:1px solid var(--border);}
+.drop-icon svg{width:24px;height:24px;stroke:var(--green);fill:none;stroke-width:1.8;}
+.drop-title{font-size:15px;font-weight:600;margin-bottom:4px;}
 .drop-sub{font-size:13px;color:var(--muted);}
-.tool-inner{padding:0 1.5rem 1.5rem;}
-.slabel{font-size:13px;font-weight:700;color:var(--black);margin-bottom:8px;}
-.mode-sel{display:flex;gap:8px;margin-bottom:1.5rem;}
-.mbtn{flex:1;padding:10px 8px;border:1.5px solid var(--border);border-radius:var(--r);background:var(--white);cursor:pointer;font-size:13px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .15s;line-height:1.4;}
-.mbtn svg{width:28px;height:20px;stroke:currentColor;fill:none;stroke-width:1.5;}
-.mbtn small{font-size:11px;opacity:.7;}
-.mbtn.active{border-color:var(--green);background:var(--gl);color:var(--gd);font-weight:600;}
-.info-bar{background:var(--off);border-radius:var(--r);padding:10px 14px;font-size:13px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:1.5rem;}
-.change-btn{margin-left:auto;font-size:12px;padding:4px 12px;border:1px solid var(--border);border-radius:6px;background:var(--white);cursor:pointer;color:var(--muted);}
-.change-btn:hover{color:var(--black);}
-.editor-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
-.pbox{background:#111;border-radius:8px;overflow:hidden;}
-.plbl{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
-video{display:block;width:100%;}
-.crop-wrap{position:relative;background:#111;border-radius:8px;overflow:hidden;}
-.crop-canvas{display:block;width:100%;cursor:move;}
-.crop-hint{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);font-size:11px;color:rgba(255,255,255,0.65);pointer-events:none;white-space:nowrap;background:rgba(0,0,0,0.5);padding:2px 8px;border-radius:4px;}
-.timeline-wrap{background:#1a1a1a;border-radius:var(--r);padding:12px;margin-bottom:1rem;}
-.timeline-controls{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
-.tc-btn{width:32px;height:32px;border:none;border-radius:6px;background:rgba(255,255,255,.1);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;flex-shrink:0;}
-.tc-btn:hover{background:rgba(255,255,255,.2);}
-.tc-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;}
-.time-display{font-size:13px;color:#fff;font-family:monospace;min-width:110px;}
-.tc-spacer{flex:1;}
-.split-btn{padding:6px 14px;border:none;border-radius:6px;background:var(--green);color:#fff;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;}
+
+/* EDITOR LAYOUT: left=editor, right=crop panel */
+.editor-layout{display:grid;grid-template-columns:1fr 280px;gap:0;min-height:600px;}
+
+/* LEFT: dark video editor area */
+.editor-left{background:var(--dark);display:flex;flex-direction:column;}
+
+/* VIDEO AREA: source + output side by side */
+.video-row{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:#000;}
+.vid-panel{position:relative;background:#000;}
+.vid-label{position:absolute;top:8px;left:10px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5);z-index:2;pointer-events:none;}
+video{display:block;width:100%;max-height:280px;object-fit:contain;background:#000;}
+.crop-wrap{position:relative;background:#000;}
+.crop-canvas{display:block;width:100%;max-height:280px;cursor:move;}
+.crop-hint{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);font-size:10px;color:rgba(255,255,255,0.5);pointer-events:none;white-space:nowrap;background:rgba(0,0,0,0.6);padding:2px 8px;border-radius:4px;}
+
+/* PLAYBACK BAR — sits right under videos */
+.playback-bar{background:var(--dark2);padding:10px 14px;display:flex;align-items:center;gap:10px;border-top:1px solid rgba(255,255,255,.06);}
+.pb-btn{width:34px;height:34px;border:none;border-radius:7px;background:rgba(255,255,255,.1);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;flex-shrink:0;}
+.pb-btn:hover{background:rgba(255,255,255,.2);}
+.pb-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;}
+.pb-time{font-size:13px;color:#fff;font-family:monospace;min-width:110px;}
+.pb-spacer{flex:1;}
+.split-btn{padding:7px 16px;border:none;border-radius:7px;background:var(--green);color:#fff;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .15s;white-space:nowrap;}
 .split-btn:hover{background:var(--gd);}
 .split-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.5;}
-.timeline-ruler{position:relative;height:48px;background:rgba(255,255,255,.06);border-radius:6px;overflow:hidden;cursor:pointer;margin-bottom:0;}
-.ruler-track{position:absolute;top:0;left:0;height:100%;width:100%;}
-.seg-block{position:absolute;top:4px;bottom:4px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;overflow:hidden;cursor:pointer;transition:opacity .15s;border:1.5px solid transparent;}
+
+/* TIMELINE — right under playback bar */
+.timeline-area{padding:10px 14px 14px;background:var(--dark2);}
+.tl-ruler{position:relative;height:44px;background:rgba(255,255,255,.06);border-radius:6px;overflow:hidden;cursor:pointer;}
+.tl-track{position:absolute;top:0;left:0;height:100%;width:100%;}
+.seg-block{position:absolute;top:3px;bottom:3px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;overflow:hidden;cursor:pointer;transition:opacity .15s;border:1.5px solid transparent;}
 .seg-block:hover{opacity:.8;}
-.seg-block.active-seg{border-color:#fff;box-shadow:0 0 0 1px rgba(255,255,255,.3);}
+.seg-block.active-seg{border-color:#fff;}
 .playhead{position:absolute;top:0;bottom:0;width:2px;background:#fff;pointer-events:none;z-index:10;}
 .playhead::before{content:'';position:absolute;top:-1px;left:-4px;width:10px;height:10px;background:#fff;border-radius:50%;}
-.segs-list{display:flex;flex-direction:column;gap:6px;margin-bottom:1rem;}
-.seg-row{background:var(--off);border:1.5px solid var(--border);border-radius:var(--r);padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:all .15s;}
-.seg-row.active{border-color:var(--green);background:var(--gl);}
-.seg-color-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
-.seg-times{font-size:11px;font-family:monospace;color:var(--muted);flex-shrink:0;min-width:100px;}
-.seg-info{font-size:11px;color:var(--muted);flex:1;}
-.seg-actions{display:flex;gap:4px;}
-.seg-btn{width:26px;height:26px;border:1px solid var(--border);border-radius:5px;background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;}
-.seg-btn:hover{background:var(--off);}
-.seg-btn.del:hover{background:#FCEBEB;border-color:#F09595;color:var(--red);}
-.crop-panel{background:var(--off);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:1rem;}
-.cp-header{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+
+/* SEGMENTS LIST — below timeline */
+.segs-area{flex:1;overflow-y:auto;padding:10px 14px;background:var(--dark);}
+.segs-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:8px;}
+.seg-row{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:8px 10px;display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:6px;transition:all .15s;}
+.seg-row.active{border-color:var(--green);background:rgba(26,158,110,.15);}
+.seg-dot{width:9px;height:9px;border-radius:3px;flex-shrink:0;}
+.seg-name{font-size:13px;font-weight:600;color:#fff;min-width:44px;}
+.seg-time{font-size:11px;font-family:monospace;color:rgba(255,255,255,.45);flex:1;}
+.seg-info{font-size:11px;color:rgba(255,255,255,.35);white-space:nowrap;}
+.seg-actions{display:flex;gap:4px;margin-left:4px;}
+.seg-btn{width:24px;height:24px;border:1px solid rgba(255,255,255,.12);border-radius:5px;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:rgba(255,255,255,.5);}
+.seg-btn:hover{background:rgba(255,255,255,.1);color:#fff;}
+.seg-btn.del:hover{background:rgba(226,75,74,.2);border-color:rgba(226,75,74,.4);color:#f09595;}
+.add-seg-btn{width:100%;padding:7px;border:1px dashed rgba(255,255,255,.15);border-radius:8px;background:transparent;cursor:pointer;font-size:12px;color:rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;gap:5px;transition:all .15s;margin-top:4px;}
+.add-seg-btn:hover{border-color:var(--green);color:var(--green);}
+
+/* RIGHT PANEL: mode + crop controls */
+.editor-right{background:var(--white);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
+.rp-section{padding:14px 16px;border-bottom:1px solid var(--border);}
+.rp-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.mode-sel{display:flex;flex-direction:column;gap:6px;}
+.mbtn{width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--r);background:var(--white);cursor:pointer;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px;transition:all .15s;text-align:left;}
+.mbtn svg{width:24px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5;flex-shrink:0;}
+.mbtn.active{border-color:var(--green);background:var(--gl);color:var(--gd);font-weight:600;}
+.mbtn small{font-size:10px;opacity:.7;display:block;}
+.info-row{padding:10px 16px;border-bottom:1px solid var(--border);font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.change-btn{margin-left:auto;font-size:11px;padding:3px 10px;border:1px solid var(--border);border-radius:6px;background:var(--off);cursor:pointer;color:var(--muted);}
+.change-btn:hover{color:var(--black);}
+
+/* CROP PANEL */
+.cp-header{display:flex;align-items:center;gap:7px;margin-bottom:10px;}
+.cp-dot{width:9px;height:9px;border-radius:3px;flex-shrink:0;}
 .cp-title{font-size:13px;font-weight:700;}
 .cp-time{font-size:11px;color:var(--muted);}
-.time-inputs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
-.tig label{font-size:11px;font-weight:600;color:var(--muted);display:block;margin-bottom:3px;text-transform:uppercase;letter-spacing:.05em;}
-.tig input{width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:monospace;background:var(--white);}
-.arow{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
-.arow label{font-size:13px;color:var(--muted);min-width:72px;}
+.time-inputs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;}
+.tig label{font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:3px;text-transform:uppercase;letter-spacing:.05em;}
+.tig input{width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:monospace;background:var(--white);}
+.arow{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.arow label{font-size:12px;color:var(--muted);min-width:58px;}
 .arow input[type=range]{flex:1;accent-color:var(--green);}
-.arow span{font-size:13px;color:var(--muted);min-width:38px;text-align:right;font-family:monospace;}
-.zoom-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-top:8px;border-top:1px solid var(--border);}
-.zoom-row label{font-size:13px;color:var(--muted);min-width:72px;}
+.arow span{font-size:12px;color:var(--muted);min-width:34px;text-align:right;font-family:monospace;}
+.zoom-divider{border:none;border-top:1px solid var(--border);margin:8px 0;}
+.zoom-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.zoom-row label{font-size:12px;color:var(--muted);min-width:58px;}
 .zoom-row input[type=range]{flex:1;accent-color:#378add;}
-.zoom-row span{font-size:13px;color:var(--muted);min-width:38px;text-align:right;font-family:monospace;}
-.zoom-btns{display:flex;gap:6px;margin-bottom:8px;}
-.zoom-btn{flex:1;padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:var(--white);cursor:pointer;font-size:12px;font-weight:600;color:var(--muted);transition:all .15s;}
-.zoom-btn:hover{background:#E6F1FB;border-color:#85B7EB;color:#185FA5;}
-.zoom-btn.active-zoom{background:#E6F1FB;border-color:#378add;color:#185FA5;}
-.add-seg-btn{width:100%;padding:8px;border:1.5px dashed var(--border);border-radius:var(--r);background:none;cursor:pointer;font-size:13px;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s;margin-bottom:1rem;}
-.add-seg-btn:hover{border-color:var(--green);color:var(--green);background:var(--gl);}
-.xbtn{width:100%;padding:14px;background:var(--green);color:#fff;border:none;border-radius:var(--r);font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s;}
+.zoom-row span{font-size:12px;color:var(--muted);min-width:34px;text-align:right;font-family:monospace;}
+.zoom-presets{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:4px;}
+.zoom-preset{padding:5px 4px;border:1px solid var(--border);border-radius:6px;background:var(--white);cursor:pointer;font-size:11px;font-weight:600;color:var(--muted);transition:all .15s;text-align:center;}
+.zoom-preset:hover{background:#E6F1FB;border-color:#85B7EB;color:#185FA5;}
+
+/* EXPORT */
+.export-area{padding:14px 16px;}
+.xbtn{width:100%;padding:12px;background:var(--green);color:#fff;border:none;border-radius:var(--r);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:background .15s;}
 .xbtn:hover{background:var(--gd);}
 .xbtn:disabled{background:var(--border);color:var(--muted);cursor:not-allowed;}
-.xbtn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;}
-.pwrap{display:none;margin-top:1rem;}
-.pbar{height:6px;background:var(--off);border-radius:3px;overflow:hidden;}
+.xbtn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;}
+.pwrap{display:none;margin-top:10px;}
+.pbar{height:5px;background:var(--off);border-radius:3px;overflow:hidden;}
 .pfill{height:100%;background:var(--green);border-radius:3px;width:0%;transition:width .15s;}
-.pl{font-size:13px;color:var(--muted);margin-top:6px;text-align:center;}
-.fnote{font-size:12px;color:var(--muted);text-align:center;margin-top:6px;}
-.section{max-width:940px;margin:0 auto;padding:3rem 1.5rem;}
+.pl{font-size:12px;color:var(--muted);margin-top:5px;text-align:center;}
+.fnote{font-size:11px;color:var(--muted);text-align:center;margin-top:5px;line-height:1.4;}
+
+/* SECTIONS */
+.section{max-width:1100px;margin:0 auto;padding:3rem 1.5rem;}
 .eyebrow{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:8px;}
 h2{font-size:clamp(1.4rem,3vw,1.9rem);font-weight:800;letter-spacing:-1px;line-height:1.15;margin-bottom:.5rem;}
 .sec-sub{font-size:15px;color:var(--muted);margin-bottom:1.5rem;}
@@ -137,13 +169,14 @@ h2{font-size:clamp(1.4rem,3vw,1.9rem);font-weight:800;letter-spacing:-1px;line-h
 .faq-a.open{display:block;}
 footer{border-top:1px solid var(--border);padding:2rem;text-align:center;font-size:13px;color:var(--muted);background:var(--white);}
 hr.div{border:none;border-top:1px solid var(--border);}
-@media(max-width:620px){
-  .editor-grid{grid-template-columns:1fr;}
-  .mode-sel{flex-direction:column;}
+
+@media(max-width:700px){
+  .editor-layout{grid-template-columns:1fr;grid-template-rows:auto auto;}
+  .editor-right{border-left:none;border-top:1px solid var(--border);}
+  .video-row{grid-template-columns:1fr;}
   nav{padding:0 1rem;}
-  .hero{padding:2rem 1.25rem 1.5rem;}
+  .hero{padding:1.5rem 1rem 1rem;}
   .tool-wrap{padding:0 1rem 3rem;}
-  .tool-inner{padding:0 1rem 1rem;}
 }
 </style>
 </head>
@@ -156,8 +189,8 @@ hr.div{border:none;border-top:1px solid var(--border);}
 
 <header class="hero">
   <div class="hero-badge">Free · No Upload · Segment Crop + Zoom</div>
-  <h1>Convert video<br><em>16:9 to 9:16</em> free</h1>
-  <p class="hero-sub">Split into segments. Set crop position and zoom level per scene. Export one perfect video.</p>
+  <h1>Convert video <em>16:9 ↔ 9:16</em> free</h1>
+  <p class="hero-sub">Watch and split in one view. Set crop position and zoom per scene. Export one perfect video.</p>
   <div class="trust-row">
     <span class="ti"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Nothing uploaded</span>
     <span class="ti"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>No watermark</span>
@@ -168,6 +201,8 @@ hr.div{border:none;border-top:1px solid var(--border);}
 
 <main class="tool-wrap" id="tool">
   <div class="tool-card">
+
+    <!-- DROP ZONE -->
     <div class="drop-zone" id="dz">
       <div class="drop-icon">
         <svg viewBox="0 0 24 24"><path d="M15 10l4.553-2.07A1 1 0 0121 8.845v6.31a1 1 0 01-1.447.895L15 14"/><rect x="2" y="6" width="13" height="12" rx="2"/></svg>
@@ -177,165 +212,169 @@ hr.div{border:none;border-top:1px solid var(--border);}
       <input type="file" id="fi" accept="video/*" style="display:none">
     </div>
 
+    <!-- EDITOR -->
     <div id="editor" style="display:none;">
-      <div class="tool-inner">
-        <div class="info-bar">
-          <div id="ibSpans" style="display:flex;gap:12px;flex-wrap:wrap;flex:1;font-size:13px;"></div>
-          <button class="change-btn" id="changeBtn">↺ Change file</button>
-        </div>
 
-        <p class="slabel">Conversion direction</p>
-        <div class="mode-sel">
-          <button class="mbtn active" id="mL2P">
-            <svg viewBox="0 0 40 24"><rect x="1" y="1" width="38" height="22" rx="3"/><rect x="13" y="4" width="14" height="16" rx="1.5" fill="currentColor" opacity=".25"/></svg>
-            Landscape → Portrait<br><small>16:9 → 9:16</small>
-          </button>
-          <button class="mbtn" id="mP2L">
-            <svg viewBox="0 0 24 40"><rect x="1" y="1" width="22" height="38" rx="3"/><rect x="4" y="13" width="16" height="14" rx="1.5" fill="currentColor" opacity=".25"/></svg>
-            Portrait → Landscape<br><small>9:16 → 16:9</small>
-          </button>
-        </div>
+      <!-- INFO ROW -->
+      <div class="info-row">
+        <div id="ibSpans" style="display:flex;gap:12px;flex-wrap:wrap;font-size:12px;"></div>
+        <button class="change-btn" id="changeBtn">↺ Change file</button>
+      </div>
 
-        <p class="slabel">Preview <span style="font-size:11px;font-weight:400;color:var(--muted);">— drag the right panel to reposition crop</span></p>
-        <div class="editor-grid">
-          <div>
-            <p class="plbl">Source</p>
-            <div class="pbox"><video id="vid" muted playsinline></video></div>
-          </div>
-          <div>
-            <p class="plbl">Output preview</p>
-            <div class="crop-wrap" id="cropWrap">
-              <canvas id="cropCanvas" class="crop-canvas"></canvas>
-              <div class="crop-hint">drag to reframe · scroll to zoom</div>
+      <div class="editor-layout">
+
+        <!-- LEFT: video + timeline -->
+        <div class="editor-left">
+
+          <!-- VIDEOS SIDE BY SIDE -->
+          <div class="video-row">
+            <div class="vid-panel">
+              <div class="vid-label">Source</div>
+              <video id="vid" muted playsinline></video>
+            </div>
+            <div class="vid-panel">
+              <div class="vid-label">Output preview · drag to reframe · scroll to zoom</div>
+              <div class="crop-wrap" id="cropWrap">
+                <canvas id="cropCanvas" class="crop-canvas"></canvas>
+              </div>
             </div>
           </div>
-        </div>
 
-        <p class="slabel" style="margin-top:1rem;">Timeline</p>
-        <div class="timeline-wrap">
-          <div class="timeline-controls">
-            <button class="tc-btn" id="playBtn" title="Play/Pause">
+          <!-- PLAYBACK BAR directly under videos -->
+          <div class="playback-bar">
+            <button class="pb-btn" id="playBtn">
               <svg id="playIcon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
             </button>
-            <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
-            <div class="tc-spacer"></div>
+            <span class="pb-time" id="timeDisplay">0:00 / 0:00</span>
+            <div class="pb-spacer"></div>
             <button class="split-btn" id="splitBtn">
               <svg viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="22"/><polyline points="9 5 12 2 15 5"/><polyline points="9 19 12 22 15 19"/></svg>
               Split here
             </button>
           </div>
-          <div class="timeline-ruler" id="ruler">
-            <div class="ruler-track" id="rulerTrack"></div>
-            <div class="playhead" id="playhead" style="left:0%"></div>
+
+          <!-- TIMELINE directly under playback -->
+          <div class="timeline-area">
+            <div class="tl-ruler" id="ruler">
+              <div class="tl-track" id="rulerTrack"></div>
+              <div class="playhead" id="playhead" style="left:0%"></div>
+            </div>
           </div>
+
+          <!-- SEGMENTS LIST -->
+          <div class="segs-area">
+            <p class="segs-label">Segments — click to edit crop</p>
+            <div id="segsList"></div>
+            <button class="add-seg-btn" id="addSegBtn">+ Add segment manually</button>
+          </div>
+
         </div>
 
-        <p class="slabel">Segments <span style="font-size:11px;font-weight:400;color:var(--muted);">— click to select and edit</span></p>
-        <div class="segs-list" id="segsList"></div>
-        <button class="add-seg-btn" id="addSegBtn">+ Add segment manually</button>
+        <!-- RIGHT PANEL -->
+        <div class="editor-right">
 
-        <div class="crop-panel" id="cropPanel">
-          <div class="cp-header">
-            <div class="seg-color-dot" id="cpDot"></div>
-            <span class="cp-title">Segment <span id="cpNum">1</span></span>
-            <span class="cp-time" id="cpTime"></span>
+          <!-- MODE -->
+          <div class="rp-section">
+            <p class="rp-label">Direction</p>
+            <div class="mode-sel">
+              <button class="mbtn active" id="mL2P">
+                <svg viewBox="0 0 40 24"><rect x="1" y="1" width="38" height="22" rx="3"/><rect x="13" y="4" width="14" height="16" rx="1.5" fill="currentColor" opacity=".25"/></svg>
+                <span>Landscape → Portrait<small>16:9 → 9:16 (Reels, Shorts)</small></span>
+              </button>
+              <button class="mbtn" id="mP2L">
+                <svg viewBox="0 0 24 40"><rect x="1" y="1" width="22" height="38" rx="3"/><rect x="4" y="13" width="16" height="14" rx="1.5" fill="currentColor" opacity=".25"/></svg>
+                <span>Portrait → Landscape<small>9:16 → 16:9 (YouTube, TV)</small></span>
+              </button>
+            </div>
           </div>
-          <div class="time-inputs">
-            <div class="tig"><label>Start (sec)</label><input type="number" id="segStart" min="0" step="0.1"></div>
-            <div class="tig"><label>End (sec)</label><input type="number" id="segEnd" min="0" step="0.1"></div>
-          </div>
-          <div class="arow"><label>Horizontal</label><input type="range" id="cx" min="0" max="100" value="50" step="1"><span id="cxv">50%</span></div>
-          <div class="arow"><label>Vertical</label><input type="range" id="cy" min="0" max="100" value="50" step="1"><span id="cyv">50%</span></div>
-          <div class="zoom-row"><label>🔍 Zoom</label><input type="range" id="zoom" min="100" max="300" value="100" step="1"><span id="zoomv">1.0×</span></div>
-          <div class="zoom-btns">
-            <button class="zoom-btn" onclick="setZoom(100)">1× Normal</button>
-            <button class="zoom-btn" onclick="setZoom(133)">1.3× Close</button>
-            <button class="zoom-btn" onclick="setZoom(150)">1.5× Tight</button>
-            <button class="zoom-btn" onclick="setZoom(200)">2× Zoom</button>
-          </div>
-        </div>
 
-        <button class="xbtn" id="xbtn">
-          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Export converted video
-        </button>
-        <div class="pwrap" id="pw">
-          <div class="pbar"><div class="pfill" id="pf"></div></div>
-          <p class="pl" id="pl">Processing…</p>
+          <!-- CROP PANEL -->
+          <div class="rp-section" style="flex:1;">
+            <div class="cp-header">
+              <div class="cp-dot" id="cpDot"></div>
+              <span class="cp-title">Segment <span id="cpNum">1</span></span>
+              <span class="cp-time" id="cpTime"></span>
+            </div>
+            <div class="time-inputs">
+              <div class="tig"><label>Start (s)</label><input type="number" id="segStart" min="0" step="0.1"></div>
+              <div class="tig"><label>End (s)</label><input type="number" id="segEnd" min="0" step="0.1"></div>
+            </div>
+            <div class="arow"><label>Horizontal</label><input type="range" id="cx" min="0" max="100" value="50" step="1"><span id="cxv">50%</span></div>
+            <div class="arow"><label>Vertical</label><input type="range" id="cy" min="0" max="100" value="50" step="1"><span id="cyv">50%</span></div>
+            <div class="zoom-divider"></div>
+            <div class="zoom-row"><label>🔍 Zoom</label><input type="range" id="zoom" min="100" max="300" value="100" step="1"><span id="zoomv">1.0×</span></div>
+            <div class="zoom-presets">
+              <button class="zoom-preset" onclick="setZoom(100)">1× Normal</button>
+              <button class="zoom-preset" onclick="setZoom(133)">1.3× Close</button>
+              <button class="zoom-preset" onclick="setZoom(150)">1.5× Tight</button>
+              <button class="zoom-preset" onclick="setZoom(200)">2× Zoom</button>
+            </div>
+          </div>
+
+          <!-- EXPORT -->
+          <div class="export-area">
+            <button class="xbtn" id="xbtn">
+              <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export converted video
+            </button>
+            <div class="pwrap" id="pw">
+              <div class="pbar"><div class="pfill" id="pf"></div></div>
+              <p class="pl" id="pl">Processing…</p>
+            </div>
+            <p class="fnote" id="fn"></p>
+          </div>
+
         </div>
-        <p class="fnote" id="fn"></p>
       </div>
     </div>
   </div>
 </main>
 
 <hr class="div">
-<section class="section"><p class="eyebrow">How it works</p><h2>Convert in three steps</h2><p class="sec-sub">Segment editing means each scene gets its own crop position and zoom level.</p><div class="steps-grid"><div class="step"><p class="step-n">Step 1</p><p class="step-t">Drop your video</p><p class="step-b">Upload MP4, MOV, or WebM. Nothing is sent to a server — ever.</p></div><div class="step"><p class="step-n">Step 2</p><p class="step-t">Split & adjust</p><p class="step-b">Play, hit Split where framing needs to change. Set crop + zoom per segment. Drag the preview to reframe.</p></div><div class="step"><p class="step-n">Step 3</p><p class="step-t">Export</p><p class="step-b">One click exports the full video — each segment cropped and zoomed exactly as you set it.</p></div></div><div style="margin-top:2rem;"><p class="slabel" style="margin-bottom:10px;">Perfect for</p><div class="platforms"><span class="pill">📸 Instagram Reels</span><span class="pill">▶️ YouTube Shorts</span><span class="pill">🎵 TikTok</span><span class="pill">🐦 X / Twitter</span><span class="pill">📘 Facebook Reels</span><span class="pill">📺 YouTube</span></div></div></section>
-
+<section class="section"><p class="eyebrow">How it works</p><h2>Convert in three steps</h2><p class="sec-sub">Video, playback controls, and timeline are all in one view — watch and split without scrolling.</p><div class="steps-grid"><div class="step"><p class="step-n">Step 1</p><p class="step-t">Drop your video</p><p class="step-b">Upload MP4, MOV, or WebM. Nothing is sent to a server — ever.</p></div><div class="step"><p class="step-n">Step 2</p><p class="step-t">Watch, split & adjust</p><p class="step-b">Play the video. Hit Split when the framing needs to change. Drag the output preview to reframe. Scroll to zoom.</p></div><div class="step"><p class="step-n">Step 3</p><p class="step-t">Export</p><p class="step-b">One click exports the full video with each segment cropped and zoomed exactly as you set.</p></div></div><div style="margin-top:2rem;"><p style="font-size:13px;font-weight:700;margin-bottom:10px;">Perfect for</p><div class="platforms"><span class="pill">📸 Instagram Reels</span><span class="pill">▶️ YouTube Shorts</span><span class="pill">🎵 TikTok</span><span class="pill">🐦 X / Twitter</span><span class="pill">📘 Facebook Reels</span><span class="pill">📺 YouTube</span></div></div></section>
 <hr class="div">
-<section class="section"><p class="eyebrow">Why ConvertShorts</p><h2>What makes this different</h2><p class="sec-sub">Most tools give you one fixed crop. ConvertShorts lets you reframe and zoom each scene independently.</p><div class="why-grid"><div class="why-card"><div class="why-ic">🎬</div><p class="why-t">Per-segment crop & zoom</p><p class="why-b">Different crop position and zoom for each scene — follow the action as it moves.</p></div><div class="why-card"><div class="why-ic">🖱️</div><p class="why-t">Drag to reframe</p><p class="why-b">Drag directly on the preview canvas to position the crop. Scroll to zoom in or out.</p></div><div class="why-card"><div class="why-ic">🔒</div><p class="why-t">Nothing leaves your device</p><p class="why-b">WebAssembly runs FFmpeg locally. No upload, no cloud.</p></div><div class="why-card"><div class="why-ic">✅</div><p class="why-t">No watermark, ever</p><p class="why-b">Export is clean and ready to post anywhere.</p></div></div></section>
-
+<section class="section"><p class="eyebrow">Why ConvertShorts</p><h2>What makes this different</h2><p class="sec-sub">Most tools give you one fixed crop. ConvertShorts lets you reframe and zoom each scene independently.</p><div class="why-grid"><div class="why-card"><div class="why-ic">🎬</div><p class="why-t">All-in-one editing view</p><p class="why-b">Video, playback, timeline and controls are together — no scrolling while editing.</p></div><div class="why-card"><div class="why-ic">✂️</div><p class="why-t">Per-segment crop & zoom</p><p class="why-b">Different crop and zoom for each scene. Follow the action as it moves.</p></div><div class="why-card"><div class="why-ic">🔒</div><p class="why-t">Nothing leaves your device</p><p class="why-b">WebAssembly runs FFmpeg locally. No upload, no cloud.</p></div><div class="why-card"><div class="why-ic">✅</div><p class="why-t">No watermark, ever</p><p class="why-b">Export is clean and ready to post anywhere.</p></div></div></section>
 <hr class="div">
-<section class="section"><p class="eyebrow">FAQ</p><h2>Common questions</h2><div class="faq-list" style="margin-top:1.5rem;"><div class="faq-item"><button class="faq-q" aria-expanded="false">How do I convert a 16:9 video to 9:16 for free?<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a">Drop your video, select Landscape → Portrait, split into segments if needed, adjust crop and zoom per segment, export. Free, no account, no watermark.</div></div><div class="faq-item"><button class="faq-q" aria-expanded="false">Is my video uploaded to a server?<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a">No. All processing happens in your browser using WebAssembly. Your video never leaves your device.</div></div><div class="faq-item"><button class="faq-q" aria-expanded="false">What does zoom do?<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a">Zoom lets you punch into the frame for a specific segment — useful for close-ups or to emphasise a moment without recording it separately.</div></div><div class="faq-item"><button class="faq-q" aria-expanded="false">Will there be a watermark?<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a">No. ConvertShorts never adds watermarks.</div></div><div class="faq-item"><button class="faq-q" aria-expanded="false">Which browsers work best?<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a">Chrome and Edge work best. Firefox and Safari also work.</div></div></div></section>
-
+<section class="section"><p class="eyebrow">FAQ</p><h2>Common questions</h2><div class="faq-list" style="margin-top:1.5rem;"><div class="faq-item"><button class="faq-q" aria-expanded="false">How do I convert a 16:9 video to 9:16 for free?<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a">Drop your video, select Landscape → Portrait, split into segments as needed, adjust crop and zoom per segment, export. Free, no account, no watermark.</div></div><div class="faq-item"><button class="faq-q" aria-expanded="false">Is my video uploaded to a server?<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a">No. All processing happens in your browser using WebAssembly. Your video never leaves your device.</div></div><div class="faq-item"><button class="faq-q" aria-expanded="false">What does zoom do?<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a">Zoom lets you punch into the frame for a specific segment — great for close-ups or emphasising a moment.</div></div><div class="faq-item"><button class="faq-q" aria-expanded="false">Will there be a watermark?<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a">No. ConvertShorts never adds watermarks.</div></div><div class="faq-item"><button class="faq-q" aria-expanded="false">Which browsers work best?<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button><div class="faq-a">Chrome and Edge work best. Firefox and Safari also work.</div></div></div></section>
 <hr class="div">
 <footer><p style="margin-bottom:5px;"><strong>ConvertShorts</strong> — Free video aspect ratio converter</p><p>Convert 16:9 to 9:16 · Landscape to portrait · Segment crop & zoom · No upload · No watermark</p></footer>
 
-<!-- FFmpeg loaded via CDN with proper CORS headers -->
 <script>
-// Load FFmpeg core files as blobs to avoid cross-origin worker issues
-const FFMPEG_CDN = 'https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.6/dist/umd/ffmpeg.js';
-const FFMPEG_CORE = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js';
-const FFMPEG_WASM = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.wasm';
+const FFMPEG_CORE='https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js';
+const FFMPEG_WASM='https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.wasm';
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.6/dist/umd/ffmpeg.js"></script>
 <script>
 const $=id=>document.getElementById(id);
 const COLORS=['#1a9e6e','#378add','#d85a30','#7f77dd','#ba7517','#d4537e','#639922','#888780'];
-
-let file=null,mode='l2p',raf=null;
-let segments=[],activeSeg=0,videoDuration=0;
-let vid=$('vid'),cropCvs=$('cropCanvas');
-
-// drag state
+let file=null,mode='l2p',raf=null,segments=[],activeSeg=0,videoDuration=0;
+const vid=$('vid'),cropCvs=$('cropCanvas');
 let isDragging=false,dragSX=0,dragSY=0,dragCX=0,dragCY=0;
 
-// FAQ
 document.querySelectorAll('.faq-q').forEach(b=>{b.onclick=()=>{const o=b.classList.toggle('open');b.setAttribute('aria-expanded',o);b.nextElementSibling.classList.toggle('open',o);};});
 
-// MODE
-$('mL2P').onclick=()=>{mode='l2p';$('mL2P').classList.add('active');$('mP2L').classList.remove('active');if(file){setupCvs();renderPreview();}};
-$('mP2L').onclick=()=>{mode='p2l';$('mP2L').classList.add('active');$('mL2P').classList.remove('active');if(file){setupCvs();renderPreview();}};
+$('mL2P').onclick=()=>{mode='l2p';$('mL2P').classList.add('active');$('mP2L').classList.remove('active');if(file){setupCvs();}};
+$('mP2L').onclick=()=>{mode='p2l';$('mP2L').classList.add('active');$('mL2P').classList.remove('active');if(file){setupCvs();}};
 
-// DROP
 $('dz').onclick=()=>$('fi').click();
 $('dz').ondragover=e=>{e.preventDefault();$('dz').classList.add('drag-over');};
 $('dz').ondragleave=()=>$('dz').classList.remove('drag-over');
 $('dz').ondrop=e=>{e.preventDefault();$('dz').classList.remove('drag-over');if(e.dataTransfer.files[0])loadFile(e.dataTransfer.files[0]);};
 $('fi').onchange=()=>{if($('fi').files[0])loadFile($('fi').files[0]);};
-
-$('changeBtn').onclick=()=>{
-  $('editor').style.display='none';$('dz').style.display='block';
-  if(raf)cancelAnimationFrame(raf);
-  vid.src='';file=null;segments=[];$('fi').value='';
-  $('fn').textContent='';$('pw').style.display='none';
-};
+$('changeBtn').onclick=()=>{$('editor').style.display='none';$('dz').style.display='block';if(raf)cancelAnimationFrame(raf);vid.src='';file=null;segments=[];$('fi').value='';$('fn').textContent='';$('pw').style.display='none';};
 
 function fmtSz(b){return b>1e9?(b/1e9).toFixed(1)+' GB':b>1e6?(b/1e6).toFixed(1)+' MB':(b/1e3).toFixed(0)+' KB';}
 function fmtT(s){const m=Math.floor(s/60),sc=(s%60).toFixed(1);return m+':'+(parseFloat(sc)<10?'0':'')+sc;}
 function fmtT2(s){return Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');}
 
 function loadFile(f){
-  file=f;
-  vid.src=URL.createObjectURL(f);
+  file=f;vid.src=URL.createObjectURL(f);
   vid.onloadedmetadata=()=>{
     videoDuration=vid.duration;
     $('ibSpans').innerHTML=`<span>📄 ${f.name}</span><span>📐 ${vid.videoWidth}×${vid.videoHeight}</span><span>⏱ ${fmtT2(vid.duration)}</span><span>💾 ${fmtSz(f.size)}</span>`;
-    $('dz').style.display='none';
-    $('editor').style.display='block';
+    $('dz').style.display='none';$('editor').style.display='block';
     segments=[{start:0,end:vid.duration,cx:0.5,cy:0.5,zoom:1.0}];
-    activeSeg=0;
-    setupCvs();renderSegs();updatePanel();startLoop();vid.pause();
+    activeSeg=0;setupCvs();renderSegs();updatePanel();startLoop();vid.pause();
   };
 }
 
@@ -345,49 +384,37 @@ function setupCvs(){
   else{cropCvs.width=vw;cropCvs.height=Math.round(vw*9/16);}
 }
 
-function getCropForTime(t){
-  for(let i=0;i<segments.length;i++){if(t>=segments[i].start&&t<=segments[i].end+0.05)return segments[i];}
-  return segments[segments.length-1]||{cx:0.5,cy:0.5,zoom:1};
-}
+function getCrop(t){for(let i=0;i<segments.length;i++){if(t>=segments[i].start&&t<=segments[i].end+0.05)return segments[i];}return segments[segments.length-1]||{cx:.5,cy:.5,zoom:1};}
 
 function renderPreview(){
   if(vid.readyState<2)return;
-  const seg=getCropForTime(vid.currentTime);
+  const seg=getCrop(vid.currentTime);
   const ctx=cropCvs.getContext('2d');
   const vw=vid.videoWidth,vh=vid.videoHeight,ow=cropCvs.width,oh=cropCvs.height;
   const zoom=seg.zoom||1;
-  let bsw,bsh; // base crop size before zoom
-  if(mode==='l2p'){bsw=Math.round(vh*9/16);bsh=vh;}
-  else{bsh=Math.round(vw*9/16);bsw=vw;}
-  // zoomed crop: divide base by zoom to get smaller source region
-  const sw=Math.round(bsw/zoom);
-  const sh=Math.round(bsh/zoom);
-  // position within the available space
-  const maxSX=vw-sw, maxSY=vh-sh;
-  const sx=Math.round(maxSX*seg.cx);
-  const sy=Math.round(maxSY*seg.cy);
-  ctx.drawImage(vid,Math.max(0,sx),Math.max(0,sy),sw,sh,0,0,ow,oh);
-  // border
-  ctx.strokeStyle='rgba(26,158,110,0.7)';ctx.lineWidth=2;ctx.strokeRect(1,1,ow-2,oh-2);
+  let bsw,bsh;
+  if(mode==='l2p'){bsw=Math.round(vh*9/16);bsh=vh;}else{bsh=Math.round(vw*9/16);bsw=vw;}
+  const sw=Math.round(bsw/zoom),sh=Math.round(bsh/zoom);
+  const sx=Math.max(0,Math.round((vw-sw)*seg.cx)),sy=Math.max(0,Math.round((vh-sh)*seg.cy));
+  ctx.drawImage(vid,sx,sy,sw,sh,0,0,ow,oh);
+  ctx.strokeStyle='rgba(26,158,110,0.6)';ctx.lineWidth=2;ctx.strokeRect(1,1,ow-2,oh-2);
 }
 
 function startLoop(){
   if(raf)cancelAnimationFrame(raf);
-  let lastActive=activeSeg;
+  let lastSeg=activeSeg;
   (function loop(){
     renderPreview();
-    // update playhead
     if(videoDuration){$('playhead').style.left=(vid.currentTime/videoDuration*100)+'%';}
     $('timeDisplay').textContent=fmtT2(vid.currentTime)+' / '+fmtT2(videoDuration);
-    // auto-switch active seg
     const t=vid.currentTime;
-    for(let i=0;i<segments.length;i++){if(t>=segments[i].start&&t<=segments[i].end+0.05){if(i!==lastActive){activeSeg=i;lastActive=i;renderSegs();updatePanel();}break;}}
+    for(let i=0;i<segments.length;i++){if(t>=segments[i].start&&t<=segments[i].end+0.05){if(i!==lastSeg){activeSeg=i;lastSeg=i;renderSegs();updatePanel();}break;}}
     raf=requestAnimationFrame(loop);
   })();
 }
 
-// DRAG on preview canvas
-cropCvs.addEventListener('mousedown',e=>{isDragging=true;dragSX=e.clientX;dragSY=e.clientY;const s=segments[activeSeg]||{cx:.5,cy:.5};dragCX=s.cx;dragCY=s.cy;});
+// drag reframe
+cropCvs.addEventListener('mousedown',e=>{isDragging=true;dragSX=e.clientX;dragSY=e.clientY;const s=segments[activeSeg]||{cx:.5,cy:.5};dragCX=s.cx;dragCY=s.cy;e.preventDefault();});
 document.addEventListener('mousemove',e=>{
   if(!isDragging||!segments[activeSeg])return;
   const rect=cropCvs.getBoundingClientRect();
@@ -395,107 +422,75 @@ document.addEventListener('mousemove',e=>{
   segments[activeSeg].cy=Math.max(0,Math.min(1,dragCY+(e.clientY-dragSY)/rect.height));
   syncSliders();
 });
-document.addEventListener('mouseup',()=>{isDragging=false;if(file)renderSegs();});
+document.addEventListener('mouseup',()=>{if(isDragging){isDragging=false;renderSegs();}});
 
-// SCROLL to zoom on canvas
+// scroll to zoom
 cropCvs.addEventListener('wheel',e=>{
   e.preventDefault();
   if(!segments[activeSeg])return;
-  const delta=e.deltaY<0?0.05:-0.05;
-  segments[activeSeg].zoom=Math.max(1,Math.min(3,((segments[activeSeg].zoom||1)+delta)));
+  segments[activeSeg].zoom=Math.max(1,Math.min(3,(segments[activeSeg].zoom||1)+(e.deltaY<0?0.05:-0.05)));
   syncSliders();renderSegs();
 },{passive:false});
 
-// touch drag
+// touch
 cropCvs.addEventListener('touchstart',e=>{isDragging=true;dragSX=e.touches[0].clientX;dragSY=e.touches[0].clientY;const s=segments[activeSeg]||{cx:.5,cy:.5};dragCX=s.cx;dragCY=s.cy;},{passive:true});
-document.addEventListener('touchmove',e=>{
-  if(!isDragging||!segments[activeSeg])return;
-  const rect=cropCvs.getBoundingClientRect();
-  segments[activeSeg].cx=Math.max(0,Math.min(1,dragCX+(e.touches[0].clientX-dragSX)/rect.width));
-  segments[activeSeg].cy=Math.max(0,Math.min(1,dragCY+(e.touches[0].clientY-dragSY)/rect.height));
-  syncSliders();
-},{passive:true});
-document.addEventListener('touchend',()=>{isDragging=false;if(file)renderSegs();});
+document.addEventListener('touchmove',e=>{if(!isDragging||!segments[activeSeg])return;const rect=cropCvs.getBoundingClientRect();segments[activeSeg].cx=Math.max(0,Math.min(1,dragCX+(e.touches[0].clientX-dragSX)/rect.width));segments[activeSeg].cy=Math.max(0,Math.min(1,dragCY+(e.touches[0].clientY-dragSY)/rect.height));syncSliders();},{passive:true});
+document.addEventListener('touchend',()=>{isDragging=false;renderSegs();});
 
-// PLAYBACK
+// playback
 $('playBtn').onclick=()=>{vid.paused?vid.play():vid.pause();updatePlayIcon();};
-vid.addEventListener('play',updatePlayIcon);
-vid.addEventListener('pause',updatePlayIcon);
+vid.addEventListener('play',updatePlayIcon);vid.addEventListener('pause',updatePlayIcon);
 vid.addEventListener('ended',()=>{vid.currentTime=0;vid.pause();updatePlayIcon();});
 function updatePlayIcon(){$('playIcon').innerHTML=vid.paused?'<polygon points="5 3 19 12 5 21 5 3"/>':'<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';}
 
-// RULER seek
 $('ruler').addEventListener('click',e=>{const r=$('ruler').getBoundingClientRect();vid.currentTime=((e.clientX-r.left)/r.width)*videoDuration;});
 
-// SPLIT
 $('splitBtn').onclick=()=>{
   const t=vid.currentTime;
   if(t<0.1||t>videoDuration-0.1)return;
-  let idx=-1;
-  for(let i=0;i<segments.length;i++){if(t>segments[i].start&&t<segments[i].end){idx=i;break;}}
+  let idx=-1;for(let i=0;i<segments.length;i++){if(t>segments[i].start&&t<segments[i].end){idx=i;break;}}
   if(idx===-1)return;
-  const orig=segments[idx];
-  const ns={start:t,end:orig.end,cx:orig.cx,cy:orig.cy,zoom:orig.zoom||1};
-  orig.end=t;
-  segments.splice(idx+1,0,ns);
-  activeSeg=idx+1;
-  renderSegs();updatePanel();
+  const o=segments[idx];
+  segments.splice(idx+1,0,{start:t,end:o.end,cx:o.cx,cy:o.cy,zoom:o.zoom||1});
+  o.end=t;activeSeg=idx+1;renderSegs();updatePanel();
 };
 
-// ADD
 $('addSegBtn').onclick=()=>{
   const last=segments[segments.length-1];
-  if(last&&last.end-last.start>0.4){
-    const mid=(last.start+last.end)/2;
-    const ns={start:mid,end:last.end,cx:last.cx,cy:last.cy,zoom:last.zoom||1};
-    last.end=mid;segments.push(ns);activeSeg=segments.length-1;
-  }
+  if(last&&last.end-last.start>0.4){const mid=(last.start+last.end)/2;segments.push({start:mid,end:last.end,cx:last.cx,cy:last.cy,zoom:last.zoom||1});last.end=mid;activeSeg=segments.length-1;}
   renderSegs();updatePanel();
 };
 
-// RENDER SEGMENTS
 function renderSegs(){
   const track=$('rulerTrack');track.innerHTML='';
   segments.forEach((s,i)=>{
     const el=document.createElement('div');
     el.className='seg-block'+(i===activeSeg?' active-seg':'');
     el.style.cssText=`left:${(s.start/videoDuration*100).toFixed(2)}%;width:${((s.end-s.start)/videoDuration*100).toFixed(2)}%;background:${COLORS[i%8]};`;
-    el.textContent=i+1;
-    el.onclick=e=>{e.stopPropagation();activeSeg=i;vid.currentTime=s.start;renderSegs();updatePanel();};
+    el.textContent=i+1;el.onclick=e=>{e.stopPropagation();activeSeg=i;vid.currentTime=s.start;renderSegs();updatePanel();};
     track.appendChild(el);
   });
   const list=$('segsList');list.innerHTML='';
   segments.forEach((s,i)=>{
     const row=document.createElement('div');
     row.className='seg-row'+(i===activeSeg?' active':'');
-    row.innerHTML=`<div class="seg-color-dot" style="background:${COLORS[i%8]};"></div><span style="font-size:13px;font-weight:600;">Seg ${i+1}</span><span class="seg-times">${fmtT(s.start)} → ${fmtT(s.end)}</span><span class="seg-info">X:${Math.round(s.cx*100)}% Y:${Math.round(s.cy*100)}% Z:${(s.zoom||1).toFixed(1)}×</span><div class="seg-actions"><button class="seg-btn" onclick="goSeg(${i})">▶</button>${segments.length>1?`<button class="seg-btn del" onclick="delSeg(${i})">✕</button>`:''}</div>`;
+    row.innerHTML=`<div class="seg-dot" style="background:${COLORS[i%8]};"></div><span class="seg-name">Seg ${i+1}</span><span class="seg-time">${fmtT(s.start)}→${fmtT(s.end)}</span><span class="seg-info">Z:${(s.zoom||1).toFixed(1)}×</span><div class="seg-actions"><button class="seg-btn" onclick="goSeg(${i})">▶</button>${segments.length>1?`<button class="seg-btn del" onclick="delSeg(${i})">✕</button>`:''}</div>`;
     row.onclick=e=>{if(e.target.closest('.seg-btn'))return;activeSeg=i;vid.currentTime=s.start;renderSegs();updatePanel();};
     list.appendChild(row);
   });
 }
 
 window.goSeg=i=>{activeSeg=i;vid.currentTime=segments[i].start;renderSegs();updatePanel();};
-window.delSeg=i=>{
-  if(segments.length<=1)return;
-  if(i>0)segments[i-1].end=segments[i].end;
-  else if(segments[1])segments[1].start=0;
-  segments.splice(i,1);
-  activeSeg=Math.min(activeSeg,segments.length-1);
-  renderSegs();updatePanel();
-};
+window.delSeg=i=>{if(segments.length<=1)return;if(i>0)segments[i-1].end=segments[i].end;else segments[1].start=0;segments.splice(i,1);activeSeg=Math.min(activeSeg,segments.length-1);renderSegs();updatePanel();};
 
-// PANEL
 function updatePanel(){
   const s=segments[activeSeg];if(!s)return;
-  $('cpNum').textContent=activeSeg+1;
-  $('cpDot').style.background=COLORS[activeSeg%8];
+  $('cpNum').textContent=activeSeg+1;$('cpDot').style.background=COLORS[activeSeg%8];
   $('cpTime').textContent=fmtT(s.start)+' → '+fmtT(s.end);
-  $('segStart').value=s.start.toFixed(1);
-  $('segEnd').value=s.end.toFixed(1);
+  $('segStart').value=s.start.toFixed(1);$('segEnd').value=s.end.toFixed(1);
   $('cx').value=Math.round(s.cx*100);$('cxv').textContent=Math.round(s.cx*100)+'%';
   $('cy').value=Math.round(s.cy*100);$('cyv').textContent=Math.round(s.cy*100)+'%';
-  const z=s.zoom||1;
-  $('zoom').value=Math.round(z*100);$('zoomv').textContent=z.toFixed(2)+'×';
+  const z=s.zoom||1;$('zoom').value=Math.round(z*100);$('zoomv').textContent=z.toFixed(2)+'×';
 }
 
 function syncSliders(){
@@ -506,99 +501,56 @@ function syncSliders(){
   renderSegs();
 }
 
-$('cx').oninput=()=>{if(!segments[activeSeg])return;segments[activeSeg].cx=$('cx').value/100;$('cxv').textContent=$('cx').value+'%';renderSegs();};
-$('cy').oninput=()=>{if(!segments[activeSeg])return;segments[activeSeg].cy=$('cy').value/100;$('cyv').textContent=$('cy').value+'%';renderSegs();};
-$('zoom').oninput=()=>{if(!segments[activeSeg])return;const z=$('zoom').value/100;segments[activeSeg].zoom=z;$('zoomv').textContent=z.toFixed(2)+'×';renderSegs();};
+$('cx').oninput=()=>{if(segments[activeSeg]){segments[activeSeg].cx=$('cx').value/100;$('cxv').textContent=$('cx').value+'%';renderSegs();}};
+$('cy').oninput=()=>{if(segments[activeSeg]){segments[activeSeg].cy=$('cy').value/100;$('cyv').textContent=$('cy').value+'%';renderSegs();}};
+$('zoom').oninput=()=>{if(segments[activeSeg]){const z=$('zoom').value/100;segments[activeSeg].zoom=z;$('zoomv').textContent=z.toFixed(2)+'×';renderSegs();}};
+window.setZoom=v=>{if(segments[activeSeg]){segments[activeSeg].zoom=v/100;$('zoom').value=v;$('zoomv').textContent=(v/100).toFixed(2)+'×';renderSegs();}};
 
-window.setZoom=v=>{if(!segments[activeSeg])return;segments[activeSeg].zoom=v/100;$('zoom').value=v;$('zoomv').textContent=(v/100).toFixed(2)+'×';renderSegs();};
+$('segStart').oninput=()=>{if(segments[activeSeg]){segments[activeSeg].start=Math.max(0,parseFloat($('segStart').value)||0);if(activeSeg>0)segments[activeSeg-1].end=segments[activeSeg].start;renderSegs();updatePanel();}};
+$('segEnd').oninput=()=>{if(segments[activeSeg]){segments[activeSeg].end=Math.min(videoDuration,parseFloat($('segEnd').value)||0);if(activeSeg<segments.length-1)segments[activeSeg+1].start=segments[activeSeg].end;renderSegs();updatePanel();}};
 
-$('segStart').oninput=()=>{
-  if(!segments[activeSeg])return;
-  segments[activeSeg].start=Math.max(0,parseFloat($('segStart').value)||0);
-  if(activeSeg>0)segments[activeSeg-1].end=segments[activeSeg].start;
-  renderSegs();updatePanel();
-};
-$('segEnd').oninput=()=>{
-  if(!segments[activeSeg])return;
-  segments[activeSeg].end=Math.min(videoDuration,parseFloat($('segEnd').value)||0);
-  if(activeSeg<segments.length-1)segments[activeSeg+1].start=segments[activeSeg].end;
-  renderSegs();updatePanel();
-};
-
-// EXPORT — using blob URLs to sidestep cross-origin worker issue
+// EXPORT with blob URLs to fix cross-origin worker issue
 $('xbtn').onclick=async()=>{
   if(!file)return;
-  $('xbtn').disabled=true;
-  $('pw').style.display='block';
-  $('pf').style.width='0%';
-  $('fn').textContent='';
-  $('pl').textContent='Loading engine…';
-
+  $('xbtn').disabled=true;$('pw').style.display='block';$('pf').style.width='0%';$('fn').textContent='';$('pl').textContent='Loading engine…';
   try{
     const{FFmpeg}=FFmpegWASM;
     if(!FFmpeg)throw new Error('FFmpeg not loaded. Please use Chrome or Edge.');
     const ff=new FFmpeg();
-
-    // Load core as blob to avoid cross-origin worker restriction
     $('pl').textContent='Fetching processor files…';
-    const [coreResp, wasmResp] = await Promise.all([
-      fetch(FFMPEG_CORE),
-      fetch(FFMPEG_WASM)
-    ]);
-    const coreBlob = new Blob([await coreResp.text()], {type:'text/javascript'});
-    const wasmBuf = await wasmResp.arrayBuffer();
-    const coreURL = URL.createObjectURL(coreBlob);
-    const wasmURL = URL.createObjectURL(new Blob([wasmBuf],{type:'application/wasm'}));
-
+    const[cr,wr]=await Promise.all([fetch(FFMPEG_CORE),fetch(FFMPEG_WASM)]);
+    const coreURL=URL.createObjectURL(new Blob([await cr.text()],{type:'text/javascript'}));
+    const wasmURL=URL.createObjectURL(new Blob([await wr.arrayBuffer()],{type:'application/wasm'}));
     ff.on('progress',({progress})=>{const p=Math.round(Math.min(progress,1)*100);$('pf').style.width=p+'%';$('pl').textContent='Exporting… '+p+'%';});
-
     $('pl').textContent='Initialising…';
-    await ff.load({coreURL, wasmURL});
-
+    await ff.load({coreURL,wasmURL});
     $('pl').textContent='Reading video…';
     const{fetchFile}=FFmpegWASM;
     await ff.writeFile('input.mp4',await fetchFile(file));
-
     const vw=vid.videoWidth,vh=vid.videoHeight;
-    let filterParts=[],concatParts=[];
-
+    let fp=[],cp=[];
     segments.forEach((s,i)=>{
       const zoom=s.zoom||1;
       let bsw,bsh;
-      if(mode==='l2p'){bsw=Math.round(vh*9/16);bsh=vh;}
-      else{bsh=Math.round(vw*9/16);bsw=vw;}
-      const sw=Math.round(bsw/zoom);
-      const sh=Math.round(bsh/zoom);
-      const maxSX=vw-sw, maxSY=vh-sh;
-      const sx=Math.max(0,Math.round(maxSX*s.cx));
-      const sy=Math.max(0,Math.round(maxSY*s.cy));
-      // crop then scale to exact output size
-      filterParts.push(`[0:v]trim=start=${s.start.toFixed(3)}:end=${s.end.toFixed(3)},setpts=PTS-STARTPTS,crop=${sw}:${sh}:${sx}:${sy},scale=${bsw}:${bsh}[v${i}]`);
-      filterParts.push(`[0:a]atrim=start=${s.start.toFixed(3)}:end=${s.end.toFixed(3)},asetpts=PTS-STARTPTS[a${i}]`);
-      concatParts.push(`[v${i}][a${i}]`);
+      if(mode==='l2p'){bsw=Math.round(vh*9/16);bsh=vh;}else{bsh=Math.round(vw*9/16);bsw=vw;}
+      const sw=Math.round(bsw/zoom),sh=Math.round(bsh/zoom);
+      const sx=Math.max(0,Math.round((vw-sw)*s.cx)),sy=Math.max(0,Math.round((vh-sh)*s.cy));
+      fp.push(`[0:v]trim=start=${s.start.toFixed(3)}:end=${s.end.toFixed(3)},setpts=PTS-STARTPTS,crop=${sw}:${sh}:${sx}:${sy},scale=${bsw}:${bsh}[v${i}]`);
+      fp.push(`[0:a]atrim=start=${s.start.toFixed(3)}:end=${s.end.toFixed(3)},asetpts=PTS-STARTPTS[a${i}]`);
+      cp.push(`[v${i}][a${i}]`);
     });
-
-    filterParts.push(`${concatParts.join('')}concat=n=${segments.length}:v=1:a=1[outv][outa]`);
-    const fc=filterParts.join(';');
-
+    fp.push(`${cp.join('')}concat=n=${segments.length}:v=1:a=1[outv][outa]`);
     $('pl').textContent='Exporting…';
-    await ff.exec(['-i','input.mp4','-filter_complex',fc,'-map','[outv]','-map','[outa]','-c:v','libx264','-preset','fast','-crf','23','output.mp4']);
-
+    await ff.exec(['-i','input.mp4','-filter_complex',fp.join(';'),'-map','[outv]','-map','[outa]','-c:v','libx264','-preset','fast','-crf','23','output.mp4']);
     const out=await ff.readFile('output.mp4');
     const a=document.createElement('a');
     a.href=URL.createObjectURL(new Blob([out.buffer],{type:'video/mp4'}));
     a.download=file.name.replace(/\.[^.]+$/,'')+(mode==='l2p'?'_portrait':'_landscape')+'.mp4';
     a.click();
-
     URL.revokeObjectURL(coreURL);URL.revokeObjectURL(wasmURL);
-    $('pf').style.width='100%';
-    $('pl').textContent='Done! Downloading your file.';
+    $('pf').style.width='100%';$('pl').textContent='Done! Downloading your file.';
     $('fn').textContent='Processed entirely in your browser — your video was never uploaded.';
-  }catch(e){
-    $('pl').textContent='';
-    $('fn').textContent='⚠ '+e.message;
-    console.error(e);
-  }
+  }catch(e){$('pl').textContent='';$('fn').textContent='⚠ '+e.message;console.error(e);}
   $('xbtn').disabled=false;
 };
 </script>

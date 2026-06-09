@@ -174,7 +174,11 @@ function updatePlayheadUI() {
 }
 
 let lastActiveSeg = -1;
+let userSeeking = false; // true when user is manually seeking - don't auto-switch segment
+
 function checkActiveSegment() {
+  if (userSeeking) return; // don't interfere when user is seeking
+  if (vid.paused) return;  // only auto-follow when playing
   const t = vid.currentTime;
   for (let i = 0; i < segments.length; i++) {
     if (t >= segments[i].start && t <= segments[i].end + 0.05) {
@@ -190,9 +194,30 @@ function checkActiveSegment() {
 }
 
 // ─── DRAG ON OUTPUT CANVAS ────────────────────────────────────────────────────
+// ─── DOUBLE CLICK ON OUTPUT = SPLIT ──────────────────────────────────────────
+outCanvas.addEventListener('dblclick', () => {
+  const t = vid.currentTime;
+  if (t < 0.1 || t > videoDuration - 0.1) return;
+  let idx = -1;
+  for (let i = 0; i < segments.length; i++) {
+    if (t > segments[i].start && t < segments[i].end) { idx = i; break; }
+  }
+  if (idx === -1) return;
+  const orig = segments[idx];
+  const newSeg = { start: t, end: orig.end, cx: orig.cx, cy: orig.cy, zoom: orig.zoom || 1 };
+  orig.end = t;
+  segments.splice(idx + 1, 0, newSeg);
+  activeSeg = idx + 1;
+  lastActiveSeg = idx + 1;
+  renderSegments();
+  updatePanel();
+});
+
+// ─── DRAG ON OUTPUT CANVAS = REFRAME ONLY ────────────────────────────────────
 outCanvas.addEventListener('mousedown', e => {
+  if (e.detail > 1) return; // ignore double click
   isDragging = true;
-  hasSplit = false;
+  userSeeking = true;
   dragStartX = e.clientX;
   dragStartY = e.clientY;
   const s = segments[activeSeg] || { cx: 0.5, cy: 0.5 };
@@ -204,32 +229,17 @@ outCanvas.addEventListener('mousedown', e => {
 document.addEventListener('mousemove', e => {
   if (!isDragging || !segments[activeSeg]) return;
   const rect = outCanvas.getBoundingClientRect();
-  const pxMoved = Math.hypot(e.clientX - dragStartX, e.clientY - dragStartY);
-
-  // Auto-split: only once per drag, after 25px movement, while playing
-  if (!hasSplit && pxMoved > 25 && !vid.paused) {
-    const t = vid.currentTime;
-    const seg = segments[activeSeg];
-    if (t > seg.start + 0.3 && t < seg.end - 0.3) {
-      hasSplit = true;
-      const newSeg = { start: t, end: seg.end, cx: seg.cx, cy: seg.cy, zoom: seg.zoom || 1 };
-      seg.end = t;
-      segments.splice(activeSeg + 1, 0, newSeg);
-      activeSeg++;
-      dragOriginCX = segments[activeSeg].cx;
-      dragOriginCY = segments[activeSeg].cy;
-      dragStartX = e.clientX;
-      dragStartY = e.clientY;
-    }
-  }
-
   segments[activeSeg].cx = Math.max(0, Math.min(1, dragOriginCX + (e.clientX - dragStartX) / rect.width));
   segments[activeSeg].cy = Math.max(0, Math.min(1, dragOriginCY + (e.clientY - dragStartY) / rect.height));
   syncSlidersFromSeg();
 });
 
 document.addEventListener('mouseup', () => {
-  if (isDragging) { isDragging = false; hasSplit = false; renderSegments(); }
+  if (isDragging) {
+    isDragging = false;
+    userSeeking = false;
+    renderSegments();
+  }
 });
 
 // Scroll to zoom
@@ -256,7 +266,18 @@ vid.addEventListener('ended', () => {
 
 ruler.addEventListener('click', e => {
   const rect = ruler.getBoundingClientRect();
-  vid.currentTime = ((e.clientX - rect.left) / rect.width) * videoDuration;
+  const t = ((e.clientX - rect.left) / rect.width) * videoDuration;
+  userSeeking = true;
+  vid.currentTime = t;
+  // Find which segment this time belongs to and switch to it
+  for (let i = 0; i < segments.length; i++) {
+    if (t >= segments[i].start && t <= segments[i].end + 0.05) {
+      activeSeg = i; lastActiveSeg = i;
+      renderSegments(); updatePanel();
+      break;
+    }
+  }
+  setTimeout(() => { userSeeking = false; }, 300);
 });
 
 // ─── SPLIT ────────────────────────────────────────────────────────────────────
@@ -479,17 +500,23 @@ document.getElementById('exportBtn').addEventListener('click', async () => {
       progressLabel.textContent = `Exporting segment ${i + 1} of ${total}…`;
       pfill.style.width = Math.round((i / total) * 85) + '%';
 
-      await ff.run(
+      // Check if this segment is basically the whole video with no crop changes
+      // If zoom=1 and crop is centered, we can be more lenient with quality
+      const args = [
         '-ss', s.start.toFixed(3),
         '-i', 'input.mp4',
         '-t', segDur.toFixed(3),
         '-vf', vf,
-        '-c:v', 'libx264', '-preset', 'medium', '-crf', '18',
+        '-c:v', 'libx264',
+        '-preset', 'fast',  // faster than medium, still good quality
+        '-crf', '16',       // higher quality (lower = better, 16 is near-lossless)
         '-pix_fmt', 'yuv420p',
         '-c:a', 'aac', '-b:a', '192k',
         '-movflags', '+faststart',
         outName
-      );
+      ];
+
+      await ff.run(...args);
 
       segBuffers.push(ff.FS('readFile', outName));
       ff.FS('unlink', outName);

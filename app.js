@@ -1,72 +1,59 @@
 // ─── STATE ───────────────────────────────────────────────────────────────────
 let file = null;
-let mode = 'l2p';            // 'l2p' = landscape→portrait, 'p2l' = portrait→landscape
-let segments = [];           // [{start, end, cx, cy, zoom}]
+let mode = 'l2p';
+let segments = [];
 let activeSeg = 0;
 let videoDuration = 0;
 let rafId = null;
-
-// Drag state
 let isDragging = false;
-let hasSplit = false;
+let userSeeking = false;
 let dragStartX = 0, dragStartY = 0;
 let dragOriginCX = 0, dragOriginCY = 0;
+let lastActiveSeg = -1;
 
 const COLORS = ['#1a9e6e','#378add','#d85a30','#7f77dd','#ba7517','#d4537e','#639922','#888780'];
 
 // ─── DOM REFS ─────────────────────────────────────────────────────────────────
-const fileInput   = document.getElementById('fileInput');
-const dropZone    = document.getElementById('dropZone');
-const editor      = document.getElementById('editor');
-const vid         = document.getElementById('vid');
-const outCanvas   = document.getElementById('outCanvas');
-const ctx         = outCanvas.getContext('2d');
-const ruler       = document.getElementById('ruler');
-const rulerTrack  = document.getElementById('rulerTrack');
-const playhead    = document.getElementById('playhead');
-const segsList    = document.getElementById('segsList');
-const timeDisplay = document.getElementById('timeDisplay');
-const pfill       = document.getElementById('pfill');
-const progressLabel = document.getElementById('progressLabel');
-const progressWrap  = document.getElementById('progressWrap');
-const exportNote    = document.getElementById('exportNote');
+const fileInput    = document.getElementById('fileInput');
+const dropZone     = document.getElementById('dropZone');
+const editor       = document.getElementById('editor');
+const vid          = document.getElementById('vid');
+const outCanvas    = document.getElementById('outCanvas');
+const ctx          = outCanvas.getContext('2d');
+const ruler        = document.getElementById('ruler');
+const rulerTrack   = document.getElementById('rulerTrack');
+const playhead     = document.getElementById('playhead');
+const segsList     = document.getElementById('segsList');
+const timeDisplay  = document.getElementById('timeDisplay');
+const pfill        = document.getElementById('pfill');
+const progressLabel  = document.getElementById('progressLabel');
+const progressWrap   = document.getElementById('progressWrap');
+const exportNote     = document.getElementById('exportNote');
+const exportBtn      = document.getElementById('exportBtn');
 
 // ─── FILE UPLOAD ──────────────────────────────────────────────────────────────
-// The label[for="fileInput"] in HTML handles click natively — no JS needed for that.
-// We just need drag-and-drop and the change event.
-
 fileInput.addEventListener('change', function() {
   if (this.files && this.files[0]) loadFile(this.files[0]);
 });
 
-// Drag and drop onto drop zone
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.borderColor = 'var(--green)'; });
 dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = ''; });
 dropZone.addEventListener('drop', e => {
   e.preventDefault();
   dropZone.style.borderColor = '';
-  const f = e.dataTransfer.files[0];
-  if (f) loadFile(f);
+  if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
 });
 
 function loadFile(f) {
-  console.log('Loading file:', f.name, f.type, f.size);
   file = f;
-
-  const url = URL.createObjectURL(f);
-  vid.src = url;
-
+  vid.src = URL.createObjectURL(f);
   vid.addEventListener('loadedmetadata', function onMeta() {
     vid.removeEventListener('loadedmetadata', onMeta);
-    console.log('Video loaded:', vid.videoWidth, 'x', vid.videoHeight, vid.duration + 's');
-
     videoDuration = vid.duration;
     document.getElementById('fileInfo').textContent =
-      `${f.name}  •  ${vid.videoWidth}×${vid.videoHeight}  •  ${formatTime(vid.duration)}  •  ${formatSize(f.size)}`;
-
+      `${f.name}  •  ${vid.videoWidth}×${vid.videoHeight}  •  ${fmtTime(vid.duration)}  •  ${fmtSize(f.size)}`;
     dropZone.style.display = 'none';
     editor.style.display = 'block';
-
     segments = [{ start: 0, end: vid.duration, cx: 0.5, cy: 0.5, zoom: 1.0 }];
     activeSeg = 0;
     setupCanvas();
@@ -75,8 +62,7 @@ function loadFile(f) {
     startPreviewLoop();
     vid.pause();
   });
-
-  vid.addEventListener('error', function() {
+  vid.addEventListener('error', () => {
     alert('Could not read this video. Please try an MP4 file.');
     file = null;
   });
@@ -86,25 +72,17 @@ document.getElementById('changeBtn').addEventListener('click', () => {
   editor.style.display = 'none';
   dropZone.style.display = 'block';
   if (rafId) cancelAnimationFrame(rafId);
-  vid.src = '';
-  file = null;
-  segments = [];
+  vid.src = ''; file = null; segments = [];
   fileInput.value = '';
   exportNote.textContent = '';
   progressWrap.style.display = 'none';
 });
 
-// ─── CANVAS SETUP ─────────────────────────────────────────────────────────────
+// ─── CANVAS ───────────────────────────────────────────────────────────────────
 function setupCanvas() {
   const vw = vid.videoWidth, vh = vid.videoHeight;
-  if (mode === 'l2p') {
-    outCanvas.width  = Math.round(vh * 9 / 16);
-    outCanvas.height = vh;
-  } else {
-    outCanvas.width  = vw;
-    outCanvas.height = Math.round(vw * 9 / 16);
-  }
-  // Make canvas display correctly in the layout
+  if (mode === 'l2p') { outCanvas.width = Math.round(vh * 9 / 16); outCanvas.height = vh; }
+  else                { outCanvas.width = vw; outCanvas.height = Math.round(vw * 9 / 16); }
   outCanvas.style.width = '100%';
   outCanvas.style.height = 'auto';
 }
@@ -113,9 +91,10 @@ function setupCanvas() {
 function startPreviewLoop() {
   if (rafId) cancelAnimationFrame(rafId);
   function loop() {
-    drawPreview();
-    updatePlayheadUI();
-    checkActiveSegment();
+    drawFrame(getCropForTime(vid.currentTime));
+    if (videoDuration) playhead.style.left = (vid.currentTime / videoDuration * 100) + '%';
+    timeDisplay.textContent = fmtTime(vid.currentTime) + ' / ' + fmtTime(videoDuration);
+    if (!userSeeking && !vid.paused) autoFollowSegment();
     rafId = requestAnimationFrame(loop);
   }
   rafId = requestAnimationFrame(loop);
@@ -128,461 +107,271 @@ function getCropForTime(t) {
   return segments[segments.length - 1] || { cx: 0.5, cy: 0.5, zoom: 1 };
 }
 
-function drawPreview() {
+function drawFrame(seg) {
   if (vid.readyState < 2) return;
-  const seg = getCropForTime(vid.currentTime);
   const vw = vid.videoWidth, vh = vid.videoHeight;
   const ow = outCanvas.width, oh = outCanvas.height;
   const zoom = seg.zoom || 1;
-
-  let sw, sh, sx, sy;
-  if (zoom >= 1) {
-    // Zoom in: sample smaller region, scale up
-    sw = Math.max(2, Math.round(ow / zoom));
-    sh = Math.max(2, Math.round(oh / zoom));
-    sw = sw % 2 === 0 ? sw : sw - 1;
-    sh = sh % 2 === 0 ? sh : sh - 1;
-    sx = Math.round(Math.max(0, vw - sw) * seg.cx);
-    sy = Math.round(Math.max(0, vh - sh) * seg.cy);
-  } else {
-    // Zoom out: use full frame, draw smaller with black padding
-    sw = vw; sh = vh; sx = 0; sy = 0;
-  }
-
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, ow, oh);
-
   if (zoom >= 1) {
-    ctx.drawImage(vid, sx, sy, sw, sh, 0, 0, ow, oh);
+    let sw = Math.max(2, Math.round(ow / zoom));
+    let sh = Math.max(2, Math.round(oh / zoom));
+    sw = sw%2===0?sw:sw-1; sh = sh%2===0?sh:sh-1;
+    ctx.drawImage(vid, Math.round(Math.max(0,vw-sw)*seg.cx), Math.round(Math.max(0,vh-sh)*seg.cy), sw, sh, 0, 0, ow, oh);
   } else {
-    const dw = Math.round(ow * zoom), dh = Math.round(oh * zoom);
-    const dx = Math.round((ow - dw) / 2), dy = Math.round((oh - dh) / 2);
-    ctx.drawImage(vid, 0, 0, vw, vh, dx, dy, dw, dh);
+    const dw=Math.round(ow*zoom), dh=Math.round(oh*zoom);
+    ctx.drawImage(vid, 0, 0, vw, vh, Math.round((ow-dw)/2), Math.round((oh-dh)/2), dw, dh);
   }
-
-  // Green crop border
-  ctx.strokeStyle = 'rgba(26,158,110,0.7)';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(1, 1, ow - 2, oh - 2);
+  ctx.strokeStyle='rgba(26,158,110,0.7)'; ctx.lineWidth=2; ctx.strokeRect(1,1,ow-2,oh-2);
 }
 
-function updatePlayheadUI() {
-  if (!videoDuration) return;
-  const pct = (vid.currentTime / videoDuration) * 100;
-  playhead.style.left = pct + '%';
-  timeDisplay.textContent = formatTime(vid.currentTime) + ' / ' + formatTime(videoDuration);
-}
-
-let lastActiveSeg = -1;
-let userSeeking = false; // true when user is manually seeking - don't auto-switch segment
-
-function checkActiveSegment() {
-  if (userSeeking) return; // don't interfere when user is seeking
-  if (vid.paused) return;  // only auto-follow when playing
+function autoFollowSegment() {
   const t = vid.currentTime;
   for (let i = 0; i < segments.length; i++) {
     if (t >= segments[i].start && t <= segments[i].end + 0.05) {
-      if (i !== lastActiveSeg) {
-        activeSeg = i;
-        lastActiveSeg = i;
-        renderSegments();
-        updatePanel();
-      }
+      if (i !== lastActiveSeg) { activeSeg=i; lastActiveSeg=i; renderSegments(); updatePanel(); }
       break;
     }
   }
 }
 
-// ─── DRAG ON OUTPUT CANVAS ────────────────────────────────────────────────────
-// ─── DOUBLE CLICK ON OUTPUT = SPLIT ──────────────────────────────────────────
-outCanvas.addEventListener('dblclick', () => {
-  const t = vid.currentTime;
-  if (t < 0.1 || t > videoDuration - 0.1) return;
-  let idx = -1;
-  for (let i = 0; i < segments.length; i++) {
-    if (t > segments[i].start && t < segments[i].end) { idx = i; break; }
-  }
-  if (idx === -1) return;
-  const orig = segments[idx];
-  const newSeg = { start: t, end: orig.end, cx: orig.cx, cy: orig.cy, zoom: orig.zoom || 1 };
-  orig.end = t;
-  segments.splice(idx + 1, 0, newSeg);
-  activeSeg = idx + 1;
-  lastActiveSeg = idx + 1;
-  renderSegments();
-  updatePanel();
-});
-
-// ─── DRAG ON OUTPUT CANVAS = REFRAME ONLY ────────────────────────────────────
+// ─── DRAG ─────────────────────────────────────────────────────────────────────
+outCanvas.addEventListener('dblclick', splitAtCurrentTime);
 outCanvas.addEventListener('mousedown', e => {
-  if (e.detail > 1) return; // ignore double click
-  isDragging = true;
-  userSeeking = true;
-  dragStartX = e.clientX;
-  dragStartY = e.clientY;
-  const s = segments[activeSeg] || { cx: 0.5, cy: 0.5 };
-  dragOriginCX = s.cx;
-  dragOriginCY = s.cy;
+  if (e.detail > 1) return;
+  isDragging=true; userSeeking=true;
+  dragStartX=e.clientX; dragStartY=e.clientY;
+  const s=segments[activeSeg]||{cx:.5,cy:.5}; dragOriginCX=s.cx; dragOriginCY=s.cy;
   e.preventDefault();
 });
-
 document.addEventListener('mousemove', e => {
-  if (!isDragging || !segments[activeSeg]) return;
-  const rect = outCanvas.getBoundingClientRect();
-  segments[activeSeg].cx = Math.max(0, Math.min(1, dragOriginCX + (e.clientX - dragStartX) / rect.width));
-  segments[activeSeg].cy = Math.max(0, Math.min(1, dragOriginCY + (e.clientY - dragStartY) / rect.height));
+  if (!isDragging||!segments[activeSeg]) return;
+  const rect=outCanvas.getBoundingClientRect();
+  segments[activeSeg].cx=Math.max(0,Math.min(1,dragOriginCX+(e.clientX-dragStartX)/rect.width));
+  segments[activeSeg].cy=Math.max(0,Math.min(1,dragOriginCY+(e.clientY-dragStartY)/rect.height));
   syncSlidersFromSeg();
 });
-
-document.addEventListener('mouseup', () => {
-  if (isDragging) {
-    isDragging = false;
-    userSeeking = false;
-    renderSegments();
-  }
-});
-
-// Scroll to zoom
+document.addEventListener('mouseup', () => { if(isDragging){isDragging=false;userSeeking=false;renderSegments();} });
 outCanvas.addEventListener('wheel', e => {
   e.preventDefault();
   if (!segments[activeSeg]) return;
-  const delta = e.deltaY < 0 ? 0.05 : -0.05;
-  segments[activeSeg].zoom = Math.max(0.5, Math.min(3, (segments[activeSeg].zoom || 1) + delta));
-  syncSlidersFromSeg();
-  renderSegments();
+  segments[activeSeg].zoom=Math.max(0.5,Math.min(3,(segments[activeSeg].zoom||1)+(e.deltaY<0?.05:-.05)));
+  syncSlidersFromSeg(); renderSegments();
 }, { passive: false });
 
 // ─── PLAYBACK ─────────────────────────────────────────────────────────────────
 document.getElementById('playBtn').addEventListener('click', () => {
-  if (vid.paused) { vid.play(); document.getElementById('playBtn').textContent = '⏸'; }
-  else { vid.pause(); document.getElementById('playBtn').textContent = '▶'; }
+  if (vid.paused) { vid.play(); document.getElementById('playBtn').textContent='⏸'; }
+  else { vid.pause(); document.getElementById('playBtn').textContent='▶'; }
 });
-
-vid.addEventListener('ended', () => {
-  vid.currentTime = 0;
-  vid.pause();
-  document.getElementById('playBtn').textContent = '▶';
-});
-
+vid.addEventListener('ended', () => { vid.currentTime=0; vid.pause(); document.getElementById('playBtn').textContent='▶'; });
 ruler.addEventListener('click', e => {
-  const rect = ruler.getBoundingClientRect();
-  const t = ((e.clientX - rect.left) / rect.width) * videoDuration;
-  userSeeking = true;
-  vid.currentTime = t;
-  // Find which segment this time belongs to and switch to it
-  for (let i = 0; i < segments.length; i++) {
-    if (t >= segments[i].start && t <= segments[i].end + 0.05) {
-      activeSeg = i; lastActiveSeg = i;
-      renderSegments(); updatePanel();
-      break;
-    }
+  const rect=ruler.getBoundingClientRect();
+  const t=((e.clientX-rect.left)/rect.width)*videoDuration;
+  userSeeking=true; vid.currentTime=t;
+  for (let i=0;i<segments.length;i++) {
+    if (t>=segments[i].start&&t<=segments[i].end+.05) { activeSeg=i;lastActiveSeg=i;renderSegments();updatePanel();break; }
   }
-  setTimeout(() => { userSeeking = false; }, 300);
+  setTimeout(()=>{userSeeking=false;},300);
 });
 
 // ─── SPLIT ────────────────────────────────────────────────────────────────────
-document.getElementById('splitBtn').addEventListener('click', () => {
-  const t = vid.currentTime;
-  if (t < 0.1 || t > videoDuration - 0.1) return;
-  let idx = -1;
-  for (let i = 0; i < segments.length; i++) {
-    if (t > segments[i].start && t < segments[i].end) { idx = i; break; }
-  }
-  if (idx === -1) return;
-  const orig = segments[idx];
-  const newSeg = { start: t, end: orig.end, cx: orig.cx, cy: orig.cy, zoom: orig.zoom || 1 };
-  orig.end = t;
-  segments.splice(idx + 1, 0, newSeg);
-  activeSeg = idx + 1;
-  renderSegments();
-  updatePanel();
-});
-
-// ─── ADD SEGMENT ──────────────────────────────────────────────────────────────
+function splitAtCurrentTime() {
+  const t=vid.currentTime;
+  if (t<.1||t>videoDuration-.1) return;
+  let idx=-1;
+  for (let i=0;i<segments.length;i++) { if(t>segments[i].start&&t<segments[i].end){idx=i;break;} }
+  if (idx===-1) return;
+  const o=segments[idx];
+  segments.splice(idx+1,0,{start:t,end:o.end,cx:o.cx,cy:o.cy,zoom:o.zoom||1});
+  o.end=t; activeSeg=idx+1; lastActiveSeg=idx+1;
+  renderSegments(); updatePanel();
+}
+document.getElementById('splitBtn').addEventListener('click', splitAtCurrentTime);
 document.getElementById('addSegBtn').addEventListener('click', () => {
-  const last = segments[segments.length - 1];
-  if (last && last.end - last.start > 0.4) {
-    const mid = (last.start + last.end) / 2;
-    segments.push({ start: mid, end: last.end, cx: last.cx, cy: last.cy, zoom: last.zoom || 1 });
-    last.end = mid;
-    activeSeg = segments.length - 1;
+  const last=segments[segments.length-1];
+  if (last&&last.end-last.start>.4) {
+    const mid=(last.start+last.end)/2;
+    segments.push({start:mid,end:last.end,cx:last.cx,cy:last.cy,zoom:last.zoom||1});
+    last.end=mid; activeSeg=segments.length-1;
   }
-  renderSegments();
-  updatePanel();
+  renderSegments(); updatePanel();
 });
 
-// ─── MODE SWITCH ─────────────────────────────────────────────────────────────
-document.getElementById('mL2P').addEventListener('click', () => {
-  mode = 'l2p';
-  document.getElementById('mL2P').classList.add('active');
-  document.getElementById('mP2L').classList.remove('active');
-  if (file) setupCanvas();
-});
-document.getElementById('mP2L').addEventListener('click', () => {
-  mode = 'p2l';
-  document.getElementById('mP2L').classList.add('active');
-  document.getElementById('mL2P').classList.remove('active');
-  if (file) setupCanvas();
-});
+// ─── MODE ─────────────────────────────────────────────────────────────────────
+document.getElementById('mL2P').addEventListener('click', () => { mode='l2p'; document.getElementById('mL2P').classList.add('active'); document.getElementById('mP2L').classList.remove('active'); if(file)setupCanvas(); });
+document.getElementById('mP2L').addEventListener('click', () => { mode='p2l'; document.getElementById('mP2L').classList.add('active'); document.getElementById('mL2P').classList.remove('active'); if(file)setupCanvas(); });
 
-// ─── RENDER SEGMENTS ─────────────────────────────────────────────────────────
+// ─── SEGMENTS ─────────────────────────────────────────────────────────────────
 function renderSegments() {
-  // Timeline ruler
-  rulerTrack.innerHTML = '';
-  segments.forEach((s, i) => {
-    const el = document.createElement('div');
-    el.className = 'seg-block' + (i === activeSeg ? ' active-seg' : '');
-    el.style.left   = (s.start / videoDuration * 100).toFixed(2) + '%';
-    el.style.width  = ((s.end - s.start) / videoDuration * 100).toFixed(2) + '%';
-    el.style.background = COLORS[i % 8];
-    el.textContent = i + 1;
-    el.addEventListener('click', e => { e.stopPropagation(); selectSeg(i); });
+  rulerTrack.innerHTML='';
+  segments.forEach((s,i) => {
+    const el=document.createElement('div');
+    el.className='seg-block'+(i===activeSeg?' active-seg':'');
+    el.style.left=(s.start/videoDuration*100).toFixed(2)+'%';
+    el.style.width=((s.end-s.start)/videoDuration*100).toFixed(2)+'%';
+    el.style.background=COLORS[i%8]; el.textContent=i+1;
+    el.addEventListener('click',e=>{e.stopPropagation();selectSeg(i);});
     rulerTrack.appendChild(el);
   });
-
-  // List
-  segsList.innerHTML = '';
-  segments.forEach((s, i) => {
-    const row = document.createElement('div');
-    row.className = 'seg-row' + (i === activeSeg ? ' active' : '');
-    row.innerHTML = `
-      <div class="seg-dot" style="background:${COLORS[i % 8]}"></div>
-      <span class="seg-name">Seg ${i + 1}</span>
-      <span class="seg-time">${formatTime(s.start)} → ${formatTime(s.end)}</span>
-      <span class="seg-zoom">Z:${(s.zoom || 1).toFixed(1)}×</span>
-      <div class="seg-actions">
-        <button class="seg-btn" data-play="${i}">▶</button>
-        ${segments.length > 1 ? `<button class="seg-btn del" data-del="${i}">✕</button>` : ''}
-      </div>`;
-    row.addEventListener('click', e => {
-      if (e.target.dataset.play !== undefined) { selectSeg(+e.target.dataset.play); return; }
-      if (e.target.dataset.del !== undefined) { deleteSeg(+e.target.dataset.del); return; }
+  segsList.innerHTML='';
+  segments.forEach((s,i) => {
+    const row=document.createElement('div');
+    row.className='seg-row'+(i===activeSeg?' active':'');
+    row.innerHTML=`<div class="seg-dot" style="background:${COLORS[i%8]}"></div><span class="seg-name">Seg ${i+1}</span><span class="seg-time">${fmtTime(s.start)} → ${fmtTime(s.end)}</span><span class="seg-zoom">Z:${(s.zoom||1).toFixed(1)}×</span><div class="seg-actions"><button class="seg-btn" data-play="${i}">▶</button>${segments.length>1?`<button class="seg-btn del" data-del="${i}">✕</button>`:''}</div>`;
+    row.addEventListener('click',e=>{
+      if(e.target.dataset.play!==undefined){selectSeg(+e.target.dataset.play);return;}
+      if(e.target.dataset.del!==undefined){deleteSeg(+e.target.dataset.del);return;}
       selectSeg(i);
     });
     segsList.appendChild(row);
   });
 }
-
-function selectSeg(i) {
-  activeSeg = i;
-  vid.currentTime = segments[i].start;
-  lastActiveSeg = i;
-  renderSegments();
-  updatePanel();
-}
-
-function deleteSeg(i) {
-  if (segments.length <= 1) return;
-  if (i > 0) segments[i - 1].end = segments[i].end;
-  else segments[1].start = 0;
-  segments.splice(i, 1);
-  activeSeg = Math.min(activeSeg, segments.length - 1);
-  renderSegments();
-  updatePanel();
+function selectSeg(i){activeSeg=i;lastActiveSeg=i;vid.currentTime=segments[i].start;renderSegments();updatePanel();}
+function deleteSeg(i){
+  if(segments.length<=1)return;
+  if(i>0)segments[i-1].end=segments[i].end;else segments[1].start=0;
+  segments.splice(i,1);activeSeg=Math.min(activeSeg,segments.length-1);
+  renderSegments();updatePanel();
 }
 
 // ─── PANEL ────────────────────────────────────────────────────────────────────
-function updatePanel() {
-  const s = segments[activeSeg];
-  if (!s) return;
-  document.getElementById('cpNum').textContent = activeSeg + 1;
-  document.getElementById('cpTime').textContent = formatTime(s.start) + ' → ' + formatTime(s.end);
-  document.getElementById('segStart').value = s.start.toFixed(1);
-  document.getElementById('segEnd').value   = s.end.toFixed(1);
-  document.getElementById('cx').value = Math.round(s.cx * 100);
-  document.getElementById('cy').value = Math.round(s.cy * 100);
-  document.getElementById('zoom').value = Math.round((s.zoom || 1) * 100);
-  document.getElementById('cxv').textContent   = Math.round(s.cx * 100) + '%';
-  document.getElementById('cyv').textContent   = Math.round(s.cy * 100) + '%';
-  document.getElementById('zoomv').textContent = (s.zoom || 1).toFixed(2) + '×';
+function updatePanel(){
+  const s=segments[activeSeg];if(!s)return;
+  document.getElementById('cpNum').textContent=activeSeg+1;
+  document.getElementById('cpTime').textContent=fmtTime(s.start)+' → '+fmtTime(s.end);
+  document.getElementById('segStart').value=s.start.toFixed(1);
+  document.getElementById('segEnd').value=s.end.toFixed(1);
+  document.getElementById('cx').value=Math.round(s.cx*100);
+  document.getElementById('cy').value=Math.round(s.cy*100);
+  document.getElementById('zoom').value=Math.round((s.zoom||1)*100);
+  document.getElementById('cxv').textContent=Math.round(s.cx*100)+'%';
+  document.getElementById('cyv').textContent=Math.round(s.cy*100)+'%';
+  document.getElementById('zoomv').textContent=(s.zoom||1).toFixed(2)+'×';
 }
-
-function syncSlidersFromSeg() {
-  updatePanel();
-  renderSegments();
-}
-
-document.getElementById('cx').addEventListener('input', function() {
-  if (segments[activeSeg]) { segments[activeSeg].cx = +this.value / 100; document.getElementById('cxv').textContent = this.value + '%'; renderSegments(); }
-});
-document.getElementById('cy').addEventListener('input', function() {
-  if (segments[activeSeg]) { segments[activeSeg].cy = +this.value / 100; document.getElementById('cyv').textContent = this.value + '%'; renderSegments(); }
-});
-document.getElementById('zoom').addEventListener('input', function() {
-  if (segments[activeSeg]) { segments[activeSeg].zoom = +this.value / 100; document.getElementById('zoomv').textContent = (+this.value / 100).toFixed(2) + '×'; renderSegments(); }
-});
-document.getElementById('segStart').addEventListener('input', function() {
-  if (!segments[activeSeg]) return;
-  segments[activeSeg].start = Math.max(0, +this.value || 0);
-  if (activeSeg > 0) segments[activeSeg - 1].end = segments[activeSeg].start;
-  renderSegments(); updatePanel();
-});
-document.getElementById('segEnd').addEventListener('input', function() {
-  if (!segments[activeSeg]) return;
-  segments[activeSeg].end = Math.min(videoDuration, +this.value || 0);
-  if (activeSeg < segments.length - 1) segments[activeSeg + 1].start = segments[activeSeg].end;
-  renderSegments(); updatePanel();
-});
-
-window.setZoom = function(v) {
-  if (!segments[activeSeg]) return;
-  segments[activeSeg].zoom = v / 100;
-  document.getElementById('zoom').value = v;
-  document.getElementById('zoomv').textContent = (v / 100).toFixed(2) + '×';
-  renderSegments();
-};
+function syncSlidersFromSeg(){updatePanel();renderSegments();}
+document.getElementById('cx').addEventListener('input',function(){if(segments[activeSeg]){segments[activeSeg].cx=+this.value/100;document.getElementById('cxv').textContent=this.value+'%';renderSegments();}});
+document.getElementById('cy').addEventListener('input',function(){if(segments[activeSeg]){segments[activeSeg].cy=+this.value/100;document.getElementById('cyv').textContent=this.value+'%';renderSegments();}});
+document.getElementById('zoom').addEventListener('input',function(){if(segments[activeSeg]){segments[activeSeg].zoom=+this.value/100;document.getElementById('zoomv').textContent=(+this.value/100).toFixed(2)+'×';renderSegments();}});
+document.getElementById('segStart').addEventListener('input',function(){if(!segments[activeSeg])return;segments[activeSeg].start=Math.max(0,+this.value||0);if(activeSeg>0)segments[activeSeg-1].end=segments[activeSeg].start;renderSegments();updatePanel();});
+document.getElementById('segEnd').addEventListener('input',function(){if(!segments[activeSeg])return;segments[activeSeg].end=Math.min(videoDuration,+this.value||0);if(activeSeg<segments.length-1)segments[activeSeg+1].start=segments[activeSeg].end;renderSegments();updatePanel();});
+window.setZoom=v=>{if(!segments[activeSeg])return;segments[activeSeg].zoom=v/100;document.getElementById('zoom').value=v;document.getElementById('zoomv').textContent=(v/100).toFixed(2)+'×';renderSegments();};
 
 // ─── FAQ ──────────────────────────────────────────────────────────────────────
-document.querySelectorAll('.faq-q').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const ans = btn.nextElementSibling;
-    ans.classList.toggle('open');
-  });
-});
+document.querySelectorAll('.faq-q').forEach(btn=>btn.addEventListener('click',()=>btn.nextElementSibling.classList.toggle('open')));
 
-// ─── EXPORT ───────────────────────────────────────────────────────────────────
-document.getElementById('exportBtn').addEventListener('click', async () => {
+// ─── EXPORT via MediaRecorder ─────────────────────────────────────────────────
+exportBtn.addEventListener('click', async () => {
   if (!file) return;
-  const exportBtn = document.getElementById('exportBtn');
   exportBtn.disabled = true;
   progressWrap.style.display = 'block';
   pfill.style.width = '0%';
   exportNote.textContent = '';
 
   try {
-    const { createFFmpeg } = FFmpeg;
-    const ff = createFFmpeg({
-      log: false,
-      corePath: 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js',
-      mainName: 'main'
-    });
+    const vw=vid.videoWidth, vh=vid.videoHeight;
+    let outW,outH;
+    if (mode==='l2p'){outW=Math.round(vh*9/16);outH=vh;}
+    else{outW=vw;outH=Math.round(vw*9/16);}
+    outW=outW%2===0?outW:outW-1;
+    outH=outH%2===0?outH:outH-1;
 
-    progressLabel.textContent = 'Loading engine (first run ~15s)…';
-    await ff.load();
+    // Offscreen canvas for recording
+    const offscreen=document.createElement('canvas');
+    offscreen.width=outW; offscreen.height=outH;
+    const offCtx=offscreen.getContext('2d');
 
-    progressLabel.textContent = 'Reading video…';
-    // Read file as ArrayBuffer directly — more reliable than fetchFile for large files
-    const fileBuffer = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = e => resolve(new Uint8Array(e.target.result));
-      reader.onerror = reject;
-      reader.readAsArrayBuffer(file);
-    });
-    ff.FS('writeFile', 'input.mp4', fileBuffer);
+    // Pick best supported format
+    const mimeType=MediaRecorder.isTypeSupported('video/webm;codecs=vp9')?'video/webm;codecs=vp9'
+                  :MediaRecorder.isTypeSupported('video/webm;codecs=vp8')?'video/webm;codecs=vp8'
+                  :'video/webm';
 
-    const vw = vid.videoWidth, vh = vid.videoHeight;
-    let outW, outH;
-    if (mode === 'l2p') { outW = Math.round(vh * 9 / 16); outH = vh; }
-    else                { outW = vw; outH = Math.round(vw * 9 / 16); }
-    // Must be even for libx264
-    outW = outW % 2 === 0 ? outW : outW - 1;
-    outH = outH % 2 === 0 ? outH : outH - 1;
-
-    const total = segments.length;
-    const segBuffers = [];
-
-    for (let i = 0; i < total; i++) {
-      const s = segments[i];
-      const zoom = s.zoom || 1;
-      const segDur = Math.max(0.1, s.end - s.start);
-      const outName = `part${i}.mp4`;
-      let vf;
-
-      if (zoom >= 1) {
-        let sw = Math.max(2, Math.round(outW / zoom));
-        let sh = Math.max(2, Math.round(outH / zoom));
-        sw = sw % 2 === 0 ? sw : sw - 1;
-        sh = sh % 2 === 0 ? sh : sh - 1;
-        const sx = Math.round(Math.max(0, vw - sw) * s.cx);
-        const sy = Math.round(Math.max(0, vh - sh) * s.cy);
-        vf = `crop=${sw}:${sh}:${sx}:${sy},scale=${outW}:${outH}:flags=lanczos`;
-      } else {
-        const scaleW = Math.round(outW * zoom) % 2 === 0 ? Math.round(outW * zoom) : Math.round(outW * zoom) - 1;
-        const scaleH = Math.round(outH * zoom) % 2 === 0 ? Math.round(outH * zoom) : Math.round(outH * zoom) - 1;
-        const padX = Math.round((outW - scaleW) / 2);
-        const padY = Math.round((outH - scaleH) / 2);
-        vf = `scale=${scaleW}:${scaleH}:flags=lanczos,pad=${outW}:${outH}:${padX}:${padY}:black`;
-      }
-
-      progressLabel.textContent = `Exporting segment ${i + 1} of ${total}…`;
-      pfill.style.width = Math.round((i / total) * 85) + '%';
-
-      // Check if this segment is basically the whole video with no crop changes
-      // If zoom=1 and crop is centered, we can be more lenient with quality
-      const args = [
-        '-ss', s.start.toFixed(3),
-        '-i', 'input.mp4',
-        '-t', segDur.toFixed(3),
-        '-vf', vf,
-        '-c:v', 'libx264',
-        '-preset', 'fast',  // faster than medium, still good quality
-        '-crf', '16',       // higher quality (lower = better, 16 is near-lossless)
-        '-pix_fmt', 'yuv420p',
-        '-c:a', 'aac', '-b:a', '192k',
-        '-movflags', '+faststart',
-        outName
-      ];
-
-      await ff.run(...args);
-
-      segBuffers.push(ff.FS('readFile', outName));
-      ff.FS('unlink', outName);
+    // Capture audio from video element
+    let recordStream;
+    try {
+      const audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+      const src=audioCtx.createMediaElementSource(vid);
+      const dest=audioCtx.createMediaStreamDestination();
+      src.connect(dest); src.connect(audioCtx.destination);
+      recordStream=offscreen.captureStream(30);
+      dest.stream.getAudioTracks().forEach(t=>recordStream.addTrack(t));
+    } catch(e) {
+      recordStream=offscreen.captureStream(30);
     }
 
-    pfill.style.width = '90%';
+    const recorder=new MediaRecorder(recordStream,{mimeType,videoBitsPerSecond:8_000_000});
+    const chunks=[];
+    recorder.ondataavailable=e=>{if(e.data.size>0)chunks.push(e.data);};
+    recorder.start(100);
 
-    let finalData;
-    if (segBuffers.length === 1) {
-      finalData = segBuffers[0];
-    } else {
-      progressLabel.textContent = 'Joining segments…';
-      segBuffers.forEach((buf, i) => ff.FS('writeFile', `s${i}.mp4`, buf));
-      const list = segBuffers.map((_, i) => `file 's${i}.mp4'`).join('\n');
-      ff.FS('writeFile', 'list.txt', new TextEncoder().encode(list));
-      await ff.run(
-        '-f', 'concat', '-safe', '0', '-i', 'list.txt',
-        '-c:v', 'libx264', '-preset', 'medium', '-crf', '18',
-        '-pix_fmt', 'yuv420p',
-        '-c:a', 'aac', '-b:a', '192k',
-        '-movflags', '+faststart',
-        'final.mp4'
-      );
-      finalData = ff.FS('readFile', 'final.mp4');
+    const totalDur=segments.reduce((s,seg)=>s+(seg.end-seg.start),0);
+    let done=0;
+
+    for (let i=0;i<segments.length;i++) {
+      const s=segments[i];
+      const segDur=s.end-s.start;
+      progressLabel.textContent=`Processing segment ${i+1} of ${segments.length}…`;
+
+      await new Promise(resolve=>{
+        vid.currentTime=s.start;
+        vid.onseeked=()=>{
+          vid.play();
+          const t0=performance.now();
+          function loop(){
+            const elapsed=(performance.now()-t0)/1000;
+            // Draw frame to offscreen canvas
+            offCtx.fillStyle='#000';
+            offCtx.fillRect(0,0,outW,outH);
+            const zoom=s.zoom||1;
+            if(zoom>=1){
+              let sw=Math.max(2,Math.round(outW/zoom));
+              let sh=Math.max(2,Math.round(outH/zoom));
+              sw=sw%2===0?sw:sw-1;sh=sh%2===0?sh:sh-1;
+              offCtx.drawImage(vid,Math.round(Math.max(0,vw-sw)*s.cx),Math.round(Math.max(0,vh-sh)*s.cy),sw,sh,0,0,outW,outH);
+            } else {
+              const dw=Math.round(outW*zoom),dh=Math.round(outH*zoom);
+              offCtx.drawImage(vid,0,0,vw,vh,Math.round((outW-dw)/2),Math.round((outH-dh)/2),dw,dh);
+            }
+            done+=1/30;
+            pfill.style.width=Math.min(95,Math.round(done/totalDur*100))+'%';
+            if(elapsed>=segDur||vid.currentTime>=s.end-.05){
+              vid.pause();
+              resolve();
+            } else {
+              requestAnimationFrame(loop);
+            }
+          }
+          requestAnimationFrame(loop);
+        };
+      });
     }
 
-    pfill.style.width = '100%';
-    progressLabel.textContent = 'Done! Downloading…';
+    recorder.stop();
+    progressLabel.textContent='Finalising…';
+    await new Promise(r=>{recorder.onstop=r;});
 
-    const suffix = mode === 'l2p' ? '_portrait' : '_landscape';
-    const outName = file.name.replace(/\.[^.]+$/, '') + suffix + '.mp4';
-    const blob = new Blob([finalData.buffer], { type: 'video/mp4' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = outName;
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => { URL.revokeObjectURL(a.href); document.body.removeChild(a); }, 1000);
+    pfill.style.width='100%';
+    progressLabel.textContent='Done! Downloading…';
 
-    exportNote.textContent = 'Processed entirely in your browser — your video was never uploaded.';
+    const blob=new Blob(chunks,{type:mimeType});
+    const suffix=mode==='l2p'?'_portrait':'_landscape';
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=file.name.replace(/\.[^.]+$/,'')+suffix+'.webm';
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{URL.revokeObjectURL(a.href);document.body.removeChild(a);},1000);
 
-  } catch (err) {
-    progressLabel.textContent = '';
-    exportNote.textContent = '⚠ ' + err.message;
+    exportNote.textContent='✓ Done! File exports as .webm — plays in Chrome, Firefox, and VLC.';
+
+  } catch(err) {
+    progressLabel.textContent='';
+    exportNote.textContent='⚠ '+err.message;
     console.error(err);
   }
-
-  document.getElementById('exportBtn').disabled = false;
+  exportBtn.disabled=false;
 });
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
-function formatTime(s) {
-  const m = Math.floor(s / 60);
-  const sec = Math.floor(s % 60);
-  return m + ':' + String(sec).padStart(2, '0');
-}
-
-function formatSize(b) {
-  if (b > 1e9) return (b / 1e9).toFixed(1) + ' GB';
-  if (b > 1e6) return (b / 1e6).toFixed(1) + ' MB';
-  return (b / 1e3).toFixed(0) + ' KB';
-}
+function fmtTime(s){return Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');}
+function fmtSize(b){return b>1e9?(b/1e9).toFixed(1)+' GB':b>1e6?(b/1e6).toFixed(1)+' MB':(b/1e3).toFixed(0)+' KB';}

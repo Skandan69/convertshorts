@@ -298,18 +298,7 @@ exportBtn.addEventListener('click', async () => {
     progressLabel.textContent = 'Writing to processor…';
     ff.FS('writeFile', 'input.mp4', uint8);
     console.log('File written, size:', uint8.length);
-
-    // Strip any rotation metadata from input so crop is applied to actual pixels
-    progressLabel.textContent = 'Preparing video…';
     pfill.style.width = '35%';
-    await ff.run(
-      '-i', 'input.mp4',
-      '-c', 'copy',
-      '-map_metadata', '-1',
-      '-metadata:s:v', 'rotate=0',
-      'input_norot.mp4'
-    );
-    console.log('Rotation stripped');
     pfill.style.width = '30%';
 
     // Step 4: Test FFmpeg works with a simple probe
@@ -353,11 +342,11 @@ exportBtn.addEventListener('click', async () => {
         const maxSY = Math.max(0, vh - sh);
         const sx = Math.round(maxSX * s.cx);
         const sy = Math.round(maxSY * s.cy);
-        vf = `crop=${sw}:${sh}:${sx}:${sy},scale=${outW}:${outH}:flags=lanczos`;
+        vf = `crop=${sw}:${sh}:${sx}:${sy},scale=${outW}:${outH}:flags=lanczos,setsar=1`;
       } else {
         let sw = Math.round(outW*zoom); let sh = Math.round(outH*zoom);
         sw = sw%2===0?sw:sw-1; sh = sh%2===0?sh:sh-1;
-        vf = `scale=${sw}:${sh}:flags=lanczos,pad=${outW}:${outH}:${Math.round((outW-sw)/2)}:${Math.round((outH-sh)/2)}:black`;
+        vf = `scale=${sw}:${sh}:flags=lanczos,pad=${outW}:${outH}:${Math.round((outW-sw)/2)}:${Math.round((outH-sh)/2)}:black,setsar=1`;
       }
       console.log(`Seg ${i+1}: crop region sw=${Math.round(outW/(s.zoom||1))} sh=${Math.round(outH/(s.zoom||1))} → output ${outW}x${outH}`);
 
@@ -365,8 +354,9 @@ exportBtn.addEventListener('click', async () => {
       console.log(`Running segment ${i+1}: -ss ${s.start.toFixed(2)} -t ${segDur.toFixed(2)} -vf "${vf}"`);
 
       await ff.run(
+        '-noautorotate',
         '-ss', s.start.toFixed(3),
-        '-i', 'input_norot.mp4',
+        '-i', 'input.mp4',
         '-t', segDur.toFixed(3),
         '-vf', vf,
         '-c:v', 'libx264', '-preset', 'fast', '-crf', '16',
@@ -398,6 +388,7 @@ exportBtn.addEventListener('click', async () => {
         '-f', 'concat', '-safe', '0', '-i', 'list.txt',
         '-c:v', 'libx264', '-preset', 'fast', '-crf', '16',
         '-pix_fmt', 'yuv420p',
+        '-vf', 'setsar=1',
         '-c:a', 'aac', '-b:a', '192k',
         '-movflags', '+faststart',
         '-map_metadata', '-1',
@@ -409,15 +400,20 @@ exportBtn.addEventListener('click', async () => {
     }
 
     pfill.style.width = '100%';
-    progressLabel.textContent = 'Done! Downloading…';
+    progressLabel.textContent = 'Done!';
 
     const suffix = mode === 'l2p' ? '_portrait' : '_landscape';
+    const outName = file.name.replace(/\.[^.]+$/, '') + suffix + '.mp4';
+    const blobUrl = URL.createObjectURL(new Blob([finalData.buffer], { type: 'video/mp4' }));
+
+    // Auto-download attempt
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([finalData.buffer], { type: 'video/mp4' }));
-    a.download = file.name.replace(/\.[^.]+$/, '') + suffix + '.mp4';
+    a.href = blobUrl; a.download = outName;
     document.body.appendChild(a); a.click();
-    setTimeout(() => { URL.revokeObjectURL(a.href); document.body.removeChild(a); }, 1000);
-    exportNote.textContent = '✓ Done! Processed entirely in your browser.';
+    document.body.removeChild(a);
+
+    // Always show a manual link too
+    exportNote.innerHTML = `✓ Done! If download didn't start: <a href="${blobUrl}" download="${outName}" style="color:var(--green);font-weight:700;">click here to download</a><br><small>Processed entirely in your browser — nothing was uploaded.</small>`;
 
   } catch (err) {
     progressLabel.textContent = 'Error — see details below';

@@ -69,9 +69,18 @@ document.getElementById('changeBtn').addEventListener('click', () => {
 // ─── CANVAS ───────────────────────────────────────────────────────────────────
 function setupCanvas() {
   const vw = vid.videoWidth, vh = vid.videoHeight;
-  if (mode === 'l2p') { outCanvas.width = Math.round(vh * 9 / 16); outCanvas.height = vh; }
-  else                { outCanvas.width = vw; outCanvas.height = Math.round(vw * 9 / 16); }
-  outCanvas.style.width = '100%'; outCanvas.style.height = 'auto';
+  if (mode === 'l2p') {
+    // Landscape → Portrait: tall output, width = height × 9/16
+    outCanvas.width  = Math.round(vh * 9 / 16);
+    outCanvas.height = vh;
+  } else {
+    // Portrait → Landscape: wide output, height = width × 9/16
+    outCanvas.width  = vw;
+    outCanvas.height = Math.round(vw * 9 / 16);
+  }
+  outCanvas.style.width = '100%';
+  outCanvas.style.height = 'auto';
+  console.log('Canvas set to:', outCanvas.width, 'x', outCanvas.height, 'mode:', mode);
 }
 
 // ─── PREVIEW LOOP ─────────────────────────────────────────────────────────────
@@ -294,8 +303,19 @@ exportBtn.addEventListener('click', async () => {
     // Step 4: Test FFmpeg works with a simple probe
     const vw = vid.videoWidth, vh = vid.videoHeight;
     let outW, outH;
-    if (mode === 'l2p') { outW = Math.round(vh * 9 / 16); outH = vh; }
-    else                { outW = vw; outH = Math.round(vw * 9 / 16); }
+
+    // l2p: landscape (wide) → portrait (tall)
+    // Source: 1920×1080 → Output must be 9:16 ratio using the HEIGHT as reference
+    // Portrait width = height × 9/16, height stays the same
+    if (mode === 'l2p') {
+      outH = vh;                          // keep source height
+      outW = Math.round(vh * 9 / 16);    // width = height × 9/16 (narrow crop)
+    } else {
+      // p2l: portrait (tall) → landscape (wide)
+      // Source: e.g. 1080×1920 → Output must be 16:9 ratio using WIDTH as reference
+      outW = vw;                          // keep source width
+      outH = Math.round(vw * 9 / 16);    // height = width × 9/16 (short crop)
+    }
     outW = outW%2===0?outW:outW-1;
     outH = outH%2===0?outH:outH-1;
     console.log('Source:', vw, 'x', vh, '| Output:', outW, 'x', outH, '| Mode:', mode);
@@ -311,17 +331,23 @@ exportBtn.addEventListener('click', async () => {
 
       let vf;
       if (zoom >= 1) {
+        // Crop a region from the source then scale to output
+        // The crop region has the same aspect ratio as output
         let sw = Math.max(2, Math.round(outW / zoom));
         let sh = Math.max(2, Math.round(outH / zoom));
         sw = sw%2===0?sw:sw-1; sh = sh%2===0?sh:sh-1;
-        const sx = Math.round(Math.max(0, vw-sw) * s.cx);
-        const sy = Math.round(Math.max(0, vh-sh) * s.cy);
+        // sx/sy position the crop within the source frame
+        const maxSX = Math.max(0, vw - sw);
+        const maxSY = Math.max(0, vh - sh);
+        const sx = Math.round(maxSX * s.cx);
+        const sy = Math.round(maxSY * s.cy);
         vf = `crop=${sw}:${sh}:${sx}:${sy},scale=${outW}:${outH}:flags=lanczos`;
       } else {
         let sw = Math.round(outW*zoom); let sh = Math.round(outH*zoom);
         sw = sw%2===0?sw:sw-1; sh = sh%2===0?sh:sh-1;
         vf = `scale=${sw}:${sh}:flags=lanczos,pad=${outW}:${outH}:${Math.round((outW-sw)/2)}:${Math.round((outH-sh)/2)}:black`;
       }
+      console.log(`Seg ${i+1}: crop region sw=${Math.round(outW/(s.zoom||1))} sh=${Math.round(outH/(s.zoom||1))} → output ${outW}x${outH}`);
 
       progressLabel.textContent = `Exporting segment ${i+1} of ${total}…`;
       console.log(`Running segment ${i+1}: -ss ${s.start.toFixed(2)} -t ${segDur.toFixed(2)} -vf "${vf}"`);

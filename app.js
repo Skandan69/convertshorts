@@ -298,6 +298,18 @@ exportBtn.addEventListener('click', async () => {
     progressLabel.textContent = 'Writing to processor…';
     ff.FS('writeFile', 'input.mp4', uint8);
     console.log('File written, size:', uint8.length);
+
+    // Strip any rotation metadata from input so crop is applied to actual pixels
+    progressLabel.textContent = 'Preparing video…';
+    pfill.style.width = '35%';
+    await ff.run(
+      '-i', 'input.mp4',
+      '-c', 'copy',
+      '-map_metadata', '-1',
+      '-metadata:s:v', 'rotate=0',
+      'input_norot.mp4'
+    );
+    console.log('Rotation stripped');
     pfill.style.width = '30%';
 
     // Step 4: Test FFmpeg works with a simple probe
@@ -354,13 +366,15 @@ exportBtn.addEventListener('click', async () => {
 
       await ff.run(
         '-ss', s.start.toFixed(3),
-        '-i', 'input.mp4',
+        '-i', 'input_norot.mp4',
         '-t', segDur.toFixed(3),
         '-vf', vf,
         '-c:v', 'libx264', '-preset', 'fast', '-crf', '16',
         '-pix_fmt', 'yuv420p',
         '-c:a', 'aac', '-b:a', '192k',
         '-movflags', '+faststart',
+        '-map_metadata', '-1',        // strip all metadata including rotation
+        '-metadata:s:v', 'rotate=0', // force no rotation
         outName
       );
 
@@ -380,7 +394,16 @@ exportBtn.addEventListener('click', async () => {
       parts.forEach((d,i) => ff.FS('writeFile', `s${i}.mp4`, d));
       const list = parts.map((_,i) => `file 's${i}.mp4'`).join('\n');
       ff.FS('writeFile', 'list.txt', new TextEncoder().encode(list));
-      await ff.run('-f','concat','-safe','0','-i','list.txt','-c','copy','final.mp4');
+      await ff.run(
+        '-f', 'concat', '-safe', '0', '-i', 'list.txt',
+        '-c:v', 'libx264', '-preset', 'fast', '-crf', '16',
+        '-pix_fmt', 'yuv420p',
+        '-c:a', 'aac', '-b:a', '192k',
+        '-movflags', '+faststart',
+        '-map_metadata', '-1',
+        '-metadata:s:v', 'rotate=0',
+        'final.mp4'
+      );
       finalData = ff.FS('readFile', 'final.mp4');
       console.log('Final merged size:', finalData.length);
     }

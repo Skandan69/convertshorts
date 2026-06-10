@@ -153,3 +153,23 @@ hr.div { border: none; border-top: 1px solid var(--border); }
   nav { padding: 0 1rem; }
   .tool-wrap { padding: 0 1rem 3rem; }
 }
+
+/* SEO TEXT SECTION */
+.seo-text { font-size: 15px; color: var(--muted); line-height: 1.8; max-width: 720px; }
+.seo-text p { margin-bottom: 1rem; }
+.seo-text h3 { font-size: 16px; font-weight: 700; color: var(--black); margin: 1.5rem 0 0.5rem; }
+.seo-text strong { color: var(--black); font-weight: 600; }
+
+/* WHY GRID */
+.why-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+.why-card { padding: 1.25rem; border: 1px solid var(--border); border-radius: var(--rl); background: var(--white); }
+.why-ic { font-size: 20px; margin-bottom: 8px; }
+.why-t { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.why-b { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+/* PLATFORMS */
+.platforms { display: flex; gap: 8px; flex-wrap: wrap; }
+.pill { display: flex; align-items: center; gap: 5px; padding: 5px 12px; background: var(--white); border: 1px solid var(--border); border-radius: 20px; font-size: 13px; font-weight: 500; }
+
+/* SEC SUB */
+.sec-sub { font-size: 15px; color: var(--muted); margin-bottom: 1.5rem; }

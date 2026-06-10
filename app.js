@@ -450,7 +450,7 @@ document.getElementById('exportBtn').addEventListener('click', async () => {
   exportNote.textContent = '';
 
   try {
-    const { createFFmpeg, fetchFile } = FFmpeg;
+    const { createFFmpeg } = FFmpeg;
     const ff = createFFmpeg({
       log: false,
       corePath: 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js',
@@ -461,7 +461,14 @@ document.getElementById('exportBtn').addEventListener('click', async () => {
     await ff.load();
 
     progressLabel.textContent = 'Reading video…';
-    ff.FS('writeFile', 'input.mp4', await fetchFile(file));
+    // Read file as ArrayBuffer directly — more reliable than fetchFile for large files
+    const fileBuffer = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(new Uint8Array(e.target.result));
+      reader.onerror = reject;
+      reader.readAsArrayBuffer(file);
+    });
+    ff.FS('writeFile', 'input.mp4', fileBuffer);
 
     const vw = vid.videoWidth, vh = vid.videoHeight;
     let outW, outH;

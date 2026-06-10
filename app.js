@@ -251,7 +251,7 @@ window.setZoom=v=>{if(!segments[activeSeg])return;segments[activeSeg].zoom=v/100
 // ─── FAQ ──────────────────────────────────────────────────────────────────────
 document.querySelectorAll('.faq-q').forEach(btn=>btn.addEventListener('click',()=>btn.nextElementSibling.classList.toggle('open')));
 
-// ─── EXPORT via FFmpeg (proper quality) ───────────────────────────────────────
+// ─── EXPORT via FFmpeg ────────────────────────────────────────────────────────
 exportBtn.addEventListener('click', async () => {
   if (!file) return;
   exportBtn.disabled = true;
@@ -260,35 +260,45 @@ exportBtn.addEventListener('click', async () => {
   exportNote.textContent = '';
 
   try {
-    const { createFFmpeg } = FFmpeg;
-    const ff = createFFmpeg({
-      log: false,
-      corePath: 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js',
-      mainName: 'main'
-    });
-
-    progressLabel.textContent = 'Loading engine (~15s first time)…';
-    await ff.load();
-
-    // ── Read file via FileReader — most reliable method ──
+    // Step 1: Read file first — before loading FFmpeg
     progressLabel.textContent = 'Reading your video…';
+    pfill.style.width = '10%';
+
     const uint8 = await new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload  = e => resolve(new Uint8Array(e.target.result));
-      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.onload  = e => { console.log('FileReader done, bytes:', e.target.result.byteLength); resolve(new Uint8Array(e.target.result)); };
+      reader.onerror = e => { console.error('FileReader error', e); reject(new Error('FileReader failed')); };
       reader.readAsArrayBuffer(file);
     });
-    ff.FS('writeFile', 'input.mp4', uint8);
-    console.log('File written to FFmpeg FS, size:', uint8.length);
 
+    pfill.style.width = '20%';
+    progressLabel.textContent = 'Loading FFmpeg engine…';
+
+    // Step 2: Load FFmpeg
+    const { createFFmpeg } = FFmpeg;
+    const ff = createFFmpeg({ log: true });
+
+    ff.setProgress(({ ratio }) => {
+      if (ratio > 0) pfill.style.width = Math.round(20 + ratio * 65) + '%';
+    });
+
+    await ff.load();
+    console.log('FFmpeg loaded OK');
+
+    // Step 3: Write file
+    progressLabel.textContent = 'Writing to processor…';
+    ff.FS('writeFile', 'input.mp4', uint8);
+    console.log('File written, size:', uint8.length);
+    pfill.style.width = '30%';
+
+    // Step 4: Test FFmpeg works with a simple probe
     const vw = vid.videoWidth, vh = vid.videoHeight;
     let outW, outH;
     if (mode === 'l2p') { outW = Math.round(vh * 9 / 16); outH = vh; }
     else                { outW = vw; outH = Math.round(vw * 9 / 16); }
     outW = outW%2===0?outW:outW-1;
     outH = outH%2===0?outH:outH-1;
-
-    console.log('Output dimensions:', outW, 'x', outH);
+    console.log('Source:', vw, 'x', vh, '| Output:', outW, 'x', outH, '| Mode:', mode);
 
     const total = segments.length;
     const parts = [];
@@ -299,26 +309,22 @@ exportBtn.addEventListener('click', async () => {
       const zoom = s.zoom || 1;
       const outName = `part${i}.mp4`;
 
-      // Build crop filter
       let vf;
       if (zoom >= 1) {
-        // Zoom in: sample smaller region from source
         let sw = Math.max(2, Math.round(outW / zoom));
         let sh = Math.max(2, Math.round(outH / zoom));
         sw = sw%2===0?sw:sw-1; sh = sh%2===0?sh:sh-1;
-        const sx = Math.round(Math.max(0, vw - sw) * s.cx);
-        const sy = Math.round(Math.max(0, vh - sh) * s.cy);
+        const sx = Math.round(Math.max(0, vw-sw) * s.cx);
+        const sy = Math.round(Math.max(0, vh-sh) * s.cy);
         vf = `crop=${sw}:${sh}:${sx}:${sy},scale=${outW}:${outH}:flags=lanczos`;
       } else {
-        // Zoom out: scale down + pad with black
-        let sw = Math.round(outW * zoom); let sh = Math.round(outH * zoom);
+        let sw = Math.round(outW*zoom); let sh = Math.round(outH*zoom);
         sw = sw%2===0?sw:sw-1; sh = sh%2===0?sh:sh-1;
         vf = `scale=${sw}:${sh}:flags=lanczos,pad=${outW}:${outH}:${Math.round((outW-sw)/2)}:${Math.round((outH-sh)/2)}:black`;
       }
 
       progressLabel.textContent = `Exporting segment ${i+1} of ${total}…`;
-      pfill.style.width = Math.round((i / total) * 85) + '%';
-      console.log(`Segment ${i+1}: ss=${s.start.toFixed(2)} t=${segDur.toFixed(2)} vf=${vf}`);
+      console.log(`Running segment ${i+1}: -ss ${s.start.toFixed(2)} -t ${segDur.toFixed(2)} -vf "${vf}"`);
 
       await ff.run(
         '-ss', s.start.toFixed(3),
@@ -333,33 +339,26 @@ exportBtn.addEventListener('click', async () => {
       );
 
       const data = ff.FS('readFile', outName);
-      console.log(`Segment ${i+1} output size:`, data.length, 'bytes');
+      console.log(`Segment ${i+1} done, output size:`, data.length);
+      if (data.length < 1000) throw new Error(`Segment ${i+1} output too small (${data.length} bytes) — FFmpeg may have failed. Check console.`);
       parts.push(data);
       ff.FS('unlink', outName);
+      pfill.style.width = Math.round(30 + ((i+1)/total) * 55) + '%';
     }
 
-    pfill.style.width = '90%';
     let finalData;
-
     if (parts.length === 1) {
       finalData = parts[0];
     } else {
       progressLabel.textContent = 'Joining segments…';
-      parts.forEach((d, i) => ff.FS('writeFile', `s${i}.mp4`, d));
+      parts.forEach((d,i) => ff.FS('writeFile', `s${i}.mp4`, d));
       const list = parts.map((_,i) => `file 's${i}.mp4'`).join('\n');
       ff.FS('writeFile', 'list.txt', new TextEncoder().encode(list));
-      await ff.run(
-        '-f', 'concat', '-safe', '0', '-i', 'list.txt',
-        '-c:v', 'libx264', '-preset', 'fast', '-crf', '16',
-        '-pix_fmt', 'yuv420p',
-        '-c:a', 'aac', '-b:a', '192k',
-        '-movflags', '+faststart',
-        'final.mp4'
-      );
+      await ff.run('-f','concat','-safe','0','-i','list.txt','-c','copy','final.mp4');
       finalData = ff.FS('readFile', 'final.mp4');
+      console.log('Final merged size:', finalData.length);
     }
 
-    console.log('Final output size:', finalData.length, 'bytes');
     pfill.style.width = '100%';
     progressLabel.textContent = 'Done! Downloading…';
 
@@ -369,13 +368,12 @@ exportBtn.addEventListener('click', async () => {
     a.download = file.name.replace(/\.[^.]+$/, '') + suffix + '.mp4';
     document.body.appendChild(a); a.click();
     setTimeout(() => { URL.revokeObjectURL(a.href); document.body.removeChild(a); }, 1000);
-
-    exportNote.textContent = '✓ Processed entirely in your browser — nothing was uploaded.';
+    exportNote.textContent = '✓ Done! Processed entirely in your browser.';
 
   } catch (err) {
-    progressLabel.textContent = '';
+    progressLabel.textContent = 'Error — see details below';
     exportNote.textContent = '⚠ ' + err.message;
-    console.error('Export error:', err);
+    console.error('Export failed:', err);
   }
 
   exportBtn.disabled = false;

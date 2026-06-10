@@ -342,7 +342,7 @@ exportBtn.addEventListener('click', async () => {
         const maxSY = Math.max(0, vh - sh);
         const sx = Math.round(maxSX * s.cx);
         const sy = Math.round(maxSY * s.cy);
-        vf = `crop=${sw}:${sh}:${sx}:${sy},scale=${outW}:${outH}:flags=lanczos,setsar=1`;
+        vf = `crop=${sw}:${sh}:${sx}:${sy},scale=${outW}:${outH}:flags=lanczos:force_original_aspect_ratio=decrease,pad=${outW}:${outH}:(ow-iw)/2:(oh-ih)/2:black,setsar=1`;
       } else {
         let sw = Math.round(outW*zoom); let sh = Math.round(outH*zoom);
         sw = sw%2===0?sw:sw-1; sh = sh%2===0?sh:sh-1;

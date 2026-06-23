@@ -8,122 +8,151 @@
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#0c0c0e;--bg2:#111116;--bg3:#17171f;--border:#1e1e2a;
-  --text:#d0d0d8;--muted:#666;--dim:#444;
-  --purple:#6c63ff;--purple-light:#a78bfa;
-  --green:#22c55e;--orange:#f4a261;--red:#ef4444;
-  --card:#141420;
+  --text:#d0d0d8;--muted:#666;--dim:#3a3a3a;
+  --purple:#6c63ff;--purple2:#a78bfa;
+  --green:#22c55e;--red:#ef4444;--amber:#fbbf24;
 }
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
-/* ── HEADER ── */
-.hdr{background:linear-gradient(135deg,#12121e,#1a1a2e);padding:28px 40px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
-.hdr-left h1{font-size:22px;font-weight:700;color:#fff;letter-spacing:-.4px}
-.hdr-left h1 em{color:var(--purple);font-style:normal}
-.hdr-left p{color:var(--muted);font-size:12px;margin-top:3px}
-.hdr-right{display:flex;gap:10px;align-items:center}
+/* HEADER */
+.hdr{background:linear-gradient(135deg,#12121e,#1a1a2e);padding:18px 32px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.hdr-brand{display:flex;align-items:center;gap:10px}
+.hdr h1{font-size:19px;font-weight:700;color:#fff}
+.hdr h1 em{color:var(--purple);font-style:normal}
+.hdr-sub{color:var(--muted);font-size:11px;margin-top:1px}
+.hdr-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.learn-pill{background:rgba(108,99,255,.12);border:1px solid rgba(108,99,255,.3);border-radius:16px;padding:4px 11px;font-size:11px;color:var(--purple2);cursor:pointer}
+.learn-pill:hover{background:rgba(108,99,255,.2)}
+.learn-pill strong{color:#fff}
 
-/* ── BUTTONS ── */
-.btn{padding:9px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+/* BUTTONS */
+.btn{padding:8px 16px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
 .btn-primary{background:var(--purple);color:#fff}
-.btn-primary:hover{background:#7c73ff}
-.btn-primary:disabled{background:#333;color:#666;cursor:not-allowed}
-.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border)}
-.btn-outline:hover{border-color:var(--purple);color:var(--purple-light)}
-.btn-sm{padding:5px 12px;font-size:12px}
+.btn-primary:hover:not(:disabled){background:#7c73ff}
+.btn-primary:disabled{background:#252530;color:#555;cursor:not-allowed}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border);font-size:11px;padding:6px 12px}
+.btn-ghost:hover{border-color:var(--purple);color:var(--purple2)}
 
-/* ── SETTINGS MODAL ── */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;display:none;align-items:center;justify-content:center}
+/* MODALS */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:200;display:none;align-items:center;justify-content:center;padding:16px}
 .overlay.open{display:flex}
-.modal{background:#1a1a2e;border:1px solid var(--border);border-radius:14px;padding:28px 32px;width:100%;max-width:480px;box-shadow:0 24px 60px rgba(0,0,0,.5)}
-.modal h2{font-size:18px;font-weight:700;color:#fff;margin-bottom:6px}
-.modal p{color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:20px}
-.form-group{margin-bottom:16px}
-.form-group label{display:block;font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
-.form-group input{width:100%;background:#0c0c14;border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-size:13px;font-family:monospace}
-.form-group input:focus{outline:none;border-color:var(--purple)}
-.form-group input::placeholder{color:var(--dim)}
-.modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
-.key-status{font-size:12px;margin-top:6px}
-.key-status.set{color:var(--green)}
-.key-status.unset{color:var(--muted)}
+.modal{background:#1a1a2e;border:1px solid var(--border);border-radius:12px;padding:22px 26px;width:100%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.modal h2{font-size:16px;font-weight:700;color:#fff;margin-bottom:4px}
+.modal-desc{color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:16px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.field input{width:100%;background:#0c0c14;border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-size:12px;font-family:monospace}
+.field input:focus{outline:none;border-color:var(--purple)}
+.field input::placeholder{color:#333}
+.field-note{font-size:11px;color:#444;margin-top:4px}
+.field-note a{color:var(--purple)}
+.key-ok{font-size:11px;color:var(--green);margin-top:4px}
+.key-no{font-size:11px;color:var(--muted);margin-top:4px}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
 
-/* ── STATS BAR ── */
-.stats-bar{display:flex;gap:16px;padding:16px 40px;border-bottom:1px solid var(--border);flex-wrap:wrap}
-.stat{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
-.stat-num{color:#fff;font-weight:700;font-size:15px}
+/* LEARNED MODAL */
+.lm{max-width:540px}
+.l-stats{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.l-stat{background:rgba(108,99,255,.1);border:1px solid rgba(108,99,255,.2);border-radius:8px;padding:8px 14px;flex:1;min-width:80px;text-align:center}
+.l-stat-n{font-size:18px;font-weight:700;color:var(--purple)}
+.l-stat-l{font-size:10px;color:var(--muted);margin-top:1px}
+.l-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.l-card{background:#0c0c14;border:1px solid var(--border);border-radius:9px;padding:12px 14px}
+.l-card h4{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.l-item{font-size:11px;color:#bbb;padding:4px 0;border-bottom:1px solid #111;line-height:1.4}
+.l-item:last-child{border:none}
+.vg{font-size:10px;background:rgba(34,197,94,.12);color:var(--green);border-radius:3px;padding:1px 5px;margin-right:4px}
+.vb{font-size:10px;background:rgba(239,68,68,.1);color:var(--red);border-radius:3px;padding:1px 5px;margin-right:4px}
+.l-empty{color:var(--dim);font-size:12px;text-align:center;padding:18px;font-style:italic;grid-column:1/-1}
+.clear-link{color:var(--red);font-size:11px;cursor:pointer;border:none;background:none;opacity:.6;margin-left:auto}
+.clear-link:hover{opacity:1}
 
-/* ── NOTICE ── */
-.notice{margin:20px 40px 0;background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.25);border-radius:10px;padding:12px 16px;font-size:13px;color:#fbbf24;display:none}
-.notice a{color:#fbbf24;text-decoration:underline;cursor:pointer}
+/* STATS + NOTICE */
+.sbar{display:flex;gap:12px;padding:10px 32px;border-bottom:1px solid var(--border);flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted)}
+.sbar-n{color:#fff;font-weight:700;font-size:13px;margin-right:2px}
+.src-pills{display:flex;gap:5px;margin-left:auto;flex-wrap:wrap}
+.src-pill{font-size:10px;border-radius:10px;padding:2px 8px;color:#fff;font-weight:500}
+.notice{background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);border-radius:8px;padding:9px 14px;margin:14px 32px 0;font-size:12px;color:var(--amber);display:none}
+.notice a{color:var(--amber);text-decoration:underline;cursor:pointer}
 
-/* ── MAIN LAYOUT ── */
-.main{max-width:900px;margin:0 auto;padding:28px 24px}
-
-/* ── TABS ── */
-.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
-.tab{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:7px 16px;cursor:pointer;font-size:13px;color:var(--muted);transition:all .15s}
+/* MAIN */
+.main{max-width:880px;margin:0 auto;padding:22px 20px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.tab{background:var(--bg3);border:1px solid var(--border);border-radius:16px;padding:5px 13px;cursor:pointer;font-size:12px;color:var(--muted);transition:all .15s}
 .tab:hover{border-color:var(--purple);color:#ccc}
 .tab.active{background:var(--purple);border-color:var(--purple);color:#fff;font-weight:600}
-.tab-cnt{background:rgba(255,255,255,.18);border-radius:10px;padding:1px 7px;font-size:11px;margin-left:3px}
+.tab-cnt{background:rgba(255,255,255,.18);border-radius:8px;padding:0 5px;font-size:10px;margin-left:2px}
 
-/* ── SCAN PROMPT ── */
-.scan-prompt{text-align:center;padding:60px 20px}
-.scan-prompt .icon{font-size:48px;margin-bottom:16px}
-.scan-prompt h2{font-size:20px;color:#fff;margin-bottom:8px}
-.scan-prompt p{color:var(--muted);font-size:14px;margin-bottom:24px;line-height:1.6}
+/* SCAN PROMPT */
+.prompt{text-align:center;padding:52px 20px}
+.prompt .icon{font-size:42px;margin-bottom:12px}
+.prompt h2{font-size:18px;color:#fff;margin-bottom:6px}
+.prompt p{color:var(--muted);font-size:13px;margin-bottom:20px;line-height:1.6;max-width:420px;margin-left:auto;margin-right:auto}
 
-/* ── LOADING ── */
-.loading{text-align:center;padding:48px 20px}
-.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--purple);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+/* LOADING */
+.loading{text-align:center;padding:40px 20px}
+.spinner{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--purple);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loading-msg{color:var(--muted);font-size:13px}
+.loading-msg{color:var(--muted);font-size:12px}
 
-/* ── PRODUCT INFO BAR ── */
-.prod-bar{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.prod-url{color:var(--purple);font-weight:600;font-size:13px;text-decoration:none}
-.prod-url:hover{text-decoration:underline}
-.prod-tag{color:var(--muted);font-size:12px}
-
-/* ── SIGNAL CARDS ── */
+/* CARDS */
 .panel{display:none}.panel.active{display:block}
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:14px;transition:border-color .15s}
+.prod-bar{background:#141420;border:1px solid var(--border);border-radius:9px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.prod-url{color:var(--purple);font-weight:600;font-size:12px;text-decoration:none}
+.prod-url:hover{text-decoration:underline}
+.prod-tag{color:var(--muted);font-size:11px}
+.prod-fb{font-size:11px;color:var(--purple);margin-left:auto}
+
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:11px;transition:border-color .15s}
 .card:hover{border-color:#2a2a3a}
-.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px}
-.badge{font-size:11px;color:#fff;padding:3px 10px;border-radius:12px;font-weight:500}
-.badge-hn{background:#f4a261}
-.badge-reddit{background:#ff4500}
-.rel{font-size:11px;color:var(--muted);font-family:monospace}
-.card-title{color:var(--purple-light);font-size:15px;font-weight:600;display:block;margin-bottom:8px;line-height:1.4;text-decoration:none}
+.card.voted-good{border-color:rgba(34,197,94,.3)}
+.card.voted-bad{border-color:rgba(239,68,68,.2);opacity:.65}
+.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px}
+.badge{font-size:10px;color:#fff;padding:2px 8px;border-radius:9px;font-weight:600}
+.rel{font-size:10px;color:var(--muted);font-family:monospace}
+.card-title{color:var(--purple2);font-size:14px;font-weight:600;display:block;margin-bottom:6px;line-height:1.4;text-decoration:none}
 .card-title:hover{color:#c4b5fd;text-decoration:underline}
-.card-snippet{color:#888;font-size:13px;line-height:1.65;margin-bottom:10px}
-.card-meta{font-size:11px;color:var(--dim);margin-bottom:14px}
-.resp-box{background:#0a0a10;border:1px solid #22223a;border-radius:8px;padding:14px 16px}
-.resp-label{font-size:11px;color:var(--purple);font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px}
-.resp-note{color:var(--dim);font-weight:400;text-transform:none;letter-spacing:0}
-.resp-text{font-size:13px;color:#bbb;line-height:1.7;margin-bottom:10px;white-space:pre-wrap}
-.resp-text.dim{color:var(--dim);font-style:italic}
-.resp-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.copy-btn{background:var(--purple);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-size:12px;cursor:pointer;transition:background .15s;font-weight:500}
+.card-snippet{color:#888;font-size:12px;line-height:1.6;margin-bottom:8px}
+.card-meta{font-size:10px;color:#444;margin-bottom:10px}
+
+/* FEEDBACK ROW */
+.fb-row{display:flex;align-items:center;gap:7px;margin-bottom:11px;flex-wrap:wrap}
+.fb-lbl{font-size:11px;color:#3a3a3a;font-style:italic}
+.fb-btn{background:transparent;border:1px solid #252535;border-radius:6px;padding:3px 9px;font-size:11px;cursor:pointer;transition:all .15s;color:#555}
+.fb-btn:hover{border-color:#555;color:#ccc}
+.fb-btn.good{background:rgba(34,197,94,.1);border-color:var(--green);color:var(--green)}
+.fb-btn.bad{background:rgba(239,68,68,.08);border-color:var(--red);color:var(--red)}
+.fb-saved{font-size:11px;color:var(--green);display:none}
+.fb-saved.show{display:inline}
+
+/* RESPONSE */
+.resp{background:#0a0a10;border:1px solid #1e1e30;border-radius:8px;padding:12px 14px}
+.resp-lbl{font-size:10px;color:var(--purple);font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+.resp-note{color:#3a3a3a;font-weight:400;text-transform:none;letter-spacing:0}
+.resp-text{font-size:12px;color:#bbb;line-height:1.7;margin-bottom:8px;white-space:pre-wrap}
+.resp-text.dim{color:#333;font-style:italic}
+.resp-acts{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.copy-btn{background:var(--purple);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:11px;cursor:pointer;font-weight:500;transition:background .15s}
 .copy-btn:hover{background:#7c73ff}
 .copy-btn.ok{background:var(--green)}
-.draft-btn{background:transparent;color:var(--purple);border:1px solid rgba(108,99,255,.4);border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;transition:all .15s}
-.draft-btn:hover{background:rgba(108,99,255,.1)}
-.drafting{color:var(--muted);font-size:12px;font-style:italic}
+.post-btn{background:transparent;color:#444;border:1px solid #252525;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;transition:all .15s}
+.post-btn:hover{border-color:var(--green);color:var(--green)}
+.post-btn.done{border-color:var(--green);color:var(--green);cursor:default}
+.draft-btn{background:transparent;color:var(--purple);border:1px solid rgba(108,99,255,.3);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer}
+.draft-btn:hover{background:rgba(108,99,255,.08)}
+.no-key-resp{border-color:#1e1e14;background:#0a0a08}
 
-/* ── EMPTY & ERROR ── */
-.empty{text-align:center;padding:48px 24px;color:var(--dim);font-size:14px}
-.empty p{margin-bottom:8px}
-.err-banner{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:8px;padding:12px 16px;font-size:13px;color:#fca5a5;margin-bottom:16px}
+/* EMPTY + FOOTER */
+.empty{text-align:center;padding:36px 20px;color:var(--dim);font-size:12px}
+.ftr{text-align:center;padding:24px;color:#2a2a2a;font-size:11px;border-top:1px solid #111;line-height:2}
 
-/* ── FOOTER ── */
-.ftr{text-align:center;padding:32px;color:#333;font-size:12px;line-height:2;border-top:1px solid var(--border)}
-.ftr code{color:#555;background:#1a1a1a;padding:1px 5px;border-radius:3px}
+/* SOURCE BADGE COLORS */
+.hn{background:#f97316}.reddit{background:#ff4500}.devto{background:#3b49df}.lobsters{background:#ac130d}.youtube{background:#ff0000}
 
-@media(max-width:600px){
-  .hdr{padding:20px}
-  .stats-bar{padding:12px 20px}
-  .main{padding:20px 16px}
-  .notice{margin:16px 20px 0}
+@media(max-width:580px){
+  .hdr,.sbar,.notice{padding-left:16px;padding-right:16px}
+  .main{padding:16px 12px}
+  .l-grid{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -132,573 +161,633 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <!-- SETTINGS MODAL -->
 <div class="overlay" id="settingsOverlay">
   <div class="modal">
-    <h2>⚙️ Settings</h2>
-    <p>Your API key is stored only in this browser — never sent anywhere except directly to Anthropic for response drafting.</p>
-    <div class="form-group">
-      <label>Anthropic API Key</label>
-      <input type="password" id="apiKeyInput" placeholder="sk-ant-api03-..." autocomplete="off">
-      <div class="key-status" id="keyStatus"></div>
+    <h2>⚙️ API Keys</h2>
+    <div class="modal-desc">Keys stored only in this browser. Never sent anywhere except directly to the respective APIs.</div>
+    <div class="field">
+      <label>Anthropic API Key <span style="color:#444">(response drafting)</span></label>
+      <input type="password" id="anthropicKey" placeholder="sk-ant-api03-..." autocomplete="off">
+      <div id="anthropicStatus"></div>
+      <div class="field-note">→ <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> · ~$0.001/response</div>
     </div>
-    <p style="font-size:12px;color:#555">Get a key at <a href="https://console.anthropic.com" target="_blank" style="color:#6c63ff">console.anthropic.com</a> · Claude Haiku: ~$0.001/response</p>
+    <div class="field">
+      <label>Google API Key <span style="color:#444">(YouTube signals — optional)</span></label>
+      <input type="password" id="googleKey" placeholder="AIza..." autocomplete="off">
+      <div id="googleStatus"></div>
+      <div class="field-note">→ <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> · YouTube Data API v3 · Free 10k/day</div>
+    </div>
     <div class="modal-footer">
-      <button class="btn btn-outline btn-sm" onclick="closeSettings()">Cancel</button>
-      <button class="btn btn-primary btn-sm" onclick="saveSettings()">Save</button>
+      <button class="btn btn-ghost" onclick="closeSettings()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveSettings()">Save</button>
     </div>
+  </div>
+</div>
+
+<!-- LEARNED MODAL -->
+<div class="overlay" id="learnOverlay">
+  <div class="modal lm">
+    <div style="display:flex;align-items:center;margin-bottom:4px">
+      <h2>📚 Agent Memory</h2>
+      <button class="clear-link" onclick="clearFeedback()">Clear all</button>
+    </div>
+    <div class="modal-desc">Every 👍/👎 shapes future scans. The agent avoids bad-signal patterns and prioritises good ones.</div>
+    <div class="l-stats" id="lStats"></div>
+    <div class="l-grid" id="lGrid"></div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="closeLearn()">Done</button></div>
   </div>
 </div>
 
 <!-- HEADER -->
 <div class="hdr">
-  <div class="hdr-left">
-    <h1>🎯 <em>First</em>Customer</h1>
-    <p>Find people expressing the exact pain your products solve — right now</p>
+  <div class="hdr-brand">
+    <div>
+      <h1>🎯 <em>First</em>Customer <span style="font-size:10px;color:#333;font-weight:400">v3</span></h1>
+      <div class="hdr-sub">Signal hunter · 5 sources · learns from feedback</div>
+    </div>
   </div>
   <div class="hdr-right">
-    <button class="btn btn-outline btn-sm" onclick="openSettings()">⚙️ API Key</button>
-    <button class="btn btn-primary" id="scanBtn" onclick="runScan()">▶ Run Scan</button>
+    <div class="learn-pill" onclick="openLearn()">📚 Learned: <strong id="learnCount">0</strong></div>
+    <button class="btn btn-ghost" onclick="openSettings()">⚙️ Keys</button>
+    <button class="btn btn-primary" id="scanBtn" onclick="runScan()">▶ Scan</button>
   </div>
 </div>
 
-<!-- STATS -->
-<div class="stats-bar" id="statsBar" style="display:none">
-  <div class="stat"><span class="stat-num" id="statTotal">0</span> signals found</div>
-  <div class="stat"><span class="stat-num" id="statHV">0</span> high-value (≥5)</div>
-  <div class="stat"><span class="stat-num">HN + Reddit</span> sources</div>
-  <div class="stat" id="statTime"></div>
+<!-- STATS BAR -->
+<div class="sbar" id="sbar" style="display:none">
+  <span><span class="sbar-n" id="stTotal">0</span> signals</span>
+  <span><span class="sbar-n" id="stHV">0</span> high-value</span>
+  <span><span class="sbar-n" id="stPosted">0</span> posted</span>
+  <span><span class="sbar-n" id="stFb">0</span> feedback</span>
+  <span id="stTime"></span>
+  <div class="src-pills" id="srcPills"></div>
 </div>
-
-<!-- NO KEY NOTICE -->
-<div class="notice" id="noKeyNotice">
-  ⚡ <strong>No API key set</strong> — signals are found but responses won't be drafted.
-  <a onclick="openSettings()">Add your Anthropic key →</a>
-</div>
+<div class="notice" id="noKeyNotice">⚡ No Anthropic key — signals found, responses not drafted. <a onclick="openSettings()">Add key →</a></div>
 
 <!-- MAIN -->
 <div class="main">
   <div class="tabs" id="tabs"></div>
   <div id="panels">
-    <!-- scan prompt -->
-    <div id="scanPrompt" class="scan-prompt">
+    <div id="scanPrompt" class="prompt">
       <div class="icon">🔍</div>
       <h2>Ready to find your first customers</h2>
-      <p>Scans HackerNews and Reddit for people expressing the exact pain<br>your products solve — then drafts a genuine response for each one.</p>
-      <button class="btn btn-primary" onclick="runScan()">▶ Run Scan Now</button>
+      <p>Scans HackerNews, Reddit, Dev.to, Lobste.rs and YouTube for people expressing the exact pain your products solve — then drafts a genuine response.</p>
+      <button class="btn btn-primary" style="margin:0 auto" onclick="runScan()">▶ Run First Scan</button>
     </div>
   </div>
 </div>
-
-<div class="ftr">
-  Review every response before posting &nbsp;·&nbsp; Be genuine — helpful first, product second &nbsp;·&nbsp; Built for founders who ship
-</div>
+<div class="ftr">Review every response before posting · Helpful first, product second · Built for founders who ship</div>
 
 <script>
-// ─────────────────────────────────────────────────────────
-// PRODUCTS — pre-configured for your 5 products
-// ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// PRODUCTS — your 5 products, pre-configured
+// ─────────────────────────────────────────────
 const PRODUCTS = [
   {
-    id: "devaichat",
-    name: "DevAI Chat",
-    url: "https://devaichat.com",
-    tagline: "All-in-one AI companion built for India — health, UPSC prep, spirituality, 10 languages",
-    icp: "Indian students, UPSC aspirants, professionals who want AI in Hindi/Telugu/Tamil etc.",
-    hnQueries: ["AI India", "UPSC AI", "multilingual AI chatbot"],
-    redditQueries: ["AI chatbot India Hindi", "free AI app Indian students", "UPSC preparation app"],
-    subreddits: ["india", "IndianStudents", "UPSC"],
-    painPhrases: ["ai that understands hindi","ai for upsc","free ai india","ai in indian language","chatbot for india","upsc prep app","fact check whatsapp","ai in my language"],
-    keywords: ["india","hindi","upsc","multilingual","indian","vernacular","regional language","chatbot india"]
+    id:"devaichat", name:"DevAI Chat", url:"https://devaichat.com",
+    tagline:"All-in-one AI companion for India — health, UPSC, spirituality, 10 languages",
+    icp:"Indian students, UPSC aspirants, professionals wanting AI in Hindi/Telugu/Tamil",
+    hnQ:["AI India chatbot","UPSC AI preparation","multilingual AI India"],
+    redditQ:["AI chatbot India Hindi language","free AI app Indian students","UPSC AI tool"],
+    subreddits:["india","IndianStudents","UPSC"],
+    devtoTags:["india","ai","machinelearning"],
+    devtoQ:["AI India","multilingual AI","UPSC preparation"],
+    ytQ:["AI app for India Hindi","UPSC AI preparation app","AI in Indian languages"],
+    lobstersQ:["AI India","multilingual"],
+    painPhrases:["ai that understands hindi","ai for upsc","free ai india","ai in indian language","upsc prep","chatbot hindi","fact check whatsapp","regional language ai","vernacular ai"],
+    keywords:["india","hindi","upsc","telugu","tamil","multilingual","indian","chatbot india","ai companion","bharat"]
   },
   {
-    id: "buildurresume",
-    name: "BuildUrResume",
-    url: "https://buildurresume.com",
-    tagline: "Free AI resume builder with ATS scanner — download for ₹2",
-    icp: "Indian freshers and job seekers getting rejected by ATS or building first resume",
-    hnQueries: ["resume builder ATS", "ATS resume tips", "job application resume"],
-    redditQueries: ["resume rejected ATS India", "free resume builder freshers", "ATS not shortlisting"],
-    subreddits: ["resumes", "india", "cscareerquestions"],
-    painPhrases: ["resume getting rejected","ats not picking","not getting shortlisted","resume builder free","ats resume","resume for fresher","resume rejected","ats keywords"],
-    keywords: ["resume","ats","shortlist","job application","fresher","cv","resume builder","applicant tracking"]
+    id:"buildurresume", name:"BuildUrResume", url:"https://buildurresume.com",
+    tagline:"Free AI resume builder with ATS scanner — download for ₹2",
+    icp:"Indian freshers and job seekers rejected by ATS or building first resume",
+    hnQ:["resume builder ATS","ATS resume tips","job application resume"],
+    redditQ:["resume rejected ATS India","free resume builder freshers","ATS not shortlisting"],
+    subreddits:["resumes","india","cscareerquestions","IndiaJobs"],
+    devtoTags:["career","resume","jobs"],
+    devtoQ:["resume ATS tips","job application resume"],
+    ytQ:["how to make ATS resume India","free resume builder India fresher"],
+    lobstersQ:["resume ATS","job application"],
+    painPhrases:["resume getting rejected","ats not picking","not getting shortlisted","free resume builder","ats resume","resume for fresher","ats keywords","resume rejected","cv rejected","resume not selected"],
+    keywords:["resume","ats","shortlist","fresher","job application","cv","resume builder","ats score","template india","job seeker"]
   },
   {
-    id: "learncomms",
-    name: "LearnComms",
-    url: "https://learncomms.com",
-    tagline: "AI platform for workplace English — pronunciation, writing, QA scoring",
-    icp: "BPO/IT workers and corporate employees in India improving workplace English",
-    hnQueries: ["English pronunciation tool", "business English AI", "workplace communication"],
-    redditQueries: ["improve English pronunciation", "professional email writing", "business English skills"],
-    subreddits: ["EnglishLearning", "india", "careerguidance"],
-    painPhrases: ["improve my pronunciation","sound professional","business english","professional email","workplace communication","english communication","bpo english","corporate english","spoken english"],
-    keywords: ["pronunciation","workplace english","business english","professional writing","communication skills","spoken english","email writing","fluency"]
+    id:"learncomms", name:"LearnComms", url:"https://learncomms.com",
+    tagline:"AI platform for workplace English — pronunciation, writing, QA scoring",
+    icp:"BPO/IT workers and corporate employees in India improving workplace English",
+    hnQ:["English pronunciation tool","business English AI","workplace communication"],
+    redditQ:["improve English pronunciation work","professional email writing help","business English India"],
+    subreddits:["EnglishLearning","india","careerguidance","BPO"],
+    devtoTags:["communication","career","productivity"],
+    devtoQ:["improve English communication","business English writing"],
+    ytQ:["improve English pronunciation for work","professional email writing India","workplace English skills"],
+    lobstersQ:["English communication","pronunciation"],
+    painPhrases:["improve my pronunciation","sound more professional","business english","professional email","workplace communication","english communication skills","bpo english","spoken english improve","accent training","corporate communication"],
+    keywords:["pronunciation","business english","professional writing","communication skills","spoken english","email writing","fluency","accent","bpo","corporate english"]
   },
   {
-    id: "myayurai",
-    name: "MyAyurai",
-    url: "https://myayurai.com",
-    tagline: "Ayurvedic herb library + AI wellness advisor — 75 traditional herbs",
-    icp: "Indians interested in Ayurveda, natural remedies, and traditional health",
-    hnQueries: ["Ayurveda app", "herbal medicine", "natural remedies AI"],
-    redditQueries: ["ayurvedic remedy for", "home remedies ayurveda", "natural herbs health India"],
-    subreddits: ["Ayurveda", "NaturalRemedies", "india"],
-    painPhrases: ["ayurvedic remedy","natural herbs","home remedies","ayurveda for","indian herbs","natural treatment","ayurvedic medicine","herbal cure"],
-    keywords: ["ayurveda","herb","remedy","natural","holistic","traditional medicine","home remedy","ayurvedic"]
+    id:"myayurai", name:"MyAyurai", url:"https://myayurai.com",
+    tagline:"Ayurvedic herb library + AI wellness advisor — 75 traditional herbs",
+    icp:"Indians interested in Ayurveda, natural remedies, traditional health",
+    hnQ:["Ayurveda app","herbal medicine","natural remedies AI"],
+    redditQ:["ayurvedic remedy for","home remedies ayurveda india","natural herbs health"],
+    subreddits:["Ayurveda","NaturalRemedies","india","yoga"],
+    devtoTags:["health","wellness"],
+    devtoQ:["Ayurveda natural health","herbal medicine app"],
+    ytQ:["ayurvedic home remedies","best herbs for health India","ayurveda app review"],
+    lobstersQ:["ayurveda","herbal"],
+    painPhrases:["ayurvedic remedy","natural herbs for","home remedies","ayurveda for","indian herbs","natural treatment","ayurvedic medicine","herbal cure","traditional medicine"],
+    keywords:["ayurveda","herb","remedy","natural","holistic","home remedy","ayurvedic","medicinal plant","india health","wellness"]
   },
   {
-    id: "convertshorts",
-    name: "ConvertShorts",
-    url: "https://convertshorts.com",
-    tagline: "Free video converter 16:9 to 9:16 — no upload, no watermark",
-    icp: "Content creators repurposing landscape videos for Reels, Shorts, TikTok",
-    hnQueries: ["video converter browser", "video aspect ratio", "Instagram Reels tool"],
-    redditQueries: ["convert video for reels free", "landscape to portrait video", "16:9 to 9:16 free"],
-    subreddits: ["NewTubers", "videography", "ContentCreation"],
-    painPhrases: ["convert video for reels","landscape to portrait","16:9 to 9:16","no watermark video","free video crop","horizontal to vertical","video format tiktok","video for shorts","reformat video"],
-    keywords: ["16:9","9:16","portrait","landscape","reels","shorts","tiktok","aspect ratio","video converter","vertical video","crop video"]
+    id:"convertshorts", name:"ConvertShorts", url:"https://convertshorts.com",
+    tagline:"Free video converter 16:9↔9:16 — no upload, no watermark, browser-only",
+    icp:"Creators repurposing landscape videos for Reels, Shorts, TikTok",
+    hnQ:["video converter browser","video aspect ratio","content creator tools"],
+    redditQ:["convert video for reels free no watermark","landscape to portrait video","16:9 to 9:16 converter"],
+    subreddits:["NewTubers","videography","ContentCreation","reels"],
+    devtoTags:["video","webdev","tools"],
+    devtoQ:["video format converter","Instagram Reels video"],
+    ytQ:["how to convert video for Instagram reels free","landscape to portrait video converter free no watermark"],
+    lobstersQ:["video converter","ffmpeg","webassembly video"],
+    painPhrases:["convert video for reels","landscape to portrait","16:9 to 9:16","no watermark video","free video crop","horizontal to vertical","video format tiktok","video for shorts","reformat video free","vertical video"],
+    keywords:["16:9","9:16","portrait","landscape","reels","shorts","tiktok","aspect ratio","video converter","vertical video","crop video","no watermark"]
   }
 ];
 
-// ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // STATE
-// ─────────────────────────────────────────────────────────
-let apiKey = localStorage.getItem("fc_apikey") || "";
-let scanResults = {}; // productId -> {signals, responses}
-let scanning = false;
-let activeTab = PRODUCTS[0].id;
+// ─────────────────────────────────────────────
+let anthropicKey = localStorage.getItem("fc_ant") || "";
+let googleKey    = localStorage.getItem("fc_goog") || "";
+let feedback     = JSON.parse(localStorage.getItem("fc_fb2") || "{}");
+let postedCount  = parseInt(localStorage.getItem("fc_posts") || "0");
+let scanResults  = {};
+let scanning     = false;
+let sourceCounts = {};
 
-// ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// FEEDBACK
+// ─────────────────────────────────────────────
+function getFb(pid){ return feedback[pid] || []; }
+function saveFb(pid, sig, verdict){
+  if(!feedback[pid]) feedback[pid]=[];
+  feedback[pid] = feedback[pid].filter(f=>f.url!==sig.url);
+  feedback[pid].push({url:sig.url, title:sig.title.slice(0,120), platform:sig.platform, verdict});
+  if(feedback[pid].length>40) feedback[pid]=feedback[pid].slice(-40);
+  localStorage.setItem("fc_fb2",JSON.stringify(feedback));
+  updateLearnPill();
+}
+function fbContext(pid){
+  const all=getFb(pid), good=all.filter(f=>f.verdict==="good"), bad=all.filter(f=>f.verdict==="bad");
+  if(!good.length&&!bad.length) return "";
+  let c="\n\nAGENT MEMORY from past feedback:\n";
+  if(good.length) c+="\n✅ RELEVANT signals (find more like these):\n"+good.slice(-8).map(e=>`- "${e.title}" (${e.platform})`).join("\n");
+  if(bad.length)  c+="\n\n❌ NOT RELEVANT (avoid similar patterns):\n"+bad.slice(-8).map(e=>`- "${e.title}" (${e.platform})`).join("\n");
+  c+="\n\nApply this history to improve response quality.";
+  return c;
+}
+function totalFb(){ return Object.values(feedback).reduce((s,a)=>s+a.length,0); }
+function updateLearnPill(){
+  document.getElementById("learnCount").textContent = totalFb();
+  document.getElementById("stFb").textContent = totalFb();
+}
+function clearFeedback(){
+  if(!confirm("Clear all feedback? Agent starts learning from scratch.")) return;
+  feedback={}; localStorage.setItem("fc_fb2","{}");
+  updateLearnPill(); closeLearn();
+}
+
+// ─────────────────────────────────────────────
 // SETTINGS
-// ─────────────────────────────────────────────────────────
-function openSettings() {
-  document.getElementById("apiKeyInput").value = apiKey;
-  updateKeyStatus();
+// ─────────────────────────────────────────────
+function openSettings(){
+  document.getElementById("anthropicKey").value=anthropicKey;
+  document.getElementById("googleKey").value=googleKey;
+  refreshStatuses();
   document.getElementById("settingsOverlay").classList.add("open");
 }
-function closeSettings() {
-  document.getElementById("settingsOverlay").classList.remove("open");
+function closeSettings(){ document.getElementById("settingsOverlay").classList.remove("open"); }
+function saveSettings(){
+  anthropicKey=document.getElementById("anthropicKey").value.trim();
+  googleKey=document.getElementById("googleKey").value.trim();
+  localStorage.setItem("fc_ant",anthropicKey);
+  localStorage.setItem("fc_goog",googleKey);
+  closeSettings(); updateNotice();
 }
-function saveSettings() {
-  apiKey = document.getElementById("apiKeyInput").value.trim();
-  localStorage.setItem("fc_apikey", apiKey);
-  closeSettings();
-  updateKeyStatus();
-  updateNotice();
+function refreshStatuses(){
+  const as=document.getElementById("anthropicStatus");
+  as.className=anthropicKey?"key-ok":"key-no";
+  as.textContent=anthropicKey?"✓ Key saved":"Not set — responses won't be drafted";
+  const gs=document.getElementById("googleStatus");
+  gs.className=googleKey?"key-ok":"key-no";
+  gs.textContent=googleKey?"✓ Key saved":"Not set — YouTube signals disabled";
 }
-function updateKeyStatus() {
-  const el = document.getElementById("keyStatus");
-  if (apiKey) {
-    el.className = "key-status set";
-    el.textContent = "✓ API key saved";
-  } else {
-    el.className = "key-status unset";
-    el.textContent = "No key set — response drafting disabled";
-  }
+function updateNotice(){ document.getElementById("noKeyNotice").style.display=anthropicKey?"none":"block"; }
+
+// ─────────────────────────────────────────────
+// LEARNED PANEL
+// ─────────────────────────────────────────────
+function openLearn(){
+  const total=totalFb();
+  const good=Object.values(feedback).flatMap(a=>a.filter(f=>f.verdict==="good")).length;
+  document.getElementById("lStats").innerHTML=`
+    <div class="l-stat"><div class="l-stat-n">${total}</div><div class="l-stat-l">Ratings</div></div>
+    <div class="l-stat"><div class="l-stat-n" style="color:var(--green)">${good}</div><div class="l-stat-l">Good</div></div>
+    <div class="l-stat"><div class="l-stat-n" style="color:var(--red)">${total-good}</div><div class="l-stat-l">Not Relevant</div></div>`;
+  const withData=PRODUCTS.filter(p=>getFb(p.id).length>0);
+  document.getElementById("lGrid").innerHTML = withData.length ? withData.map(p=>{
+    const items=getFb(p.id).slice(-5).reverse().map(e=>`<div class="l-item"><span class="${e.verdict==="good"?"vg":"vb"}">${e.verdict==="good"?"👍":"👎"}</span>${e.title.slice(0,55)}${e.title.length>55?"…":""}</div>`).join("");
+    return `<div class="l-card"><h4>${p.name}</h4>${items}</div>`;
+  }).join("") : `<div class="l-empty">No feedback yet — rate signals with 👍/👎 after scanning.</div>`;
+  document.getElementById("learnOverlay").classList.add("open");
 }
-function updateNotice() {
-  const n = document.getElementById("noKeyNotice");
-  n.style.display = apiKey ? "none" : "block";
+function closeLearn(){ document.getElementById("learnOverlay").classList.remove("open"); }
+
+// ─────────────────────────────────────────────
+// SIGNAL SOURCES
+// ─────────────────────────────────────────────
+
+// 1. HackerNews (Algolia — free, CORS OK)
+async function searchHN(query){
+  const cutoff=Math.floor((Date.now()-14*864e5)/1000);
+  try{
+    const r=await fetch(`https://hn.algolia.com/api/v1/search?query=${enc(query)}&tags=(ask_hn,show_hn,story)&hitsPerPage=10&numericFilters=created_at_i>${cutoff}`);
+    return (await r.json()).hits?.filter(h=>h.title).map(h=>({
+      platform:"HackerNews",color:"hn",
+      title:h.title, snippet:(h.story_text||"").slice(0,400),
+      url:`https://news.ycombinator.com/item?id=${h.objectID}`,
+      author:h.author||"", subreddit:null, score:h.points||0, comments:h.num_comments||0,
+      created_at:h.created_at||""
+    }))||[];
+  }catch{return[];}
 }
 
-// ─────────────────────────────────────────────────────────
-// SIGNAL HUNTING
-// ─────────────────────────────────────────────────────────
+// 2. Reddit (via CORS proxy)
+async function searchReddit(query,sub){
+  const base=sub
+    ?`https://www.reddit.com/r/${sub}/search.json?q=${enc(query)}&sort=new&limit=10&t=month&restrict_sr=true`
+    :`https://www.reddit.com/search.json?q=${enc(query)}&sort=new&limit=10&t=month`;
+  try{
+    const r=await fetch(`https://api.allorigins.win/raw?url=${enc(base)}`,{signal:AbortSignal.timeout(8000)});
+    return (await r.json())?.data?.children?.map(p=>{
+      const d=p.data;
+      return{platform:"Reddit",color:"reddit",
+        title:d.title||"", snippet:(d.selftext||"").slice(0,400),
+        url:`https://reddit.com${d.permalink}`, author:d.author||"",
+        subreddit:d.subreddit||"", score:d.score||0, comments:d.num_comments||0,
+        created_at:new Date((d.created_utc||0)*1000).toISOString()};
+    }).filter(p=>p.title)||[];
+  }catch{return[];}
+}
 
-// HackerNews via Algolia (CORS-friendly, free)
-async function searchHN(query) {
-  const cutoff = Math.floor((Date.now() - 14 * 86400 * 1000) / 1000);
-  const url = `https://hn.algolia.com/api/v1/search?query=${encodeURIComponent(query)}&tags=(ask_hn,show_hn,story)&hitsPerPage=12&numericFilters=created_at_i>${cutoff}`;
-  try {
-    const r = await fetch(url);
-    const data = await r.json();
-    return (data.hits || []).filter(h => h.title).map(h => ({
-      platform: "HackerNews",
-      title: h.title,
-      snippet: (h.story_text || "").slice(0, 400),
-      url: `https://news.ycombinator.com/item?id=${h.objectID}`,
-      author: h.author || "",
-      subreddit: null,
-      score: h.points || 0,
-      comments: h.num_comments || 0,
-      created_at: h.created_at || ""
+// 3. Dev.to (free API, CORS OK, no key needed)
+async function searchDevTo(tag, query){
+  try{
+    // Search by tag
+    const byTag=await fetch(`https://dev.to/api/articles?tag=${enc(tag)}&per_page=15&state=fresh`);
+    const tagResults=(await byTag.json()).filter(a=>a.title||a.description).map(a=>({
+      platform:"Dev.to",color:"devto",
+      title:a.title||"", snippet:(a.description||"").slice(0,400),
+      url:a.url||`https://dev.to${a.path}`, author:a.user?.username||"",
+      subreddit:null, score:a.positive_reactions_count||0, comments:a.comments_count||0,
+      created_at:a.published_at||""
     }));
-  } catch { return []; }
+    return tagResults;
+  }catch{return[];}
 }
 
-// Reddit via CORS proxy (allorigins.win)
-async function searchReddit(query, subreddit) {
-  const base = subreddit
-    ? `https://www.reddit.com/r/${subreddit}/search.json?q=${encodeURIComponent(query)}&sort=new&limit=12&t=month&restrict_sr=true`
-    : `https://www.reddit.com/search.json?q=${encodeURIComponent(query)}&sort=new&limit=12&t=month`;
-  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(base)}`;
-  try {
-    const r = await fetch(proxyUrl, {signal: AbortSignal.timeout(8000)});
-    const data = await r.json();
-    return (data?.data?.children || []).map(p => {
-      const d = p.data;
-      return {
-        platform: "Reddit",
-        title: d.title || "",
-        snippet: (d.selftext || "").slice(0, 400),
-        url: `https://reddit.com${d.permalink}`,
-        author: d.author || "[deleted]",
-        subreddit: d.subreddit || "",
-        score: d.score || 0,
-        comments: d.num_comments || 0,
-        created_at: new Date(d.created_utc * 1000).toISOString()
-      };
-    }).filter(p => p.title);
-  } catch { return []; }
+// 4. Lobste.rs (free, CORS OK)
+async function searchLobsters(query){
+  try{
+    const r=await fetch(`https://lobste.rs/search.json?q=${enc(query)}&what=stories&order=newest`,{signal:AbortSignal.timeout(6000)});
+    return (await r.json()).results?.map(s=>({
+      platform:"Lobste.rs",color:"lobsters",
+      title:s.title||"", snippet:(s.description||"").slice(0,400),
+      url:s.url||s.short_id_url||"", author:s.submitter_user?.username||"",
+      subreddit:null, score:s.score||0, comments:s.comment_count||0,
+      created_at:s.created_at||""
+    })).filter(s=>s.title&&s.url)||[];
+  }catch{return[];}
 }
 
-// Relevance scoring
-function scoreSignal(signal, product) {
-  const text = (signal.title + " " + signal.snippet).toLowerCase();
-  let score = 0;
-  for (const phrase of product.painPhrases) {
-    if (text.includes(phrase)) { score += 3; break; }
+// 5. YouTube Data API v3 (requires Google API key)
+async function searchYouTube(query){
+  if(!googleKey) return[];
+  try{
+    const url=`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${enc(query)}&type=video&order=date&maxResults=8&key=${googleKey}&relevanceLanguage=en&publishedAfter=${new Date(Date.now()-14*864e5).toISOString()}`;
+    const r=await fetch(url,{signal:AbortSignal.timeout(8000)});
+    const data=await r.json();
+    if(data.error) return[];
+    return (data.items||[]).map(v=>({
+      platform:"YouTube",color:"youtube",
+      title:v.snippet.title||"", snippet:(v.snippet.description||"").slice(0,400),
+      url:`https://youtube.com/watch?v=${v.id.videoId}`, author:v.snippet.channelTitle||"",
+      subreddit:null, score:0, comments:0,
+      created_at:v.snippet.publishedAt||""
+    })).filter(v=>v.title);
+  }catch{return[];}
+}
+
+// ─────────────────────────────────────────────
+// SCORING
+// ─────────────────────────────────────────────
+function score(sig, product){
+  const text=(sig.title+" "+sig.snippet).toLowerCase();
+  let s=0;
+  for(const ph of product.painPhrases){if(text.includes(ph)){s+=3;break;}}
+  for(const kw of product.keywords){if(text.includes(kw)) s+=0.4;}
+  if(sig.snippet.trim().length>80) s+=1;
+  if((sig.comments||0)>=3) s+=1;
+  try{
+    const age=(Date.now()-new Date(sig.created_at).getTime())/864e5;
+    if(age<=3) s+=1;
+  }catch{}
+  // Feedback boost/penalty
+  const fb=getFb(product.id);
+  const good=fb.filter(f=>f.verdict==="good"), bad=fb.filter(f=>f.verdict==="bad");
+  for(const g of good){
+    const gt=(g.title).toLowerCase();
+    const overlap=product.keywords.filter(kw=>text.includes(kw)&&gt.includes(kw)).length;
+    if(overlap>=2) s+=1.5;
   }
-  for (const kw of product.keywords) {
-    if (text.includes(kw)) score += 0.5;
+  for(const b of bad){
+    const bt=(b.title).toLowerCase();
+    const overlap=product.keywords.filter(kw=>text.includes(kw)&&bt.includes(kw)).length;
+    if(overlap>=3) s-=1;
   }
-  if (signal.snippet.trim().length > 80) score += 1;
-  if ((signal.comments || 0) >= 3) score += 1;
-  try {
-    const age = (Date.now() - new Date(signal.created_at).getTime()) / 86400000;
-    if (age <= 3) score += 1;
-  } catch {}
-  return Math.min(Math.round(score), 10);
+  return Math.min(Math.max(Math.round(s),0),10);
 }
 
-async function huntProduct(product) {
-  const seen = new Set();
-  let all = [];
-
-  // HN searches
-  for (const q of product.hnQueries.slice(0, 2)) {
-    const results = await searchHN(q);
-    for (const r of results) {
-      if (!seen.has(r.url)) { seen.add(r.url); r.relevance = scoreSignal(r, product); all.push(r); }
+// ─────────────────────────────────────────────
+// HUNT ONE PRODUCT
+// ─────────────────────────────────────────────
+async function huntProduct(product){
+  const seen=new Set(), all=[];
+  const add=(results)=>{
+    for(const r of results){
+      if(!seen.has(r.url)&&r.title){
+        seen.add(r.url);
+        r.relevance=score(r,product);
+        all.push(r);
+        sourceCounts[r.platform]=(sourceCounts[r.platform]||0)+1;
+      }
     }
+  };
+
+  // HN
+  for(const q of product.hnQ.slice(0,2)){ add(await searchHN(q)); }
+
+  // Reddit global + subreddit
+  for(const q of product.redditQ.slice(0,2)){ add(await searchReddit(q,null)); await sleep(400); }
+  if(product.subreddits[0]) add(await searchReddit(product.redditQ[0],product.subreddits[0]));
+
+  // Dev.to
+  for(const tag of product.devtoTags.slice(0,2)){ add(await searchDevTo(tag,null)); await sleep(300); }
+
+  // Lobste.rs
+  for(const q of product.lobstersQ.slice(0,1)){ add(await searchLobsters(q)); }
+
+  // YouTube (if key set)
+  if(googleKey){
+    for(const q of product.ytQ.slice(0,2)){ add(await searchYouTube(q)); await sleep(300); }
   }
 
-  // Reddit global searches
-  for (const q of product.redditQueries.slice(0, 2)) {
-    const results = await searchReddit(q, null);
-    for (const r of results) {
-      if (!seen.has(r.url)) { seen.add(r.url); r.relevance = scoreSignal(r, product); all.push(r); }
-    }
-    await sleep(400);
-  }
-
-  // Subreddit-specific
-  if (product.subreddits.length > 0) {
-    const results = await searchReddit(product.redditQueries[0], product.subreddits[0]);
-    for (const r of results) {
-      if (!seen.has(r.url)) { seen.add(r.url); r.relevance = scoreSignal(r, product); all.push(r); }
-    }
-  }
-
-  all.sort((a, b) => b.relevance - a.relevance || b.comments - a.comments);
-  return all.slice(0, 6);
+  all.sort((a,b)=>b.relevance-a.relevance||b.comments-a.comments);
+  return all.slice(0,7);
 }
 
-// ─────────────────────────────────────────────────────────
-// RESPONSE DRAFTING (Anthropic API from browser)
-// ─────────────────────────────────────────────────────────
-async function draftResponse(signal, product) {
-  if (!apiKey) return null;
-  const prompt = `You are helping ${product.name} (${product.url}) get their first genuine customers.
+// ─────────────────────────────────────────────
+// RESPONSE DRAFTING
+// ─────────────────────────────────────────────
+async function draftResp(sig, product){
+  if(!anthropicKey) return null;
+  const prompt=`You are helping ${product.name} (${product.url}) get their first genuine customers.
 
 Product: ${product.name}
 What it does: ${product.tagline}
-Who it's for: ${product.icp}
+Who it's for: ${product.icp}${fbContext(product.id)}
 
-Someone posted this online:
-Platform: ${signal.platform}${signal.subreddit ? " · r/" + signal.subreddit : ""}
-Title: ${signal.title}
-Content: ${signal.snippet || "(no body text)"}
+Signal to respond to:
+Platform: ${sig.platform}${sig.subreddit?" · r/"+sig.subreddit:""}
+Title: ${sig.title}
+Content: ${sig.snippet||(sig.platform==="YouTube"?"(YouTube video — respond to the title/topic)":"(no body text)")}
 
-Write a response that:
-1. Genuinely helps them FIRST — answer their question or validate their problem
-2. Mentions ${product.name} only if it's a natural, honest fit — not forced
-3. Sounds like a real person, not a bot or marketer
-4. Is 3-5 sentences — no more
-5. If mentioning the product, include: ${product.url}
-6. NEVER start with "I" or use "Great question!" or "As someone who..."
+Rules:
+1. Genuinely help FIRST — answer the question or validate the problem
+2. Mention ${product.name} ONLY if it's a natural, honest fit
+3. Sound like a real person, not a marketer
+4. 3–5 sentences max
+5. If mentioning the product: ${product.url}
+6. Never start with "I" or use "Great question!"
 
-Write only the response. No preamble.`;
+Write only the response text.`;
 
-  try {
-    const r = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-        "anthropic-dangerous-direct-browser-access": "true"
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 350,
-        messages: [{ role: "user", content: prompt }]
-      })
+  try{
+    const r=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"x-api-key":anthropicKey,"anthropic-version":"2023-06-01","content-type":"application/json","anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:350,messages:[{role:"user",content:prompt}]})
     });
-    if (!r.ok) throw new Error(await r.text());
-    const data = await r.json();
-    return data.content[0].text.trim();
-  } catch (e) {
-    console.error("Draft error:", e);
-    return null;
-  }
+    if(!r.ok) throw new Error();
+    return (await r.json()).content[0].text.trim();
+  }catch{return null;}
 }
 
-// ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // MAIN SCAN
-// ─────────────────────────────────────────────────────────
-async function runScan() {
-  if (scanning) return;
-  scanning = true;
-  const btn = document.getElementById("scanBtn");
-  btn.disabled = true;
-  btn.textContent = "⏳ Scanning...";
+// ─────────────────────────────────────────────
+async function runScan(){
+  if(scanning) return;
+  scanning=true; sourceCounts={};
+  const btn=document.getElementById("scanBtn");
+  btn.disabled=true; btn.textContent="⏳ Scanning…";
+  document.getElementById("scanPrompt")&&(document.getElementById("scanPrompt").style.display="none");
+  document.getElementById("sbar").style.display="none";
+  document.getElementById("tabs").innerHTML="";
+  document.getElementById("panels").innerHTML="";
+  scanResults={};
+  const t0=Date.now();
 
-  document.getElementById("scanPrompt").style.display = "none";
-  document.getElementById("statsBar").style.display = "none";
-  document.getElementById("tabs").innerHTML = "";
-  document.getElementById("panels").innerHTML = "";
-
-  const startTime = Date.now();
-
-  for (const product of PRODUCTS) {
-    // Show loading state for this product tab
-    renderLoadingTab(product);
-
-    const signals = await huntProduct(product);
-
-    // Draft responses
-    const responses = [];
-    if (apiKey && signals.length > 0) {
-      for (const sig of signals) {
-        const resp = await draftResponse(sig, product);
-        responses.push(resp);
-        await sleep(300);
-      }
-    } else {
-      signals.forEach(() => responses.push(null));
-    }
-
-    scanResults[product.id] = { signals, responses };
-    renderProductTab(product, signals, responses);
+  for(const p of PRODUCTS){
+    renderLoadingTab(p);
+    const signals=await huntProduct(p);
+    const responses=[];
+    if(anthropicKey&&signals.length){
+      for(const s of signals){ responses.push(await draftResp(s,p)); await sleep(300); }
+    } else { signals.forEach(()=>responses.push(null)); }
+    scanResults[p.id]={signals,responses};
+    renderTab(p,signals,responses);
   }
 
-  // Update stats
-  const total = Object.values(scanResults).reduce((s, r) => s + r.signals.length, 0);
-  const hv = Object.values(scanResults).reduce((s, r) => s + r.signals.filter(sig => sig.relevance >= 5).length, 0);
-  const elapsed = ((Date.now() - startTime) / 1000).toFixed(0);
+  const total=Object.values(scanResults).reduce((s,r)=>s+r.signals.length,0);
+  const hv=Object.values(scanResults).reduce((s,r)=>s+r.signals.filter(x=>x.relevance>=5).length,0);
+  document.getElementById("stTotal").textContent=total;
+  document.getElementById("stHV").textContent=hv;
+  document.getElementById("stPosted").textContent=postedCount;
+  document.getElementById("stTime").innerHTML=`<span class="sbar-n">${((Date.now()-t0)/1000).toFixed(0)}s</span>`;
+  // Source pills
+  document.getElementById("srcPills").innerHTML=Object.entries(sourceCounts).map(([src,n])=>
+    `<span class="src-pill ${src.toLowerCase().replace('.','')}">${src} ${n}</span>`).join("");
+  document.getElementById("sbar").style.display="flex";
+  updateLearnPill();
 
-  document.getElementById("statTotal").textContent = total;
-  document.getElementById("statHV").textContent = hv;
-  document.getElementById("statTime").innerHTML = `<span class="stat-num">${elapsed}s</span> scan time`;
-  document.getElementById("statsBar").style.display = "flex";
-
-  btn.disabled = false;
-  btn.textContent = "↺ Re-scan";
-  scanning = false;
-
-  // Show first tab
-  if (PRODUCTS.length > 0) showTab(PRODUCTS[0].id);
+  btn.disabled=false; btn.textContent="↺ Re-scan";
+  scanning=false;
+  if(PRODUCTS[0]) showTab(PRODUCTS[0].id);
 }
 
-// ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // RENDERING
-// ─────────────────────────────────────────────────────────
-function renderLoadingTab(product) {
-  const tabs = document.getElementById("tabs");
-  const panels = document.getElementById("panels");
+// ─────────────────────────────────────────────
+function relBar(s){
+  const c=["#1e1e1e","#553","#663","#883","#9a4","#ab5","#5a5","#4a7","#4ab","#49c","#6c63ff"][Math.min(s,10)];
+  return `<span style="color:${c};font-family:monospace">${"█".repeat(s)}${"░".repeat(10-s)}</span>`;
+}
 
-  // Tab
-  const tab = document.createElement("button");
-  tab.className = "tab" + (product === PRODUCTS[0] ? " active" : "");
-  tab.id = `tab-${product.id}`;
-  tab.onclick = () => showTab(product.id);
-  tab.innerHTML = `${product.name} <span class="tab-cnt">...</span>`;
-  tabs.appendChild(tab);
+function renderLoadingTab(p){
+  const tab=document.createElement("button");
+  tab.className="tab"+(p===PRODUCTS[0]?" active":"");
+  tab.id=`tab-${p.id}`; tab.onclick=()=>showTab(p.id);
+  tab.innerHTML=`${p.name} <span class="tab-cnt">…</span>`;
+  document.getElementById("tabs").appendChild(tab);
 
-  // Panel
-  const panel = document.createElement("div");
-  panel.className = "panel" + (product === PRODUCTS[0] ? " active" : "");
-  panel.id = `panel-${product.id}`;
-  panel.innerHTML = `
-    <div class="prod-bar">
-      <a href="${product.url}" target="_blank" class="prod-url">🔗 ${product.url}</a>
-      <span class="prod-tag">${product.tagline}</span>
+  const panel=document.createElement("div");
+  panel.className="panel"+(p===PRODUCTS[0]?" active":"");
+  panel.id=`panel-${p.id}`;
+  panel.innerHTML=`<div class="prod-bar"><a href="${p.url}" target="_blank" class="prod-url">🔗 ${p.url}</a><span class="prod-tag">${p.tagline}</span></div><div class="loading"><div class="spinner"></div><div class="loading-msg">Scanning 5 sources for ${p.name}…</div></div>`;
+  document.getElementById("panels").appendChild(panel);
+}
+
+function renderTab(p,signals,responses){
+  const tab=document.getElementById(`tab-${p.id}`);
+  const panel=document.getElementById(`panel-${p.id}`);
+  const hv=signals.filter(s=>s.relevance>=5).length;
+  const hasFb=getFb(p.id).length>0;
+  tab.innerHTML=`${p.name} <span class="tab-cnt">${signals.length}</span>${hv>=2?" 🔥":""}${hasFb?" 🧠":""}`;
+
+  let html=`<div class="prod-bar">
+    <a href="${p.url}" target="_blank" class="prod-url">🔗 ${p.url}</a>
+    <span class="prod-tag">${p.tagline}</span>
+    ${hasFb?`<span class="prod-fb">🧠 ${getFb(p.id).length} learnings</span>`:""}
+  </div>`;
+
+  if(!signals.length){
+    html+=`<div class="empty">🔇 No signals this scan. Re-scan or the agent needs more time.</div>`;
+  } else {
+    signals.forEach((sig,i)=>{ html+=buildCard(sig,responses[i],p,i); });
+  }
+  panel.innerHTML=html;
+}
+
+function buildCard(sig,resp,p,idx){
+  const subLabel=sig.subreddit?` · r/${sig.subreddit}`:"";
+  const e=getFb(p.id).find(f=>f.url===sig.url);
+  const gCls=e?.verdict==="good"?" good":"", bCls=e?.verdict==="bad"?" bad":"";
+
+  let respHtml="";
+  if(resp){
+    const safe=resp.replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    respHtml=`<div class="resp">
+      <div class="resp-lbl">✍️ Draft Response <span class="resp-note">— review before posting</span></div>
+      <div class="resp-text" id="rt-${p.id}-${idx}">${safe}</div>
+      <div class="resp-acts">
+        <button class="copy-btn" onclick="copyR('${p.id}','${idx}',this)">📋 Copy</button>
+        <button class="post-btn" id="pb-${p.id}-${idx}" onclick="markPosted('${p.id}','${idx}',this)">✓ Posted</button>
+      </div></div>`;
+  } else if(!anthropicKey){
+    respHtml=`<div class="resp no-key-resp">
+      <div class="resp-lbl">✍️ Draft Response</div>
+      <div class="resp-text dim">Add Anthropic key to get AI-drafted responses</div>
+      <div class="resp-acts"><button class="draft-btn" onclick="openSettings()">Add Key →</button></div></div>`;
+  } else {
+    respHtml=`<div class="resp">
+      <div class="resp-lbl">✍️ Draft Response</div>
+      <div class="resp-text dim" id="rt-${p.id}-${idx}">Draft unavailable</div>
+      <div class="resp-acts"><button class="draft-btn" onclick="redraft('${p.id}',${idx},this)">✦ Draft now</button></div></div>`;
+  }
+
+  return `<div class="card${e?.verdict==="good"?" voted-good":e?.verdict==="bad"?" voted-bad":""}" id="card-${p.id}-${idx}">
+    <div class="card-top">
+      <span class="badge ${sig.color||"hn"}">
+        ${sig.platform==="HackerNews"?"🟠":sig.platform==="Reddit"?"🔴":sig.platform==="Dev.to"?"🔵":sig.platform==="Lobste.rs"?"🔻":"▶️"}
+        ${sig.platform}${subLabel}
+      </span>
+      <span class="rel">${sig.relevance}/10 ${relBar(sig.relevance)}</span>
     </div>
-    <div class="loading">
-      <div class="spinner"></div>
-      <div class="loading-msg">Hunting signals for ${product.name}…</div>
-    </div>`;
-  panels.appendChild(panel);
+    <a href="${sig.url}" target="_blank" class="card-title">${sig.title.replace(/</g,"&lt;").replace(/>/g,"&gt;")}</a>
+    <div class="card-snippet">${(sig.snippet||"No preview").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</div>
+    <div class="card-meta">👤 ${sig.author} &nbsp;·&nbsp; 💬 ${sig.comments} &nbsp;·&nbsp; ⬆ ${sig.score}</div>
+    <div class="fb-row">
+      <span class="fb-lbl">Relevant?</span>
+      <button class="fb-btn${gCls}" id="fbg-${p.id}-${idx}" onclick="vote('${p.id}',${idx},'good',this)">👍 Yes</button>
+      <button class="fb-btn${bCls}" id="fbb-${p.id}-${idx}" onclick="vote('${p.id}',${idx},'bad',this)">👎 No</button>
+      <span class="fb-saved${e?" show":""}" id="fbn-${p.id}-${idx}">
+        ${e?.verdict==="good"?"✓ Good — agent learned":"✓ Skipped — agent learned"}
+      </span>
+    </div>
+    ${respHtml}
+  </div>`;
 }
 
-function renderProductTab(product, signals, responses) {
-  const tab = document.getElementById(`tab-${product.id}`);
-  const panel = document.getElementById(`panel-${product.id}`);
-  const hv = signals.filter(s => s.relevance >= 5).length;
-
-  tab.innerHTML = `${product.name} <span class="tab-cnt">${signals.length}</span>${hv >= 2 ? " 🔥" : ""}`;
-
-  let cardsHtml = `
-    <div class="prod-bar">
-      <a href="${product.url}" target="_blank" class="prod-url">🔗 ${product.url}</a>
-      <span class="prod-tag">${product.tagline}</span>
-    </div>`;
-
-  if (signals.length === 0) {
-    cardsHtml += `<div class="empty"><p>🔇 No signals found this scan.</p><p>Try clicking Re-scan, or add more keywords.</p></div>`;
-  } else {
-    signals.forEach((sig, i) => {
-      cardsHtml += buildCard(sig, responses[i], product, i);
-    });
-  }
-
-  panel.innerHTML = cardsHtml;
-}
-
-function buildCard(sig, response, product, idx) {
-  const platform = sig.platform === "HackerNews" ? "HackerNews" : `Reddit${sig.subreddit ? " · r/" + sig.subreddit : ""}`;
-  const badgeCls = sig.platform === "HackerNews" ? "badge-hn" : "badge-reddit";
-  const relBar = buildRelBar(sig.relevance);
-  const snippetSafe = (sig.snippet || "").replace(/</g,"&lt;").replace(/>/g,"&gt;") || "<em style='color:#555'>No preview</em>";
-  const titleSafe = sig.title.replace(/</g,"&lt;").replace(/>/g,"&gt;");
-
-  let respHtml = "";
-  if (response) {
-    const respSafe = response.replace(/</g,"&lt;").replace(/>/g,"&gt;");
-    respHtml = `
-      <div class="resp-box">
-        <div class="resp-label">✍️ Draft Response <span class="resp-note">— review before posting</span></div>
-        <div class="resp-text" id="rt-${product.id}-${idx}">${respSafe}</div>
-        <div class="resp-actions">
-          <button class="copy-btn" onclick="copyResp('${product.id}','${idx}',this)">📋 Copy</button>
-        </div>
-      </div>`;
-  } else if (!apiKey) {
-    respHtml = `
-      <div class="resp-box">
-        <div class="resp-label">✍️ Draft Response</div>
-        <div class="resp-text dim">Add your Anthropic API key to get AI-drafted responses</div>
-        <div class="resp-actions">
-          <button class="draft-btn" onclick="openSettings()">Add API Key →</button>
-        </div>
-      </div>`;
-  } else {
-    respHtml = `
-      <div class="resp-box">
-        <div class="resp-label">✍️ Draft Response</div>
-        <div class="resp-text dim" id="rt-${product.id}-${idx}">Draft unavailable for this signal</div>
-        <div class="resp-actions">
-          <button class="draft-btn" onclick="redraftSingle('${product.id}',${idx},this)">✦ Draft now</button>
-        </div>
-      </div>`;
-  }
-
-  return `
-    <div class="card">
-      <div class="card-top">
-        <span class="badge ${badgeCls}">${sig.platform === "HackerNews" ? "🟠" : "🔴"} ${platform}</span>
-        <span class="rel">${sig.relevance}/10 ${relBar}</span>
-      </div>
-      <a href="${sig.url}" target="_blank" class="card-title">${titleSafe}</a>
-      <div class="card-snippet">${snippetSafe}</div>
-      <div class="card-meta">👤 ${sig.author} &nbsp;·&nbsp; 💬 ${sig.comments} comments &nbsp;·&nbsp; ⬆ ${sig.score}</div>
-      ${respHtml}
-    </div>`;
-}
-
-function buildRelBar(score) {
-  const colors = ["#333","#553","#663","#883","#9a4","#ab5","#5a5","#4a7","#4ab","#49c","#6c63ff"];
-  const c = colors[Math.min(score, 10)];
-  const filled = "█".repeat(score);
-  const empty = "░".repeat(10 - score);
-  return `<span style="color:${c};font-family:monospace">${filled}${empty}</span>`;
-}
-
-// ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // INTERACTIONS
-// ─────────────────────────────────────────────────────────
-function showTab(productId) {
-  activeTab = productId;
-  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-  document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
-  const tab = document.getElementById(`tab-${productId}`);
-  const panel = document.getElementById(`panel-${productId}`);
-  if (tab) tab.classList.add("active");
-  if (panel) panel.classList.add("active");
+// ─────────────────────────────────────────────
+function showTab(pid){
+  document.querySelectorAll(".tab").forEach((t,i)=>t.classList.toggle("active",PRODUCTS[i]?.id===pid));
+  document.querySelectorAll(".panel").forEach(panel=>panel.classList.toggle("active",panel.id===`panel-${pid}`));
 }
 
-function copyResp(productId, idx, btn) {
-  const el = document.getElementById(`rt-${productId}-${idx}`);
-  if (!el) return;
-  const text = el.innerText;
-  navigator.clipboard.writeText(text).then(() => {
-    btn.textContent = "✓ Copied!";
-    btn.classList.add("ok");
-    setTimeout(() => { btn.textContent = "📋 Copy"; btn.classList.remove("ok"); }, 2200);
-  }).catch(() => {
-    const ta = document.createElement("textarea");
-    ta.value = text; document.body.appendChild(ta); ta.select();
-    document.execCommand("copy"); document.body.removeChild(ta);
-    btn.textContent = "✓ Copied!"; btn.classList.add("ok");
-    setTimeout(() => { btn.textContent = "📋 Copy"; btn.classList.remove("ok"); }, 2200);
+function vote(pid,idx,verdict,btn){
+  const r=scanResults[pid]; if(!r) return;
+  saveFb(pid,r.signals[idx],verdict);
+  document.getElementById(`fbg-${pid}-${idx}`)?.classList.toggle("good",verdict==="good");
+  document.getElementById(`fbg-${pid}-${idx}`)?.classList.remove("bad");
+  document.getElementById(`fbb-${pid}-${idx}`)?.classList.toggle("bad",verdict==="bad");
+  document.getElementById(`fbb-${pid}-${idx}`)?.classList.remove("good");
+  const note=document.getElementById(`fbn-${pid}-${idx}`);
+  if(note){ note.textContent=verdict==="good"?"✓ Good — agent learned":"✓ Skipped — agent learned"; note.classList.add("show"); }
+  const card=document.getElementById(`card-${pid}-${idx}`);
+  if(card){ card.classList.remove("voted-good","voted-bad"); card.classList.add(verdict==="good"?"voted-good":"voted-bad"); }
+  const tab=document.getElementById(`tab-${pid}`);
+  if(tab&&!tab.innerHTML.includes("🧠")) tab.innerHTML+=" 🧠";
+}
+
+function copyR(pid,idx,btn){
+  const el=document.getElementById(`rt-${pid}-${idx}`); if(!el) return;
+  navigator.clipboard.writeText(el.innerText).then(()=>{
+    btn.textContent="✓ Copied!"; btn.classList.add("ok");
+    setTimeout(()=>{btn.textContent="📋 Copy";btn.classList.remove("ok");},2200);
   });
 }
 
-async function redraftSingle(productId, idx, btn) {
-  if (!apiKey) { openSettings(); return; }
-  const product = PRODUCTS.find(p => p.id === productId);
-  const result = scanResults[productId];
-  if (!product || !result) return;
-  const signal = result.signals[idx];
-  const rtEl = document.getElementById(`rt-${productId}-${idx}`);
-
-  btn.textContent = "Drafting…";
-  btn.disabled = true;
-  const resp = await draftResponse(signal, product);
-  if (resp && rtEl) {
-    rtEl.className = "resp-text";
-    rtEl.textContent = resp;
-    btn.textContent = "✦ Re-draft";
-    btn.disabled = false;
-    // Add copy button next to it
-    const actions = btn.closest(".resp-actions");
-    if (actions && !actions.querySelector(".copy-btn")) {
-      const copyBtn = document.createElement("button");
-      copyBtn.className = "copy-btn";
-      copyBtn.textContent = "📋 Copy";
-      copyBtn.onclick = () => copyResp(productId, idx, copyBtn);
-      actions.insertBefore(copyBtn, btn);
-    }
-  } else {
-    btn.textContent = "✦ Retry";
-    btn.disabled = false;
-  }
+function markPosted(pid,idx,btn){
+  btn.textContent="✓ Posted!"; btn.classList.add("done"); btn.disabled=true;
+  postedCount++; localStorage.setItem("fc_posts",postedCount);
+  document.getElementById("stPosted").textContent=postedCount;
 }
 
-// ─────────────────────────────────────────────────────────
-// UTILS
-// ─────────────────────────────────────────────────────────
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+async function redraft(pid,idx,btn){
+  if(!anthropicKey){openSettings();return;}
+  const p=PRODUCTS.find(x=>x.id===pid), r=scanResults[pid]; if(!p||!r) return;
+  btn.textContent="Drafting…"; btn.disabled=true;
+  const resp=await draftResp(r.signals[idx],p);
+  const rtEl=document.getElementById(`rt-${pid}-${idx}`);
+  if(resp&&rtEl){
+    rtEl.className="resp-text"; rtEl.textContent=resp;
+    const acts=btn.closest(".resp-acts"); if(!acts) return;
+    acts.innerHTML=`
+      <button class="copy-btn" onclick="copyR('${pid}','${idx}',this)">📋 Copy</button>
+      <button class="post-btn" id="pb-${pid}-${idx}" onclick="markPosted('${pid}','${idx}',this)">✓ Posted</button>
+      <button class="draft-btn" onclick="redraft('${pid}',${idx},this)">↺ Re-draft</button>`;
+  } else { btn.textContent="↺ Retry"; btn.disabled=false; }
+}
 
-// ─────────────────────────────────────────────────────────
+function enc(s){return encodeURIComponent(s);}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
 // INIT
-// ─────────────────────────────────────────────────────────
-updateNotice();
-updateKeyStatus();
-
-// Close modal on overlay click
-document.getElementById("settingsOverlay").addEventListener("click", e => {
-  if (e.target === e.currentTarget) closeSettings();
-});
+updateNotice(); updateLearnPill();
+document.getElementById("settingsOverlay").addEventListener("click",e=>{if(e.target===e.currentTarget)closeSettings();});
+document.getElementById("learnOverlay").addEventListener("click",e=>{if(e.target===e.currentTarget)closeLearn();});
 </script>
 </body>
 </html>

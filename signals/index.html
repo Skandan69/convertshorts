@@ -1325,11 +1325,12 @@ function buildCard(sig,resp,p,idx){
   let respHtml="";
   if(resp){
     const safe=resp.replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    const sigUrl=sig.url||"";
     respHtml=`<div class="resp">
-      <div class="resp-lbl">✍️ Draft Response <span class="resp-note">— review before posting</span></div>
+      <div class="resp-lbl">✍️ Draft Response <span class="resp-note">— copy &amp; paste your reply</span></div>
       <div class="resp-text" id="rt-${p.id}-${idx}">${safe}</div>
       <div class="resp-acts">
-        <button class="copy-btn" onclick="copyR('${p.id}','${idx}',this)">📋 Copy</button>
+        <button class="copy-btn go-btn" onclick="copyAndOpen('${p.id}','${idx}','${sigUrl.replace(/'/g,"\\'")}',this)">📋 Copy &amp; Open →</button>
         <button class="post-btn" id="pb-${p.id}-${idx}" onclick="markPosted('${p.id}','${idx}',this)">✓ Posted</button>
       </div></div>`;
   } else if(!anthropicKey){
@@ -1400,6 +1401,15 @@ function copyR(pid,idx,btn){
   });
 }
 
+function copyAndOpen(pid,idx,url,btn){
+  const el=document.getElementById(`rt-${pid}-${idx}`); if(!el) return;
+  navigator.clipboard.writeText(el.innerText).then(()=>{
+    btn.textContent="✓ Copied! Opening…"; btn.classList.add("ok");
+    setTimeout(()=>{ btn.textContent="📋 Copy & Open →"; btn.classList.remove("ok"); },3000);
+  });
+  if(url) window.open(url,"_blank");
+}
+
 function markPosted(pid,idx,btn){
   btn.textContent="✓ Posted!"; btn.classList.add("done"); btn.disabled=true;
   postedCount++; localStorage.setItem("fc_posts",postedCount);
@@ -1416,7 +1426,7 @@ async function redraft(pid,idx,btn){
     rtEl.className="resp-text"; rtEl.textContent=resp;
     const acts=btn.closest(".resp-acts"); if(!acts) return;
     acts.innerHTML=`
-      <button class="copy-btn" onclick="copyR('${pid}','${idx}',this)">📋 Copy</button>
+      <button class="copy-btn go-btn" onclick="copyAndOpen('${pid}','${idx}','',this)">📋 Copy &amp; Open →</button>
       <button class="post-btn" id="pb-${pid}-${idx}" onclick="markPosted('${pid}','${idx}',this)">✓ Posted</button>
       <button class="draft-btn" onclick="redraft('${pid}',${idx},this)">↺ Re-draft</button>`;
   } else { btn.textContent="↺ Retry"; btn.disabled=false; }

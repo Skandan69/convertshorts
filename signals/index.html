@@ -799,6 +799,24 @@ async function searchHN(query){
   }catch{return[];}
 }
 
+// Pushshift keyword search — no proxy, searches across all of Reddit by title
+async function searchRedditPushshift(query){
+  try{
+    const r=await fetch(`https://api.pullpush.io/reddit/search/submission/?title=${enc(query)}&size=20&sort=desc`,{
+      signal:AbortSignal.timeout(10000)
+    });
+    const data=await r.json();
+    return(data?.data||[]).map(p=>({
+      platform:"Reddit",color:"reddit",
+      title:p.title||"", snippet:(p.selftext||"").slice(0,400),
+      url:p.url?.startsWith("http")?p.url:`https://reddit.com${p.permalink||""}`,
+      author:p.author||"", subreddit:p.subreddit||"",
+      score:p.score||0, comments:p.num_comments||0,
+      created_at:new Date((p.created_utc||0)*1000).toISOString()
+    })).filter(p=>p.title);
+  }catch{return[];}
+}
+
 async function searchReddit(query,sub){
   const base=sub
     ?`https://www.reddit.com/r/${sub}/search.json?q=${enc(query)}&sort=new&limit=15&t=year&restrict_sr=true`
@@ -825,29 +843,22 @@ async function searchReddit(query,sub){
   return[];
 }
 
-// Browse subreddit via proxy (Reddit blocks direct browser fetch)
+// Browse subreddit via Pushshift mirror (pullpush.io) — no proxy, no auth, free
 async function browseSubreddit(sub){
-  const base=`https://www.reddit.com/r/${sub}/new.json?limit=25`;
-  const proxies=[
-    `https://api.allorigins.win/raw?url=${enc(base)}`,
-    `https://corsproxy.io/?${enc(base)}`
-  ];
-  for(const proxy of proxies){
-    try{
-      const r=await fetch(proxy,{signal:AbortSignal.timeout(10000)});
-      const data=await r.json();
-      const posts=(data?.data?.children||[]).map(p=>{
-        const d=p.data;
-        return{platform:"Reddit",color:"reddit",
-          title:d.title||"", snippet:(d.selftext||"").slice(0,400),
-          url:`https://reddit.com${d.permalink}`, author:d.author||"",
-          subreddit:d.subreddit||"", score:d.score||0, comments:d.num_comments||0,
-          created_at:new Date((d.created_utc||0)*1000).toISOString()};
-      }).filter(p=>p.title);
-      if(posts.length>0) return posts;
-    }catch{}
-  }
-  return[];
+  try{
+    const r=await fetch(`https://api.pullpush.io/reddit/search/submission/?subreddit=${sub}&size=25&sort=desc`,{
+      signal:AbortSignal.timeout(10000)
+    });
+    const data=await r.json();
+    return(data?.data||[]).map(p=>({
+      platform:"Reddit",color:"reddit",
+      title:p.title||"", snippet:(p.selftext||"").slice(0,400),
+      url:p.url?.startsWith("http")?p.url:`https://reddit.com${p.permalink||""}`,
+      author:p.author||"", subreddit:p.subreddit||"",
+      score:p.score||0, comments:p.num_comments||0,
+      created_at:new Date((p.created_utc||0)*1000).toISOString()
+    })).filter(p=>p.title);
+  }catch{return[];}
 }
 
 async function searchDevTo(tag){
@@ -1005,11 +1016,19 @@ async function huntProduct(product){
     for(const kw of fallbackKws){ addToBucket(await searchHN(kw)); }
   }
 
-  // Reddit — DIRECT subreddit browse (no proxy, always works) + search as bonus
-  for(const sub of (product.subreddits||[])){ addToBucket(await browseSubreddit(sub)); await sleep(300); }
-  // Also try search via proxy if browse didn't get enough
+  // Reddit — browse subreddits via Pushshift (pullpush.io), no proxy needed
+  // If stored subreddits are generic placeholders, augment with keyword-based ones
+  const GENERIC_SUBS=new Set(["startups","entrepreneur","sideproject","sidehustle"]);
+  let subs=[...(product.subreddits||[])];
+  if(subs.every(s=>GENERIC_SUBS.has(s.toLowerCase()))){
+    // Build keyword-derived subreddits from product name and keywords
+    const kws=(product.keywords||[]).concat(product.name||"").map(k=>k.toLowerCase().replace(/\s+/g,""));
+    subs=[...subs,...kws.slice(0,3),"learnprogramming","programming"];
+  }
+  for(const sub of subs){ addToBucket(await browseSubreddit(sub)); await sleep(400); }
+  // Also try Pushshift keyword search as bonus
   if(buckets["Reddit"].length < 5){
-    for(const q of (product.redditQ||[]).slice(0,2)){ addToBucket(await searchReddit(q,null)); await sleep(400); }
+    for(const q of (product.redditQ||[]).slice(0,2)){ addToBucket(await searchRedditPushshift(q)); await sleep(400); }
   }
 
   // Dev.to — all tags

@@ -528,19 +528,20 @@ Return ONLY valid JSON (no markdown, no explanation, no code blocks):
   "icp": "ideal customer profile — who has the pain this product solves",
   "hnQ": ["3 HackerNews search queries about the PROBLEM, not the product"],
   "redditQ": ["3 Reddit search queries about the pain point people experience"],
-  "subreddits": ["3 relevant subreddits where target users hang out"],
+  "subreddits": ["5 specific subreddits where target users actively post — e.g. resumes, jobs, cscareerquestions, not generic ones like startups"],
   "devtoTags": ["3 dev.to tags relevant to this space"],
   "devtoQ": ["2 dev.to search queries"],
-  "soQ": ["2 Stack Overflow search queries about technical problems this product solves"],
+  "soQ": ["ONLY fill if this product solves a coding/technical problem. For job/resume/career/consumer products return empty array []"],
   "ytQ": ["2 YouTube search queries about the problem or use case"],
-  "lobstersQ": ["1 Lobste.rs search query"],
+  "lobstersQ": ["1 Lobste.rs query — ONLY if product is dev/tech focused, else return empty string"],
   "painPhrases": ["8-10 exact phrases people use when venting about this problem"],
   "keywords": ["10 keywords for scoring relevance"]
 }
 
 CRITICAL: Make queries intent-focused — find people who HAVE THE PROBLEM, not people searching for solutions.
 Bad: "resume builder tool". Good: "resume rejected by ATS" or "not getting shortlisted despite applying".
-Bad: "video converter app". Good: "landscape video for Instagram reels" or "how to crop video for shorts".`;
+Bad: "video converter app". Good: "landscape video for Instagram reels" or "how to crop video for shorts".
+For subreddits: pick active communities where the ICP asks questions. Resume tool → ["resumes","jobs","cscareerquestions","careerguidance","jobsearchhacks"]. Dev tool → ["programming","webdev","learnprogramming"].`;
 
   try{
     const r = await fetch("https://api.anthropic.com/v1/messages",{
@@ -824,23 +825,29 @@ async function searchReddit(query,sub){
   return[];
 }
 
-// Direct subreddit browse — NO proxy needed, Reddit CDN allows CORS on .json feeds
+// Browse subreddit via proxy (Reddit blocks direct browser fetch)
 async function browseSubreddit(sub){
-  try{
-    const r=await fetch(`https://www.reddit.com/r/${sub}/new.json?limit=25`,{
-      headers:{"Accept":"application/json"},
-      signal:AbortSignal.timeout(8000)
-    });
-    const data=await r.json();
-    return(data?.data?.children||[]).map(p=>{
-      const d=p.data;
-      return{platform:"Reddit",color:"reddit",
-        title:d.title||"", snippet:(d.selftext||"").slice(0,400),
-        url:`https://reddit.com${d.permalink}`, author:d.author||"",
-        subreddit:d.subreddit||"", score:d.score||0, comments:d.num_comments||0,
-        created_at:new Date((d.created_utc||0)*1000).toISOString()};
-    }).filter(p=>p.title);
-  }catch{return[];}
+  const base=`https://www.reddit.com/r/${sub}/new.json?limit=25`;
+  const proxies=[
+    `https://api.allorigins.win/raw?url=${enc(base)}`,
+    `https://corsproxy.io/?${enc(base)}`
+  ];
+  for(const proxy of proxies){
+    try{
+      const r=await fetch(proxy,{signal:AbortSignal.timeout(10000)});
+      const data=await r.json();
+      const posts=(data?.data?.children||[]).map(p=>{
+        const d=p.data;
+        return{platform:"Reddit",color:"reddit",
+          title:d.title||"", snippet:(d.selftext||"").slice(0,400),
+          url:`https://reddit.com${d.permalink}`, author:d.author||"",
+          subreddit:d.subreddit||"", score:d.score||0, comments:d.num_comments||0,
+          created_at:new Date((d.created_utc||0)*1000).toISOString()};
+      }).filter(p=>p.title);
+      if(posts.length>0) return posts;
+    }catch{}
+  }
+  return[];
 }
 
 async function searchDevTo(tag){
@@ -857,16 +864,27 @@ async function searchDevTo(tag){
 }
 
 async function searchLobsters(query){
-  try{
-    const r=await fetch(`https://lobste.rs/search.json?q=${enc(query)}&what=stories&order=newest`,{signal:AbortSignal.timeout(6000)});
-    return (await r.json()).results?.map(s=>({
-      platform:"Lobste.rs",color:"lobsters",
-      title:s.title||"", snippet:(s.description||"").slice(0,400),
-      url:s.url||s.short_id_url||"", author:s.submitter_user?.username||"",
-      subreddit:null, score:s.score||0, comments:s.comment_count||0,
-      created_at:s.created_at||""
-    })).filter(s=>s.title&&s.url)||[];
-  }catch{return[];}
+  // Lobste.rs blocks direct browser requests — route via proxy
+  const base=`https://lobste.rs/search.json?q=${enc(query)}&what=stories&order=newest`;
+  const proxies=[
+    `https://api.allorigins.win/raw?url=${enc(base)}`,
+    `https://corsproxy.io/?${enc(base)}`
+  ];
+  for(const proxy of proxies){
+    try{
+      const r=await fetch(proxy,{signal:AbortSignal.timeout(8000)});
+      const data=await r.json();
+      const results=(data.results||[]).map(s=>({
+        platform:"Lobste.rs",color:"lobsters",
+        title:s.title||"", snippet:(s.description||"").slice(0,400),
+        url:s.url||s.short_id_url||"", author:s.submitter_user?.username||"",
+        subreddit:null, score:s.score||0, comments:s.comment_count||0,
+        created_at:s.created_at||""
+      })).filter(s=>s.title&&s.url);
+      if(results.length>0) return results;
+    }catch{}
+  }
+  return[];
 }
 
 async function searchYouTube(query){

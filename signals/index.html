@@ -200,7 +200,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .ftr{text-align:center;padding:24px;color:#2a2a2a;font-size:11px;border-top:1px solid #111;line-height:2}
 
 /* SOURCE BADGE COLORS */
-.hn{background:#f97316}.reddit{background:#ff4500}.devto{background:#3b49df}.lobsters{background:#ac130d}.youtube{background:#ff0000}.stackoverflow{background:#e47110}
+.hn{background:#f97316}.reddit{background:#ff4500}.devto{background:#3b49df}.lobsters{background:#ac130d}.youtube{background:#ff0000}.stackoverflow{background:#e47110}.google{background:#4285f4}
 
 @media(max-width:580px){
   .hdr,.sbar,.notice{padding-left:16px;padding-right:16px}
@@ -223,10 +223,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="field-note">→ <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> · ~$0.001/response</div>
     </div>
     <div class="field">
-      <label>Google API Key <span style="color:#444">(YouTube signals — optional)</span></label>
+      <label>Google API Key <span style="color:#444">(YouTube + Google Search signals)</span></label>
       <input type="password" id="googleKey" placeholder="AIza..." autocomplete="off">
       <div id="googleStatus"></div>
-      <div class="field-note">→ <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> · YouTube Data API v3 · Free 10k/day</div>
+      <div class="field-note">→ <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> · Enable YouTube Data API v3 &amp; Custom Search API · Free 10k/day</div>
+    </div>
+    <div class="field">
+      <label>Google Custom Search Engine ID <span style="color:#444">(for web-wide Google signals)</span></label>
+      <input type="text" id="googleCX" placeholder="017576662512468239146:omuauf_lfve" autocomplete="off">
+      <div id="googleCXStatus"></div>
+      <div class="field-note">→ <a href="https://programmablesearchengine.google.com/" target="_blank">programmablesearchengine.google.com</a> · Create engine → "Search entire web" → copy the ID (cx=...)</div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeSettings()">Cancel</button>
@@ -420,6 +426,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 // ─────────────────────────────────────────────
 let anthropicKey = localStorage.getItem("fc_ant") || "";
 let googleKey    = localStorage.getItem("fc_goog") || "";
+let googleCX     = localStorage.getItem("fc_gcx") || "";
 let feedback     = JSON.parse(localStorage.getItem("fc_fb2") || "{}");
 let postedCount  = parseInt(localStorage.getItem("fc_posts") || "0");
 let scanResults  = {};
@@ -534,6 +541,7 @@ Return ONLY valid JSON (no markdown, no explanation, no code blocks):
   "soQ": ["ONLY fill if this product solves a coding/technical problem. For job/resume/career/consumer products return empty array []"],
   "ytQ": ["2 YouTube search queries about the problem or use case"],
   "lobstersQ": ["1 Lobste.rs query — ONLY if product is dev/tech focused, else return empty string"],
+  "googleQ": ["3 Google search queries to find people discussing this problem on Reddit, Quora, forums — include site: operators like 'site:reddit.com resume rejected ATS'"],
   "painPhrases": ["8-10 exact phrases people use when venting about this problem"],
   "keywords": ["10 keywords for scoring relevance"]
 }
@@ -742,6 +750,7 @@ function clearFeedback(){
 function openSettings(){
   document.getElementById("anthropicKey").value=anthropicKey;
   document.getElementById("googleKey").value=googleKey;
+  document.getElementById("googleCX").value=googleCX;
   refreshStatuses();
   document.getElementById("settingsOverlay").classList.add("open");
 }
@@ -749,8 +758,10 @@ function closeSettings(){ document.getElementById("settingsOverlay").classList.r
 function saveSettings(){
   anthropicKey=document.getElementById("anthropicKey").value.trim();
   googleKey=document.getElementById("googleKey").value.trim();
+  googleCX=document.getElementById("googleCX").value.trim();
   localStorage.setItem("fc_ant",anthropicKey);
   localStorage.setItem("fc_goog",googleKey);
+  localStorage.setItem("fc_gcx",googleCX);
   closeSettings(); updateNotice();
 }
 function refreshStatuses(){
@@ -759,7 +770,9 @@ function refreshStatuses(){
   as.textContent=anthropicKey?"✓ Key saved — AI analysis + drafting enabled":"Not set — manual setup only, no response drafting";
   const gs=document.getElementById("googleStatus");
   gs.className=googleKey?"key-ok":"key-no";
-  gs.textContent=googleKey?"✓ Key saved":"Not set — YouTube signals disabled";
+  gs.textContent=googleKey?"✓ Key saved":"Not set — YouTube + Google Search disabled";
+  const cx=document.getElementById("googleCXStatus");
+  if(cx){ cx.className=googleCX?"key-ok":"key-no"; cx.textContent=googleCX?"✓ CX saved — Google Search enabled":"Not set — Google Search signals disabled"; }
 }
 function updateNotice(){ document.getElementById("noKeyNotice").style.display=anthropicKey?"none":"block"; }
 
@@ -936,6 +949,34 @@ async function searchYouTube(query){
   }catch{return[];}
 }
 
+// 7. Google Custom Search (needs googleKey + googleCX, 100 free queries/day)
+async function searchGoogle(query){
+  if(!googleKey||!googleCX) return[];
+  try{
+    const r=await fetch(`https://www.googleapis.com/customsearch/v1?key=${googleKey}&cx=${googleCX}&q=${enc(query)}&num=10`,{
+      signal:AbortSignal.timeout(8000)
+    });
+    const data=await r.json();
+    if(data.error) return[];
+    return(data.items||[]).map(item=>{
+      // Detect the platform from the URL for better display
+      const u=item.link||"";
+      const isReddit=u.includes("reddit.com");
+      const isQuora=u.includes("quora.com");
+      const isMedium=u.includes("medium.com");
+      return{
+        platform:"Google",color:"google",
+        title:item.title||"", snippet:(item.snippet||"").slice(0,400),
+        url:u, author:item.displayLink||"",
+        subreddit:isReddit?(u.match(/\/r\/([^/]+)/)||[])[1]||null:null,
+        score:0, comments:0,
+        sourceLabel:isReddit?"Reddit":isQuora?"Quora":isMedium?"Medium":item.displayLink,
+        created_at:""
+      };
+    }).filter(r=>r.title&&r.url);
+  }catch{return[];}
+}
+
 // 6. Stack Overflow (free API — no key needed, 300 req/day)
 async function searchStackOverflow(query){
   try{
@@ -1045,6 +1086,12 @@ async function huntProduct(product){
   // YouTube (if key set)
   if(googleKey){
     for(const q of (product.ytQ||[])){ addToBucket(await searchYouTube(q)); await sleep(400); }
+  }
+
+  // Google Custom Search (if key + CX set) — searches web-wide: Reddit, Quora, Medium, forums
+  if(googleKey && googleCX){
+    const gQueries=(product.googleQ||product.redditQ||[]).slice(0,3);
+    for(const q of gQueries){ addToBucket(await searchGoogle(q)); await sleep(400); }
   }
 
   // Sort each platform bucket by relevance
@@ -1190,7 +1237,8 @@ const PLATFORM_META = {
   "Dev.to":         {icon:"🔵", cls:"devto"},
   "Stack Overflow": {icon:"🟧", cls:"stackoverflow"},
   "Lobste.rs":      {icon:"🔻", cls:"lobsters"},
-  "YouTube":        {icon:"▶️", cls:"youtube", needsKey:true}
+  "YouTube":        {icon:"▶️", cls:"youtube", needsKey:true},
+  "Google":         {icon:"🔍", cls:"google", needsCX:true}
 };
 
 function renderPanel(p, signals, buckets, responseMap){
@@ -1206,16 +1254,21 @@ function renderPanel(p, signals, buckets, responseMap){
 
   for(const [name, meta] of Object.entries(PLATFORM_META)){
     const count = (buckets[name]||[]).length;
-    const isYT = meta.needsKey;
-    const noKey = isYT && !googleKey;
-    if(noKey){
+    const noYTKey = meta.needsKey && !googleKey;
+    const noCX = meta.needsCX && (!googleKey || !googleCX);
+    const label = name === "HackerNews" ? "HN" : name === "Stack Overflow" ? "Stack ↗" : name;
+    if(noYTKey){
       pillsHtml += `<button class="plat-pill locked" onclick="openSettings()" title="Add Google API key to enable YouTube">
         ${meta.icon} YouTube 🔒
+      </button>`;
+    } else if(noCX){
+      pillsHtml += `<button class="plat-pill locked" onclick="openSettings()" title="Add Google API key + CX to enable Google Search">
+        ${meta.icon} Google 🔒
       </button>`;
     } else {
       const empty = count === 0 ? " empty" : "";
       pillsHtml += `<button class="plat-pill${empty}" onclick="filterPlatform('${p.id}','${name}',this)">
-        ${meta.icon} ${name === "HackerNews" ? "HN" : name === "Stack Overflow" ? "Stack ↗" : name}
+        ${meta.icon} ${label}
         <span class="pcnt">${count}</span>
       </button>`;
     }

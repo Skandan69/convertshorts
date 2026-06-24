@@ -145,6 +145,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .prod-del{background:transparent;border:1px solid rgba(239,68,68,.2);color:#555;border-radius:6px;padding:3px 8px;font-size:10px;cursor:pointer;margin-left:auto;transition:all .15s}
 .prod-del:hover{border-color:var(--red);color:var(--red)}
 
+/* PLATFORM FILTER ROW */
+.platform-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.plat-pill{background:var(--bg3);border:1px solid var(--border);border-radius:16px;padding:5px 12px;font-size:11px;color:var(--muted);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:5px;font-weight:500}
+.plat-pill:hover:not(.empty){border-color:var(--purple);color:#ccc}
+.plat-pill.active{background:var(--purple);border-color:var(--purple);color:#fff;font-weight:700}
+.plat-pill.locked{border-color:rgba(251,191,36,.2);color:#555}
+.plat-pill.locked:hover{border-color:var(--amber);color:var(--amber)}
+.plat-pill.empty{opacity:.28;cursor:default;pointer-events:none}
+.pcnt{background:rgba(255,255,255,.16);border-radius:8px;padding:1px 6px;font-size:10px}
+.plat-pill.active .pcnt{background:rgba(255,255,255,.22)}
+
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:11px;transition:border-color .15s}
 .card:hover{border-color:#2a2a3a}
 .card.voted-good{border-color:rgba(34,197,94,.3)}
@@ -774,9 +785,9 @@ function closeLearn(){ document.getElementById("learnOverlay").classList.remove(
 // SIGNAL SOURCES
 // ─────────────────────────────────────────────
 async function searchHN(query){
-  const cutoff=Math.floor((Date.now()-14*864e5)/1000);
+  const cutoff=Math.floor((Date.now()-90*864e5)/1000); // 90 days window
   try{
-    const r=await fetch(`https://hn.algolia.com/api/v1/search?query=${enc(query)}&tags=(ask_hn,show_hn,story)&hitsPerPage=10&numericFilters=created_at_i>${cutoff}`);
+    const r=await fetch(`https://hn.algolia.com/api/v1/search?query=${enc(query)}&tags=(ask_hn,show_hn,story)&hitsPerPage=20&numericFilters=created_at_i>${cutoff}`);
     return (await r.json()).hits?.filter(h=>h.title).map(h=>({
       platform:"HackerNews",color:"hn",
       title:h.title, snippet:(h.story_text||"").slice(0,400),
@@ -789,19 +800,29 @@ async function searchHN(query){
 
 async function searchReddit(query,sub){
   const base=sub
-    ?`https://www.reddit.com/r/${sub}/search.json?q=${enc(query)}&sort=new&limit=10&t=month&restrict_sr=true`
-    :`https://www.reddit.com/search.json?q=${enc(query)}&sort=new&limit=10&t=month`;
-  try{
-    const r=await fetch(`https://api.allorigins.win/raw?url=${enc(base)}`,{signal:AbortSignal.timeout(8000)});
-    return (await r.json())?.data?.children?.map(p=>{
-      const d=p.data;
-      return{platform:"Reddit",color:"reddit",
-        title:d.title||"", snippet:(d.selftext||"").slice(0,400),
-        url:`https://reddit.com${d.permalink}`, author:d.author||"",
-        subreddit:d.subreddit||"", score:d.score||0, comments:d.num_comments||0,
-        created_at:new Date((d.created_utc||0)*1000).toISOString()};
-    }).filter(p=>p.title)||[];
-  }catch{return[];}
+    ?`https://www.reddit.com/r/${sub}/search.json?q=${enc(query)}&sort=new&limit=15&t=year&restrict_sr=true`
+    :`https://www.reddit.com/search.json?q=${enc(query)}&sort=new&limit=15&t=year`;
+  // Try two proxies — allorigins first, corsproxy.io as fallback
+  const proxies=[
+    `https://api.allorigins.win/raw?url=${enc(base)}`,
+    `https://corsproxy.io/?${enc(base)}`
+  ];
+  for(const proxy of proxies){
+    try{
+      const r=await fetch(proxy,{signal:AbortSignal.timeout(8000)});
+      const data=await r.json();
+      const results=data?.data?.children?.map(p=>{
+        const d=p.data;
+        return{platform:"Reddit",color:"reddit",
+          title:d.title||"", snippet:(d.selftext||"").slice(0,400),
+          url:`https://reddit.com${d.permalink}`, author:d.author||"",
+          subreddit:d.subreddit||"", score:d.score||0, comments:d.num_comments||0,
+          created_at:new Date((d.created_utc||0)*1000).toISOString()};
+      }).filter(p=>p.title)||[];
+      if(results.length>0) return results;
+    }catch{}
+  }
+  return[];
 }
 
 async function searchDevTo(tag){
@@ -919,42 +940,41 @@ async function huntProduct(product){
     }
   }
 
-  // HackerNews
-  for(const q of (product.hnQ||[]).slice(0,3)){ addToBucket(await searchHN(q)); }
+  // HackerNews — all queries, 90-day window
+  for(const q of (product.hnQ||[])){ addToBucket(await searchHN(q)); }
 
-  // Reddit — global + subreddit-specific
-  for(const q of (product.redditQ||[]).slice(0,2)){ addToBucket(await searchReddit(q,null)); await sleep(300); }
-  for(const sub of (product.subreddits||[]).slice(0,2)){
+  // Reddit — all queries globally + all subreddits
+  for(const q of (product.redditQ||[])){ addToBucket(await searchReddit(q,null)); await sleep(300); }
+  for(const sub of (product.subreddits||[])){
     addToBucket(await searchReddit((product.redditQ||[])[0]||(product.name||""), sub));
     await sleep(300);
   }
 
-  // Dev.to — by tag
-  for(const tag of (product.devtoTags||[]).slice(0,3)){ addToBucket(await searchDevTo(tag)); await sleep(200); }
+  // Dev.to — all tags
+  for(const tag of (product.devtoTags||[])){ addToBucket(await searchDevTo(tag)); await sleep(200); }
 
-  // Stack Overflow
-  for(const q of (product.soQ||product.hnQ||[]).slice(0,2)){ addToBucket(await searchStackOverflow(q)); await sleep(300); }
+  // Stack Overflow — all queries
+  for(const q of (product.soQ||(product.hnQ||[]))){ addToBucket(await searchStackOverflow(q)); await sleep(300); }
 
-  // Lobste.rs
-  for(const q of (product.lobstersQ||[]).slice(0,2)){ addToBucket(await searchLobsters(q)); }
+  // Lobste.rs — all queries
+  for(const q of (product.lobstersQ||[])){ addToBucket(await searchLobsters(q)); }
 
   // YouTube (if key set)
   if(googleKey){
-    for(const q of (product.ytQ||[]).slice(0,2)){ addToBucket(await searchYouTube(q)); await sleep(300); }
+    for(const q of (product.ytQ||[])){ addToBucket(await searchYouTube(q)); await sleep(300); }
   }
 
-  // Take top 3 from each platform, sorted by relevance then comments
-  const topPerPlatform = [];
+  // Sort each platform bucket by relevance — no cap
   for(const [platform, results] of Object.entries(buckets)){
-    const top3 = results
-      .sort((a,b) => b.relevance - a.relevance || b.comments - a.comments)
-      .slice(0, 3);
-    top3.forEach(r => { sourceCounts[r.platform] = (sourceCounts[r.platform]||0)+1; });
-    topPerPlatform.push(...top3);
+    buckets[platform] = results.sort((a,b) => b.relevance - a.relevance || b.comments - a.comments);
+    results.forEach(r => { sourceCounts[r.platform] = (sourceCounts[r.platform]||0)+1; });
   }
 
-  // Final sort by relevance across all platforms
-  return topPerPlatform.sort((a,b) => b.relevance - a.relevance || b.comments - a.comments);
+  // Merged view: all results sorted by relevance
+  const allSorted = Object.values(buckets).flat()
+    .sort((a,b) => b.relevance - a.relevance || b.comments - a.comments);
+
+  return { buckets, allSorted };
 }
 
 // ─────────────────────────────────────────────
@@ -1013,14 +1033,19 @@ async function runScan(){
 
   for(const p of PRODUCTS){
     renderLoadingPanel(p);
-    const signals=await huntProduct(p);
-    const responses=[];
-    if(anthropicKey&&signals.length){
-      for(const s of signals){ responses.push(await draftResp(s,p)); await sleep(300); }
-    } else { signals.forEach(()=>responses.push(null)); }
-    scanResults[p.id]={signals,responses};
-    renderPanel(p,signals,responses);
-    updateTabCount(p.id, signals.length, signals.filter(s=>s.relevance>=5).length);
+    const {buckets, allSorted} = await huntProduct(p);
+    // Only auto-draft top 10 by relevance to save API credits
+    const toDraft = allSorted.slice(0, 10);
+    const responseMap = {};
+    if(anthropicKey && toDraft.length){
+      for(const s of toDraft){
+        responseMap[s.url] = await draftResp(s, p);
+        await sleep(300);
+      }
+    }
+    scanResults[p.id] = {signals: allSorted, buckets, responseMap};
+    renderPanel(p, allSorted, buckets, responseMap);
+    updateTabCount(p.id, allSorted.length, allSorted.filter(s=>s.relevance>=5).length);
   }
 
   const total=Object.values(scanResults).reduce((s,r)=>s+r.signals.length,0);
@@ -1073,25 +1098,76 @@ function renderLoadingPanel(p){
   panel.innerHTML=`<div class="prod-bar"><a href="${p.url}" target="_blank" class="prod-url">🔗 ${p.url}</a><span class="prod-tag">${p.tagline||""}</span></div><div class="loading"><div class="spinner"></div><div class="loading-msg">Scanning 5 sources for ${p.name}…</div></div>`;
 }
 
-function renderPanel(p,signals,responses){
+const PLATFORM_META = {
+  "HackerNews":     {icon:"🟠", cls:"hn"},
+  "Reddit":         {icon:"🔴", cls:"reddit"},
+  "Dev.to":         {icon:"🔵", cls:"devto"},
+  "Stack Overflow": {icon:"🟧", cls:"stackoverflow"},
+  "Lobste.rs":      {icon:"🔻", cls:"lobsters"},
+  "YouTube":        {icon:"▶️", cls:"youtube", needsKey:true}
+};
+
+function renderPanel(p, signals, buckets, responseMap){
   const panel=document.getElementById(`panel-${p.id}`);
   if(!panel) return;
-  const hv=signals.filter(s=>s.relevance>=5).length;
   const hasFb=getFb(p.id).length>0;
+
+  // Build platform pills
+  let pillsHtml = `<div class="platform-row" id="plat-row-${p.id}">
+    <button class="plat-pill active" onclick="filterPlatform('${p.id}','all',this)">
+      All <span class="pcnt">${signals.length}</span>
+    </button>`;
+
+  for(const [name, meta] of Object.entries(PLATFORM_META)){
+    const count = (buckets[name]||[]).length;
+    const isYT = meta.needsKey;
+    const noKey = isYT && !googleKey;
+    if(noKey){
+      pillsHtml += `<button class="plat-pill locked" onclick="openSettings()" title="Add Google API key to enable YouTube">
+        ${meta.icon} YouTube 🔒
+      </button>`;
+    } else {
+      const empty = count === 0 ? " empty" : "";
+      pillsHtml += `<button class="plat-pill${empty}" onclick="filterPlatform('${p.id}','${name}',this)">
+        ${meta.icon} ${name === "HackerNews" ? "HN" : name === "Stack Overflow" ? "Stack ↗" : name}
+        <span class="pcnt">${count}</span>
+      </button>`;
+    }
+  }
+  pillsHtml += `</div>`;
 
   let html=`<div class="prod-bar">
     <a href="${p.url}" target="_blank" class="prod-url">🔗 ${p.url}</a>
     <span class="prod-tag">${p.tagline||""}</span>
     ${hasFb?`<span class="prod-fb">🧠 ${getFb(p.id).length} learnings</span>`:""}
     <button class="prod-del" onclick="removeProduct('${p.id}')">✕ Remove</button>
-  </div>`;
+  </div>${pillsHtml}`;
 
   if(!signals.length){
-    html+=`<div class="empty">🔇 No signals this scan — try re-scanning or edit the product config.</div>`;
+    html+=`<div class="empty">🔇 No signals found — try re-scanning.</div>`;
   } else {
-    signals.forEach((sig,i)=>{ html+=buildCard(sig,responses[i],p,i); });
+    signals.forEach((sig,i)=>{
+      html += buildCard(sig, responseMap[sig.url]||null, p, i);
+    });
   }
   panel.innerHTML=html;
+}
+
+function filterPlatform(pid, platform, btn){
+  // Update active pill
+  document.querySelectorAll(`#plat-row-${pid} .plat-pill`).forEach(b=>b.classList.remove("active"));
+  if(btn) btn.classList.add("active");
+
+  // Show/hide cards
+  const panel = document.getElementById(`panel-${pid}`);
+  if(!panel) return;
+  panel.querySelectorAll(".card").forEach(card=>{
+    if(platform==="all"){
+      card.style.display="";
+    } else {
+      card.style.display = card.dataset.platform === platform ? "" : "none";
+    }
+  });
 }
 
 function updateTabCount(pid, cnt, hv){
@@ -1129,7 +1205,7 @@ function buildCard(sig,resp,p,idx){
       <div class="resp-acts"><button class="draft-btn" onclick="redraft('${p.id}',${idx},this)">✦ Draft now</button></div></div>`;
   }
 
-  return `<div class="card${e?.verdict==="good"?" voted-good":e?.verdict==="bad"?" voted-bad":""}" id="card-${p.id}-${idx}">
+  return `<div class="card${e?.verdict==="good"?" voted-good":e?.verdict==="bad"?" voted-bad":""}" id="card-${p.id}-${idx}" data-platform="${sig.platform}">
     <div class="card-top">
       <span class="badge ${(sig.color||sig.platform||"hn").toLowerCase().replace(/[\s.]/g,'')}">
         ${sig.platform==="HackerNews"?"🟠":sig.platform==="Reddit"?"🔴":sig.platform==="Dev.to"?"🔵":sig.platform==="Lobste.rs"?"🔻":sig.platform==="Stack Overflow"?"🟧":"▶️"}

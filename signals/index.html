@@ -854,17 +854,38 @@ async function searchLobsters(query){
 async function searchYouTube(query){
   if(!googleKey) return[];
   try{
-    const url=`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${enc(query)}&type=video&order=date&maxResults=8&key=${googleKey}&relevanceLanguage=en&publishedAfter=${new Date(Date.now()-14*864e5).toISOString()}`;
-    const r=await fetch(url,{signal:AbortSignal.timeout(8000)});
+    // Search by relevance, 6-month window, 15 results
+    const sixMonthsAgo = new Date(Date.now()-180*864e5).toISOString();
+    const searchUrl=`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${enc(query)}&type=video&order=relevance&maxResults=15&key=${googleKey}&relevanceLanguage=en&publishedAfter=${sixMonthsAgo}`;
+    const r=await fetch(searchUrl,{signal:AbortSignal.timeout(8000)});
     const data=await r.json();
     if(data.error) return[];
-    return (data.items||[]).map(v=>({
-      platform:"YouTube",color:"youtube",
-      title:v.snippet.title||"", snippet:(v.snippet.description||"").slice(0,400),
-      url:`https://youtube.com/watch?v=${v.id.videoId}`, author:v.snippet.channelTitle||"",
-      subreddit:null, score:0, comments:0,
-      created_at:v.snippet.publishedAt||""
-    })).filter(v=>v.title);
+    const items=(data.items||[]).filter(v=>v.snippet?.title);
+    if(!items.length) return[];
+
+    // Fetch view counts so we can filter out tiny channels
+    const ids=items.map(v=>v.id.videoId).filter(Boolean).join(",");
+    let viewMap={};
+    try{
+      const statsR=await fetch(`https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${ids}&key=${googleKey}`,{signal:AbortSignal.timeout(6000)});
+      const statsData=await statsR.json();
+      (statsData.items||[]).forEach(v=>{ viewMap[v.id]=parseInt(v.statistics?.viewCount||0); });
+    }catch{}
+
+    return items
+      .map(v=>({
+        platform:"YouTube",color:"youtube",
+        title:v.snippet.title||"",
+        snippet:(v.snippet.description||"").slice(0,400),
+        url:`https://youtube.com/watch?v=${v.id.videoId}`,
+        author:v.snippet.channelTitle||"",
+        subreddit:null,
+        score:viewMap[v.id.videoId]||0,  // view count as score
+        comments:0,
+        viewCount:viewMap[v.id.videoId]||0,
+        created_at:v.snippet.publishedAt||""
+      }))
+      .filter(v=>v.title && v.viewCount>=500); // skip videos with <500 views
   }catch{return[];}
 }
 
@@ -964,10 +985,13 @@ async function huntProduct(product){
     for(const q of (product.ytQ||[])){ addToBucket(await searchYouTube(q)); await sleep(300); }
   }
 
-  // Sort each platform bucket by relevance — no cap
+  // Sort each platform bucket by relevance
+  // Cap Dev.to at 15 (it returns 15/tag × multiple tags = too many)
   for(const [platform, results] of Object.entries(buckets)){
-    buckets[platform] = results.sort((a,b) => b.relevance - a.relevance || b.comments - a.comments);
-    results.forEach(r => { sourceCounts[r.platform] = (sourceCounts[r.platform]||0)+1; });
+    let sorted = results.sort((a,b) => b.relevance - a.relevance || b.comments - a.comments);
+    if(platform === "Dev.to") sorted = sorted.slice(0, 15);
+    buckets[platform] = sorted;
+    sorted.forEach(r => { sourceCounts[r.platform] = (sourceCounts[r.platform]||0)+1; });
   }
 
   // Merged view: all results sorted by relevance
@@ -1215,7 +1239,7 @@ function buildCard(sig,resp,p,idx){
     </div>
     <a href="${sig.url}" target="_blank" class="card-title">${sig.title.replace(/</g,"&lt;").replace(/>/g,"&gt;")}</a>
     <div class="card-snippet">${(sig.snippet||"No preview").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</div>
-    <div class="card-meta">👤 ${sig.author} &nbsp;·&nbsp; 💬 ${sig.comments} &nbsp;·&nbsp; ⬆ ${sig.score}</div>
+    <div class="card-meta">👤 ${sig.author} &nbsp;·&nbsp; 💬 ${sig.comments} &nbsp;·&nbsp; ${sig.platform==="YouTube"?`👁 ${(sig.viewCount||sig.score||0).toLocaleString()} views`:`⬆ ${sig.score}`}</div>
     <div class="fb-row">
       <span class="fb-lbl">Relevant?</span>
       <button class="fb-btn${e?.verdict==="good"?" good":""}" id="fbg-${p.id}-${idx}" onclick="vote('${p.id}',${idx},'good',this)">👍 Yes</button>

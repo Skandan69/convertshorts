@@ -802,7 +802,6 @@ async function searchReddit(query,sub){
   const base=sub
     ?`https://www.reddit.com/r/${sub}/search.json?q=${enc(query)}&sort=new&limit=15&t=year&restrict_sr=true`
     :`https://www.reddit.com/search.json?q=${enc(query)}&sort=new&limit=15&t=year`;
-  // Try two proxies — allorigins first, corsproxy.io as fallback
   const proxies=[
     `https://api.allorigins.win/raw?url=${enc(base)}`,
     `https://corsproxy.io/?${enc(base)}`
@@ -823,6 +822,25 @@ async function searchReddit(query,sub){
     }catch{}
   }
   return[];
+}
+
+// Direct subreddit browse — NO proxy needed, Reddit CDN allows CORS on .json feeds
+async function browseSubreddit(sub){
+  try{
+    const r=await fetch(`https://www.reddit.com/r/${sub}/new.json?limit=25`,{
+      headers:{"Accept":"application/json"},
+      signal:AbortSignal.timeout(8000)
+    });
+    const data=await r.json();
+    return(data?.data?.children||[]).map(p=>{
+      const d=p.data;
+      return{platform:"Reddit",color:"reddit",
+        title:d.title||"", snippet:(d.selftext||"").slice(0,400),
+        url:`https://reddit.com${d.permalink}`, author:d.author||"",
+        subreddit:d.subreddit||"", score:d.score||0, comments:d.num_comments||0,
+        created_at:new Date((d.created_utc||0)*1000).toISOString()};
+    }).filter(p=>p.title);
+  }catch{return[];}
 }
 
 async function searchDevTo(tag){
@@ -961,28 +979,35 @@ async function huntProduct(product){
     }
   }
 
-  // HackerNews — all queries, 90-day window
+  // HackerNews — product queries + broad keyword fallback
   for(const q of (product.hnQ||[])){ addToBucket(await searchHN(q)); }
+  // Fallback: search HN for main keywords if hnQ yielded nothing
+  if(!buckets["HackerNews"].length){
+    const fallbackKws=(product.keywords||[]).slice(0,3);
+    for(const kw of fallbackKws){ addToBucket(await searchHN(kw)); }
+  }
 
-  // Reddit — all queries globally + all subreddits
-  for(const q of (product.redditQ||[])){ addToBucket(await searchReddit(q,null)); await sleep(300); }
-  for(const sub of (product.subreddits||[])){
-    addToBucket(await searchReddit((product.redditQ||[])[0]||(product.name||""), sub));
-    await sleep(300);
+  // Reddit — DIRECT subreddit browse (no proxy, always works) + search as bonus
+  for(const sub of (product.subreddits||[])){ addToBucket(await browseSubreddit(sub)); await sleep(300); }
+  // Also try search via proxy if browse didn't get enough
+  if(buckets["Reddit"].length < 5){
+    for(const q of (product.redditQ||[]).slice(0,2)){ addToBucket(await searchReddit(q,null)); await sleep(400); }
   }
 
   // Dev.to — all tags
   for(const tag of (product.devtoTags||[])){ addToBucket(await searchDevTo(tag)); await sleep(200); }
 
-  // Stack Overflow — all queries
-  for(const q of (product.soQ||(product.hnQ||[]))){ addToBucket(await searchStackOverflow(q)); await sleep(300); }
+  // Stack Overflow — only use soQ if explicitly defined, else skip
+  if((product.soQ||[]).length){
+    for(const q of product.soQ){ addToBucket(await searchStackOverflow(q)); await sleep(300); }
+  }
 
   // Lobste.rs — all queries
   for(const q of (product.lobstersQ||[])){ addToBucket(await searchLobsters(q)); }
 
   // YouTube (if key set)
   if(googleKey){
-    for(const q of (product.ytQ||[])){ addToBucket(await searchYouTube(q)); await sleep(300); }
+    for(const q of (product.ytQ||[])){ addToBucket(await searchYouTube(q)); await sleep(400); }
   }
 
   // Sort each platform bucket by relevance

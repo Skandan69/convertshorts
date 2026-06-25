@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>FirstCustomer — Signal Hunter</title>
-<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z2XKD7CSJF"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -22,9 +21,14 @@
 }
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
+/* TOP NAV */
+.top-nav{background:#0a0a12;border-bottom:2px solid var(--border);display:flex;align-items:center;padding:0 32px;gap:0}
+.nav-tab{padding:13px 18px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;background:none;transition:all .15s;white-space:nowrap;letter-spacing:.3px}
+.nav-tab:hover{color:#ccc;border-bottom-color:#333}
+.nav-tab.active{color:#fff;border-bottom-color:var(--purple)}
+
 /* HEADER */
 .hdr{background:linear-gradient(135deg,#12121e,#1a1a2e);padding:18px 32px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
-.hdr-brand{display:flex;align-items:center;gap:10px}
 .hdr h1{font-size:19px;font-weight:700;color:#fff}
 .hdr h1 em{color:var(--purple);font-style:normal}
 .hdr-sub{color:var(--muted);font-size:11px;margin-top:1px}
@@ -43,7 +47,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .btn-add{background:rgba(108,99,255,.15);border:1px solid rgba(108,99,255,.4);color:var(--purple2);border-radius:7px;padding:7px 13px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
 .btn-add:hover{background:rgba(108,99,255,.25)}
 
-/* MODALS */
+/* PAGES */
+.page{display:none}.page.active{display:block}
+
+/* ════ SIGNALS STYLES ════ */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:200;display:none;align-items:center;justify-content:center;padding:16px}
 .overlay.open{display:flex}
 .modal{background:#1a1a2e;border:1px solid var(--border);border-radius:12px;padding:22px 26px;width:100%;max-width:500px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
@@ -52,7 +59,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .field{margin-bottom:14px}
 .field label{display:block;font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
 .field input,.field textarea{width:100%;background:#0c0c14;border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-size:12px;font-family:inherit}
-.field textarea{resize:vertical;min-height:60px;font-family:inherit}
+.field textarea{resize:vertical;min-height:60px}
 .field input:focus,.field textarea:focus{outline:none;border-color:var(--purple)}
 .field input::placeholder,.field textarea::placeholder{color:#333}
 .field-note{font-size:11px;color:#444;margin-top:4px}
@@ -61,20 +68,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .key-no{font-size:11px;color:var(--muted);margin-top:4px}
 .modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
 .modal-footer-split{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
-
-/* ADD PRODUCT MODAL */
-.add-step{transition:all .15s}
 .analyze-loading{text-align:center;padding:28px 0}
 .analyze-spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--purple);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
 .analyze-msg{color:var(--muted);font-size:13px}
 .analyze-sub{color:#333;font-size:11px;margin-top:4px}
 .manual-link{color:var(--purple);font-size:11px;cursor:pointer;background:none;border:none;padding:0;text-decoration:underline}
 .manual-link:hover{color:var(--purple2)}
-.review-tag{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);border-radius:6px;padding:3px 9px;font-size:10px;color:var(--green);font-weight:600;display:inline-block;margin-bottom:12px}
 .ai-tag{background:rgba(108,99,255,.1);border:1px solid rgba(108,99,255,.2);border-radius:6px;padding:3px 9px;font-size:10px;color:var(--purple2);font-weight:600;display:inline-block;margin-bottom:12px}
 .error-msg{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:7px;padding:10px 13px;font-size:12px;color:#f87171;margin-bottom:14px;display:none}
-
-/* LEARNED MODAL */
 .lm{max-width:540px}
 .l-stats{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
 .l-stat{background:rgba(108,99,255,.1);border:1px solid rgba(108,99,255,.2);border-radius:8px;padding:8px 14px;flex:1;min-width:80px;text-align:center}
@@ -90,16 +91,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .l-empty{color:var(--dim);font-size:12px;text-align:center;padding:18px;font-style:italic;grid-column:1/-1}
 .clear-link{color:var(--red);font-size:11px;cursor:pointer;border:none;background:none;opacity:.6;margin-left:auto}
 .clear-link:hover{opacity:1}
-
-/* STATS + NOTICE */
 .sbar{display:flex;gap:12px;padding:10px 32px;border-bottom:1px solid var(--border);flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted)}
 .sbar-n{color:#fff;font-weight:700;font-size:13px;margin-right:2px}
 .src-pills{display:flex;gap:5px;margin-left:auto;flex-wrap:wrap}
 .src-pill{font-size:10px;border-radius:10px;padding:2px 8px;color:#fff;font-weight:500}
 .notice{background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);border-radius:8px;padding:9px 14px;margin:14px 32px 0;font-size:12px;color:var(--amber);display:none}
 .notice a{color:var(--amber);text-decoration:underline;cursor:pointer}
-
-/* WELCOME SCREEN */
 .welcome{text-align:center;padding:60px 20px 40px;max-width:560px;margin:0 auto}
 .welcome-icon{font-size:52px;margin-bottom:16px}
 .welcome h2{font-size:22px;color:#fff;margin-bottom:8px}
@@ -109,8 +106,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .wstep-n{font-size:20px;font-weight:800;color:var(--purple);margin-bottom:4px}
 .wstep-t{font-size:12px;color:#ccc;font-weight:600;margin-bottom:3px}
 .wstep-d{font-size:11px;color:var(--muted);line-height:1.5}
-
-/* MAIN */
 .main{max-width:880px;margin:0 auto;padding:22px 20px}
 .tabs-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:18px}
 .tabs{display:flex;gap:6px;flex-wrap:wrap;flex:1}
@@ -122,20 +117,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .tab-del:hover{opacity:1}
 .add-tab{background:transparent;border:1px dashed #2a2a3a;border-radius:16px;padding:5px 11px;cursor:pointer;font-size:12px;color:#3a3a4a;transition:all .15s}
 .add-tab:hover{border-color:var(--purple);color:var(--purple2)}
-
-/* SCAN PROMPT */
 .prompt{text-align:center;padding:52px 20px}
 .prompt .icon{font-size:42px;margin-bottom:12px}
 .prompt h2{font-size:18px;color:#fff;margin-bottom:6px}
 .prompt p{color:var(--muted);font-size:13px;margin-bottom:20px;line-height:1.6;max-width:420px;margin-left:auto;margin-right:auto}
-
-/* LOADING */
 .loading{text-align:center;padding:40px 20px}
 .spinner{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--purple);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-msg{color:var(--muted);font-size:12px}
-
-/* CARDS */
 .panel{display:none}.panel.active{display:block}
 .prod-bar{background:#141420;border:1px solid var(--border);border-radius:9px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .prod-url{color:var(--purple);font-weight:600;font-size:12px;text-decoration:none}
@@ -144,8 +133,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .prod-fb{font-size:11px;color:var(--purple);margin-left:auto}
 .prod-del{background:transparent;border:1px solid rgba(239,68,68,.2);color:#555;border-radius:6px;padding:3px 8px;font-size:10px;cursor:pointer;margin-left:auto;transition:all .15s}
 .prod-del:hover{border-color:var(--red);color:var(--red)}
-
-/* PLATFORM FILTER ROW */
 .platform-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border)}
 .plat-pill{background:var(--bg3);border:1px solid var(--border);border-radius:16px;padding:5px 12px;font-size:11px;color:var(--muted);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:5px;font-weight:500}
 .plat-pill:hover:not(.empty){border-color:var(--purple);color:#ccc}
@@ -155,7 +142,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .plat-pill.empty{opacity:.28;cursor:default;pointer-events:none}
 .pcnt{background:rgba(255,255,255,.16);border-radius:8px;padding:1px 6px;font-size:10px}
 .plat-pill.active .pcnt{background:rgba(255,255,255,.22)}
-
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:11px;transition:border-color .15s}
 .card:hover{border-color:#2a2a3a}
 .card.voted-good{border-color:rgba(34,197,94,.3)}
@@ -167,8 +153,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .card-title:hover{color:#c4b5fd;text-decoration:underline}
 .card-snippet{color:#888;font-size:12px;line-height:1.6;margin-bottom:8px}
 .card-meta{font-size:10px;color:#444;margin-bottom:10px}
-
-/* FEEDBACK ROW */
 .fb-row{display:flex;align-items:center;gap:7px;margin-bottom:11px;flex-wrap:wrap}
 .fb-lbl{font-size:11px;color:#3a3a3a;font-style:italic}
 .fb-btn{background:transparent;border:1px solid #252535;border-radius:6px;padding:3px 9px;font-size:11px;cursor:pointer;transition:all .15s;color:#555}
@@ -177,8 +161,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .fb-btn.bad{background:rgba(239,68,68,.08);border-color:var(--red);color:var(--red)}
 .fb-saved{font-size:11px;color:var(--green);display:none}
 .fb-saved.show{display:inline}
-
-/* RESPONSE */
 .resp{background:#0a0a10;border:1px solid #1e1e30;border-radius:8px;padding:12px 14px}
 .resp-lbl{font-size:10px;color:var(--purple);font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
 .resp-note{color:#3a3a3a;font-weight:400;text-transform:none;letter-spacing:0}
@@ -194,1261 +176,804 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .draft-btn{background:transparent;color:var(--purple);border:1px solid rgba(108,99,255,.3);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer}
 .draft-btn:hover{background:rgba(108,99,255,.08)}
 .no-key-resp{border-color:#1e1e14;background:#0a0a08}
-
-/* EMPTY + FOOTER */
 .empty{text-align:center;padding:36px 20px;color:var(--dim);font-size:12px}
-.ftr{text-align:center;padding:24px;color:#2a2a2a;font-size:11px;border-top:1px solid #111;line-height:2}
-
-/* SOURCE BADGE COLORS */
 .hn{background:#f97316}.reddit{background:#ff4500}.devto{background:#3b49df}.lobsters{background:#ac130d}.youtube{background:#ff0000}.stackoverflow{background:#e47110}.google{background:#4285f4}
+
+/* ════ RANK TRACKER STYLES ════ */
+.rt-main{max-width:900px;margin:0 auto;padding:28px 20px}
+.connect-banner{background:linear-gradient(135deg,rgba(108,99,255,.08),rgba(108,99,255,.02));border:1px solid rgba(108,99,255,.2);border-radius:12px;padding:28px 32px;margin-bottom:28px;display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap}
+.connect-icon{font-size:40px;flex-shrink:0}
+.connect-body{flex:1;min-width:200px}
+.connect-body h2{font-size:17px;font-weight:700;color:#fff;margin-bottom:6px}
+.connect-body p{color:var(--muted);font-size:13px;line-height:1.7;margin-bottom:16px}
+.connect-steps{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.cstep{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 13px;flex:1;min-width:130px}
+.cstep-n{font-size:18px;font-weight:800;color:var(--purple);margin-bottom:2px}
+.cstep-t{font-size:11px;color:#ccc;font-weight:600;margin-bottom:2px}
+.cstep-d{font-size:10px;color:var(--muted);line-height:1.5}
+.connect-actions{display:flex;gap:8px;flex-wrap:wrap}
+.connect-link{display:inline-flex;align-items:center;gap:5px;background:rgba(108,99,255,.15);border:1px solid rgba(108,99,255,.3);border-radius:7px;padding:7px 13px;font-size:11px;color:var(--purple2);text-decoration:none;font-weight:600;transition:all .15s}
+.connect-link:hover{background:rgba(108,99,255,.25)}
+.rt-stats-row{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.rt-stat{background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:14px 16px;flex:1;min-width:100px}
+.rt-stat-n{font-size:22px;font-weight:800;color:#fff;margin-bottom:2px}
+.rt-stat-l{font-size:11px;color:var(--muted)}
+.rt-stat.green .rt-stat-n{color:var(--green)}
+.rt-stat.amber .rt-stat-n{color:var(--amber)}
+.rt-stat.red .rt-stat-n{color:var(--red)}
+.rt-stat.purple .rt-stat-n{color:var(--purple2)}
+.filter-row{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.filter-label{font-size:11px;color:var(--muted);margin-right:4px}
+.fpill{background:var(--bg3);border:1px solid var(--border);border-radius:16px;padding:5px 12px;font-size:11px;color:var(--muted);cursor:pointer;transition:all .15s;font-weight:500}
+.fpill:hover{border-color:var(--purple);color:#ccc}
+.fpill.active{background:var(--purple);border-color:var(--purple);color:#fff;font-weight:700}
+.table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.table-header{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;padding:10px 16px;border-bottom:1px solid var(--border);font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.kw-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;padding:13px 16px;border-bottom:1px solid #0e0e14;transition:background .12s;align-items:center;cursor:pointer}
+.kw-row:last-child{border-bottom:none}
+.kw-row:hover{background:#13131a}
+.kw-name{font-size:13px;color:var(--text);font-weight:500}
+.kw-page{font-size:10px;color:var(--muted);margin-top:2px;font-family:monospace}
+.rank-badge{display:inline-flex;align-items:center;justify-content:center;width:42px;height:26px;border-radius:6px;font-size:12px;font-weight:800;font-family:monospace}
+.rank-top3{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.25)}
+.rank-top10{background:rgba(108,99,255,.12);color:var(--purple2);border:1px solid rgba(108,99,255,.2)}
+.rank-top50{background:rgba(251,191,36,.08);color:var(--amber);border:1px solid rgba(251,191,36,.15)}
+.rank-low{background:rgba(239,68,68,.07);color:#f87171;border:1px solid rgba(239,68,68,.12)}
+.vol-bar-wrap{width:100%;height:6px;background:#111;border-radius:3px;overflow:hidden}
+.vol-bar{height:100%;background:linear-gradient(90deg,var(--purple),var(--purple2));border-radius:3px}
+.vol-num{font-size:11px;color:var(--muted);margin-top:3px}
+.ctr-num{font-size:12px;color:var(--text);font-family:monospace}
+.rt-section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.rt-section-hdr h2{font-size:15px;font-weight:700;color:#fff}
+.last-updated{font-size:11px;color:#333}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:10px;color:var(--muted);margin-bottom:14px}
+.legend-item{display:flex;align-items:center;gap:5px}
+.leg-dot{width:10px;height:10px;border-radius:2px}
+.rt-notice{background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);border-radius:8px;padding:9px 14px;margin-bottom:16px;font-size:12px;color:var(--amber)}
+.kw-modal{max-width:520px}
+.modal-stat-row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.mstat{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 14px;flex:1;min-width:80px;text-align:center}
+.mstat-n{font-size:20px;font-weight:800;color:var(--purple2)}
+.mstat-l{font-size:10px;color:var(--muted);margin-top:2px}
+.modal-section{margin-bottom:14px}
+.modal-section h4{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.tip-item{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:9px 12px;margin-bottom:6px;font-size:12px;color:#bbb;line-height:1.5}
+.tip-item strong{color:var(--purple2)}
+.gsc-modal{max-width:480px}
+.manual-gsc{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px;font-size:12px;color:var(--muted);line-height:1.7}
+.manual-gsc strong{color:#ccc}
+.manual-gsc code{background:#111;border-radius:4px;padding:1px 5px;font-family:monospace;color:var(--purple2);font-size:11px}
+.manual-gsc ol{margin-left:18px;margin-top:6px}
+.manual-gsc ol li{margin-bottom:4px}
+.ftr{text-align:center;padding:24px;color:#2a2a2a;font-size:11px;border-top:1px solid #111;line-height:2}
 
 @media(max-width:580px){
   .hdr,.sbar,.notice{padding-left:16px;padding-right:16px}
-  .main{padding:16px 12px}
+  .top-nav{padding:0 16px;overflow-x:auto}
+  .main,.rt-main{padding:16px 12px}
   .l-grid{grid-template-columns:1fr}
+  .table-header,.kw-row{grid-template-columns:2fr 1fr 1fr}
+  .col-vol,.col-ctr{display:none}
 }
+
+/* ════ YOUTUBE STUDIO STYLES ════ */
+.yt-main{max-width:920px;margin:0 auto;padding:24px 20px}
+.yt-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.yt-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px 20px}
+.yt-card h3{font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.yt-card p{font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:14px}
+.yt-input-row{display:flex;gap:8px;margin-bottom:12px}
+.yt-input{flex:1;background:#0c0c14;border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-size:12px;font-family:inherit}
+.yt-input:focus{outline:none;border-color:var(--purple)}
+.yt-input::placeholder{color:#333}
+.yt-textarea{width:100%;background:#0c0c14;border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-size:12px;font-family:inherit;resize:vertical;min-height:80px}
+.yt-textarea:focus{outline:none;border-color:var(--purple)}
+.yt-results{margin-top:10px}
+/* keyword chips */
+.kw-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.kw-chip{background:var(--bg3);border:1px solid var(--border);border-radius:16px;padding:4px 11px;font-size:11px;color:var(--muted);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px}
+.kw-chip:hover{border-color:var(--purple);color:var(--purple2)}
+.kw-chip .score{font-size:9px;font-family:monospace;padding:1px 4px;border-radius:3px;font-weight:700}
+.score-hot{background:rgba(34,197,94,.15);color:var(--green)}
+.score-med{background:rgba(251,191,36,.1);color:var(--amber)}
+.score-low{background:rgba(239,68,68,.08);color:#f87171}
+/* video result cards */
+.yt-vid-card{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px 13px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start;cursor:pointer;transition:border-color .15s}
+.yt-vid-card:hover{border-color:#2a2a3a}
+.yt-thumb{width:80px;height:45px;border-radius:4px;object-fit:cover;flex-shrink:0;background:#111}
+.yt-vid-info{flex:1;min-width:0}
+.yt-vid-title{font-size:12px;font-weight:600;color:var(--text);line-height:1.4;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.yt-vid-meta{font-size:10px;color:var(--muted)}
+.yt-vid-views{font-size:10px;color:var(--purple2);font-weight:600;margin-top:2px}
+/* channel cards */
+.yt-chan-card{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;display:flex;gap:12px;align-items:center;cursor:pointer;transition:border-color .15s}
+.yt-chan-card:hover{border-color:var(--purple)}
+.yt-chan-thumb{width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;background:#1a1a2e}
+.yt-chan-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
+.yt-chan-subs{font-size:11px;color:var(--purple2);font-weight:600}
+.yt-chan-desc{font-size:10px;color:var(--muted);margin-top:2px;line-height:1.4;max-width:400px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* SEO Score */
+.seo-score-wrap{text-align:center;padding:16px 0 12px}
+.seo-score-ring{width:80px;height:80px;border-radius:50%;border:4px solid;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:22px;font-weight:800}
+.seo-score-label{font-size:11px;color:var(--muted)}
+.seo-checks{margin-top:12px}
+.seo-check{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #111;font-size:11px;color:#bbb}
+.seo-check:last-child{border:none}
+.seo-check-icon{font-size:13px;flex-shrink:0}
+/* AI output */
+.ai-output{background:#0a0a10;border:1px solid #1e1e30;border-radius:8px;padding:12px 14px;margin-top:10px}
+.ai-output-lbl{font-size:10px;color:var(--purple);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
+.ai-output-text{font-size:12px;color:#bbb;line-height:1.7;white-space:pre-wrap}
+.ai-section{margin-bottom:10px}
+.ai-section-title{font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
+.ai-copy-btn{background:var(--purple);color:#fff;border:none;border-radius:5px;padding:4px 10px;font-size:10px;cursor:pointer;font-weight:600;float:right;margin-top:-2px;transition:background .15s}
+.ai-copy-btn:hover{background:#7c73ff}
+.ai-copy-btn.ok{background:var(--green)}
+/* trending */
+.trend-pill{display:inline-flex;align-items:center;gap:4px;background:var(--bg3);border:1px solid var(--border);border-radius:16px;padding:4px 11px;font-size:11px;color:var(--muted);cursor:pointer;margin:0 4px 6px 0;transition:all .15s}
+.trend-pill:hover{border-color:var(--purple);color:var(--purple2)}
+/* spinner inline */
+.yt-spin{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--purple);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:6px}
+/* no key notice */
+.yt-no-key{background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--amber);margin-bottom:14px}
+.yt-no-key a{color:var(--amber);text-decoration:underline;cursor:pointer}
+/* full-width card */
+.yt-card-full{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:16px}
+.yt-card-full h3{font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.yt-card-full p{font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:14px}
+@media(max-width:640px){.yt-grid{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
 
-<!-- SETTINGS MODAL -->
-<div class="overlay" id="settingsOverlay">
-  <div class="modal">
-    <h2>⚙️ API Keys</h2>
-    <div class="modal-desc">Keys stored only in your browser. Never sent anywhere except directly to the APIs.</div>
-    <div class="field">
-      <label>Anthropic API Key <span style="color:#444">(for analysis + response drafting)</span></label>
-      <input type="password" id="anthropicKey" placeholder="sk-ant-api03-..." autocomplete="off">
-      <div id="anthropicStatus"></div>
-      <div class="field-note">→ <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> · ~$0.001/response</div>
-    </div>
-    <div class="field">
-      <label>Google API Key <span style="color:#444">(YouTube + Google Search signals)</span></label>
-      <input type="password" id="googleKey" placeholder="AIza..." autocomplete="off">
-      <div id="googleStatus"></div>
-      <div class="field-note">→ <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> · Enable YouTube Data API v3 &amp; Custom Search API · Free 10k/day</div>
-    </div>
-    <div class="field">
-      <label>Google Custom Search Engine ID <span style="color:#444">(for web-wide Google signals)</span></label>
-      <input type="text" id="googleCX" placeholder="017576662512468239146:omuauf_lfve" autocomplete="off">
-      <div id="googleCXStatus"></div>
-      <div class="field-note">→ <a href="https://programmablesearchengine.google.com/" target="_blank">programmablesearchengine.google.com</a> · Create engine → "Search entire web" → copy the ID (cx=...)</div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeSettings()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveSettings()">Save</button>
-    </div>
-  </div>
+<!-- TOP NAV -->
+<div class="top-nav">
+  <button class="nav-tab active" id="navSignals" onclick="switchPage('signals')">🎯 Signal Hunter</button>
+  <button class="nav-tab" id="navRank" onclick="switchPage('rank')">📊 Rank Tracker</button>
+  <button class="nav-tab" id="navYT" onclick="switchPage('yt')">📺 YouTube Studio</button>
 </div>
 
-<!-- LEARNED MODAL -->
-<div class="overlay" id="learnOverlay">
-  <div class="modal lm">
-    <div style="display:flex;align-items:center;margin-bottom:4px">
-      <h2>📚 Agent Memory</h2>
-      <button class="clear-link" onclick="clearFeedback()">Clear all</button>
-    </div>
-    <div class="modal-desc">Every 👍/👎 shapes future scans. The agent avoids bad-signal patterns and prioritises good ones.</div>
-    <div class="l-stats" id="lStats"></div>
-    <div class="l-grid" id="lGrid"></div>
-    <div class="modal-footer"><button class="btn btn-primary" onclick="closeLearn()">Done</button></div>
-  </div>
-</div>
-
-<!-- ADD PRODUCT MODAL -->
-<div class="overlay" id="addOverlay">
-  <div class="modal" id="addModal">
-
-    <!-- Step 1: URL input -->
-    <div id="addStep1">
-      <h2>➕ Add a Product</h2>
-      <div class="modal-desc">Paste your product URL. With an Anthropic key, AI will auto-configure everything. Without a key, fill in a quick form.</div>
-      <div class="error-msg" id="addError"></div>
-      <div class="field">
-        <label>Product URL</label>
-        <input type="url" id="addUrl" placeholder="https://yourproduct.com" autocomplete="off" onkeydown="if(event.key==='Enter')analyzeUrl()">
-      </div>
-      <div class="modal-footer-split">
-        <button class="manual-link" onclick="showManualForm()">Enter manually instead →</button>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-ghost" onclick="closeAdd()">Cancel</button>
-          <button class="btn btn-primary" id="analyzeBtn" onclick="analyzeUrl()">🔍 Analyze URL</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Loading -->
-    <div id="addLoading" style="display:none">
-      <div class="analyze-loading">
-        <div class="analyze-spinner"></div>
-        <div class="analyze-msg" id="addLoadingMsg">Fetching page content…</div>
-        <div class="analyze-sub">AI is reading your website to configure signal hunting</div>
-      </div>
-    </div>
-
-    <!-- Step 2: Manual form (no AI key or fallback) -->
-    <div id="addManual" style="display:none">
-      <h2>📝 Tell us about your product</h2>
-      <div class="modal-desc">Fill in a few details and we'll set up signal hunting for you.</div>
-      <div class="error-msg" id="manualError"></div>
-      <div class="field">
-        <label>Product URL</label>
-        <input type="url" id="manualUrl" placeholder="https://yourproduct.com" autocomplete="off">
-      </div>
-      <div class="field">
-        <label>Product Name</label>
-        <input type="text" id="manualName" placeholder="e.g. AcmeTool" autocomplete="off">
-      </div>
-      <div class="field">
-        <label>What it does <span style="color:#444">(one sentence)</span></label>
-        <input type="text" id="manualTagline" placeholder="e.g. Free AI resume builder with ATS scanner" autocomplete="off">
-      </div>
-      <div class="field">
-        <label>Who it's for <span style="color:#444">(your ideal customer)</span></label>
-        <input type="text" id="manualIcp" placeholder="e.g. Freshers and job seekers in India" autocomplete="off">
-      </div>
-      <div class="field">
-        <label>Keywords <span style="color:#444">(comma separated, 5-10)</span></label>
-        <input type="text" id="manualKeywords" placeholder="e.g. resume, ats, job application, fresher" autocomplete="off">
-      </div>
-      <div class="modal-footer-split">
-        <button class="manual-link" onclick="showStep1()">← Back</button>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-ghost" onclick="closeAdd()">Cancel</button>
-          <button class="btn btn-primary" onclick="submitManual()">Add Product →</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Step 3: Review AI-analyzed product -->
-    <div id="addReview" style="display:none">
-      <span class="ai-tag">✨ AI-configured</span>
-      <h2>Review your product</h2>
-      <div class="modal-desc">AI read your website and set this up. Edit anything that looks off.</div>
-      <div class="field">
-        <label>Product Name</label>
-        <input type="text" id="reviewName" autocomplete="off">
-      </div>
-      <div class="field">
-        <label>What it does</label>
-        <input type="text" id="reviewTagline" autocomplete="off">
-      </div>
-      <div class="field">
-        <label>Who it's for (ICP)</label>
-        <input type="text" id="reviewIcp" autocomplete="off">
-      </div>
-      <div class="field">
-        <label>Pain phrases <span style="color:#444">(comma separated)</span></label>
-        <textarea id="reviewPain" rows="2"></textarea>
-      </div>
-      <div class="field">
-        <label>Keywords <span style="color:#444">(comma separated)</span></label>
-        <input type="text" id="reviewKeywords" autocomplete="off">
-      </div>
-      <div class="modal-footer-split">
-        <button class="manual-link" onclick="showStep1()">← Start over</button>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-ghost" onclick="closeAdd()">Cancel</button>
-          <button class="btn btn-primary" onclick="confirmAddProduct()">Add Product →</button>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- HEADER -->
+<!-- SHARED HEADER -->
 <div class="hdr">
-  <div class="hdr-brand">
-    <div>
-      <h1>🎯 <em>First</em>Customer <span style="font-size:10px;color:#333;font-weight:400">v4</span></h1>
-      <div class="hdr-sub">Signal hunter · 6 sources · top 3 per platform · learns from feedback</div>
+  <div>
+    <h1 id="hdrTitle">🎯 <em>First</em>Customer <span style="font-size:10px;color:#333;font-weight:400">v4</span></h1>
+    <div class="hdr-sub" id="hdrSub">Signal hunter · 6 sources · top 3 per platform · learns from feedback</div>
+  </div>
+  <div class="hdr-right" id="hdrRight"></div>
+</div>
+
+<!-- ══════════ PAGE: SIGNALS ══════════ -->
+<div class="page active" id="pageSignals">
+
+  <div class="overlay" id="settingsOverlay">
+    <div class="modal">
+      <h2>⚙️ API Keys</h2>
+      <div class="modal-desc">Keys stored only in your browser.</div>
+      <div class="field"><label>Anthropic API Key</label><input type="password" id="anthropicKey" placeholder="sk-ant-api03-..." autocomplete="off"><div id="anthropicStatus"></div><div class="field-note">→ <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> · ~$0.001/response</div></div>
+      <div class="field"><label>Google API Key</label><input type="password" id="googleKey" placeholder="AIza..." autocomplete="off"><div id="googleStatus"></div><div class="field-note">→ <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> · Enable YouTube Data API v3 &amp; Custom Search API</div></div>
+      <div class="field"><label>Google Custom Search Engine ID</label><input type="text" id="googleCX" placeholder="017576662512468239146:omuauf_lfve" autocomplete="off"><div id="googleCXStatus"></div><div class="field-note">→ <a href="https://programmablesearchengine.google.com/" target="_blank">programmablesearchengine.google.com</a></div></div>
+      <div class="modal-footer"><button class="btn btn-ghost" onclick="closeSettings()">Cancel</button><button class="btn btn-primary" onclick="saveSettings()">Save</button></div>
     </div>
   </div>
-  <div class="hdr-right">
-    <div class="learn-pill" onclick="openLearn()">📚 Learned: <strong id="learnCount">0</strong></div>
-    <button class="btn btn-ghost" onclick="openSettings()">⚙️ Keys</button>
-    <button class="btn-add" onclick="openAdd()">＋ Add Product</button>
-    <button class="btn btn-primary" id="scanBtn" onclick="runScan()" style="display:none">▶ Scan</button>
-  </div>
-</div>
 
-<!-- STATS BAR -->
-<div class="sbar" id="sbar" style="display:none">
-  <span><span class="sbar-n" id="stTotal">0</span> signals</span>
-  <span><span class="sbar-n" id="stHV">0</span> high-value</span>
-  <span><span class="sbar-n" id="stPosted">0</span> posted</span>
-  <span><span class="sbar-n" id="stFb">0</span> feedback</span>
-  <span id="stTime"></span>
-  <div class="src-pills" id="srcPills"></div>
-</div>
-<div class="notice" id="noKeyNotice">⚡ No Anthropic key — signals found but responses not drafted. <a onclick="openSettings()">Add key →</a></div>
-
-<!-- MAIN -->
-<div class="main">
-  <div class="tabs-row" id="tabsRow" style="display:none">
-    <div class="tabs" id="tabs"></div>
-    <button class="add-tab" onclick="openAdd()">＋</button>
+  <div class="overlay" id="learnOverlay">
+    <div class="modal lm">
+      <div style="display:flex;align-items:center;margin-bottom:4px"><h2>📚 Agent Memory</h2><button class="clear-link" onclick="clearFeedback()">Clear all</button></div>
+      <div class="modal-desc">Every 👍/👎 shapes future scans.</div>
+      <div class="l-stats" id="lStats"></div>
+      <div class="l-grid" id="lGrid"></div>
+      <div class="modal-footer"><button class="btn btn-primary" onclick="closeLearn()">Done</button></div>
+    </div>
   </div>
-  <div id="panels">
-    <!-- Welcome screen (shown when no products added) -->
-    <div id="welcomeScreen" class="welcome">
-      <div class="welcome-icon">🎯</div>
-      <h2>Find your first customers</h2>
-      <p>Add your product URL and this tool hunts for people on Reddit, HackerNews, Dev.to, Stack Overflow, Lobste.rs and YouTube who are expressing the exact pain your product solves — top 3 signals from each platform.</p>
-      <div class="welcome-steps">
-        <div class="wstep">
-          <div class="wstep-n">1</div>
-          <div class="wstep-t">Add your product</div>
-          <div class="wstep-d">Paste your URL — AI reads it and auto-configures everything</div>
-        </div>
-        <div class="wstep">
-          <div class="wstep-n">2</div>
-          <div class="wstep-t">Run a scan</div>
-          <div class="wstep-d">Searches 5 sources for people with your exact pain points</div>
-        </div>
-        <div class="wstep">
-          <div class="wstep-n">3</div>
-          <div class="wstep-t">Reply & learn</div>
-          <div class="wstep-d">Get AI-drafted responses · Rate signals to improve future scans</div>
+
+  <div class="overlay" id="addOverlay">
+    <div class="modal" id="addModal">
+      <div id="addStep1">
+        <h2>➕ Add a Product</h2>
+        <div class="modal-desc">Paste your product URL. AI will auto-configure everything.</div>
+        <div class="error-msg" id="addError"></div>
+        <div class="field"><label>Product URL</label><input type="url" id="addUrl" placeholder="https://yourproduct.com" autocomplete="off" onkeydown="if(event.key==='Enter')analyzeUrl()"></div>
+        <div class="modal-footer-split">
+          <button class="manual-link" onclick="showManualForm()">Enter manually →</button>
+          <div style="display:flex;gap:8px"><button class="btn btn-ghost" onclick="closeAdd()">Cancel</button><button class="btn btn-primary" onclick="analyzeUrl()">🔍 Analyze URL</button></div>
         </div>
       </div>
-      <button class="btn btn-primary" style="font-size:14px;padding:11px 24px" onclick="openAdd()">＋ Add Your First Product</button>
-      <p style="margin-top:14px;font-size:11px;color:#333">Works with any SaaS, tool, or side project · Free to use · No data leaves your browser</p>
+      <div id="addLoading" style="display:none"><div class="analyze-loading"><div class="analyze-spinner"></div><div class="analyze-msg" id="addLoadingMsg">Fetching page…</div><div class="analyze-sub">AI is reading your website</div></div></div>
+      <div id="addManual" style="display:none">
+        <h2>📝 Tell us about your product</h2>
+        <div class="modal-desc">Fill in a few details.</div>
+        <div class="error-msg" id="manualError"></div>
+        <div class="field"><label>Product URL</label><input type="url" id="manualUrl" placeholder="https://yourproduct.com" autocomplete="off"></div>
+        <div class="field"><label>Product Name</label><input type="text" id="manualName" placeholder="e.g. AcmeTool" autocomplete="off"></div>
+        <div class="field"><label>What it does</label><input type="text" id="manualTagline" placeholder="e.g. Free AI resume builder" autocomplete="off"></div>
+        <div class="field"><label>Who it's for</label><input type="text" id="manualIcp" placeholder="e.g. Freshers in India" autocomplete="off"></div>
+        <div class="field"><label>Keywords (comma separated)</label><input type="text" id="manualKeywords" placeholder="e.g. resume, ats, fresher" autocomplete="off"></div>
+        <div class="modal-footer-split">
+          <button class="manual-link" onclick="showStep1()">← Back</button>
+          <div style="display:flex;gap:8px"><button class="btn btn-ghost" onclick="closeAdd()">Cancel</button><button class="btn btn-primary" onclick="submitManual()">Add Product →</button></div>
+        </div>
+      </div>
+      <div id="addReview" style="display:none">
+        <span class="ai-tag">✨ AI-configured</span>
+        <h2>Review your product</h2>
+        <div class="modal-desc">Edit anything that looks off.</div>
+        <div class="field"><label>Product Name</label><input type="text" id="reviewName" autocomplete="off"></div>
+        <div class="field"><label>What it does</label><input type="text" id="reviewTagline" autocomplete="off"></div>
+        <div class="field"><label>Who it's for</label><input type="text" id="reviewIcp" autocomplete="off"></div>
+        <div class="field"><label>Pain phrases</label><textarea id="reviewPain" rows="2"></textarea></div>
+        <div class="field"><label>Keywords</label><input type="text" id="reviewKeywords" autocomplete="off"></div>
+        <div class="modal-footer-split">
+          <button class="manual-link" onclick="showStep1()">← Start over</button>
+          <div style="display:flex;gap:8px"><button class="btn btn-ghost" onclick="closeAdd()">Cancel</button><button class="btn btn-primary" onclick="confirmAddProduct()">Add Product →</button></div>
+        </div>
+      </div>
     </div>
   </div>
+
+  <div class="sbar" id="sbar" style="display:none">
+    <span><span class="sbar-n" id="stTotal">0</span> signals</span>
+    <span><span class="sbar-n" id="stHV">0</span> high-value</span>
+    <span><span class="sbar-n" id="stPosted">0</span> posted</span>
+    <span><span class="sbar-n" id="stFb">0</span> feedback</span>
+    <span id="stTime"></span>
+    <div class="src-pills" id="srcPills"></div>
+  </div>
+  <div class="notice" id="noKeyNotice">⚡ No Anthropic key — <a onclick="openSettings()">Add key →</a></div>
+
+  <div class="main">
+    <div class="tabs-row" id="tabsRow" style="display:none">
+      <div class="tabs" id="tabs"></div>
+      <button class="add-tab" onclick="openAdd()">＋</button>
+    </div>
+    <div id="panels">
+      <div id="welcomeScreen" class="welcome">
+        <div class="welcome-icon">🎯</div>
+        <h2>Find your first customers</h2>
+        <p>Add your product and hunt for people on Reddit, HackerNews, Dev.to, Stack Overflow, Lobste.rs and YouTube who have the exact pain your product solves.</p>
+        <div class="welcome-steps">
+          <div class="wstep"><div class="wstep-n">1</div><div class="wstep-t">Add your product</div><div class="wstep-d">Paste URL — AI reads and auto-configures</div></div>
+          <div class="wstep"><div class="wstep-n">2</div><div class="wstep-t">Run a scan</div><div class="wstep-d">Searches 5 sources for pain-point signals</div></div>
+          <div class="wstep"><div class="wstep-n">3</div><div class="wstep-t">Reply &amp; learn</div><div class="wstep-d">AI-drafted responses · rate to improve</div></div>
+        </div>
+        <button class="btn btn-primary" style="font-size:14px;padding:11px 24px" onclick="openAdd()">＋ Add Your First Product</button>
+        <p style="margin-top:14px;font-size:11px;color:#333">No data leaves your browser</p>
+      </div>
+    </div>
+  </div>
+  <div class="ftr">Review every response before posting · Helpful first, product second</div>
 </div>
-<div class="ftr">Review every response before posting · Helpful first, product second · Works with any product worldwide</div>
+
+<!-- ══════════ PAGE: RANK TRACKER ══════════ -->
+<div class="page" id="pageRank">
+
+  <div class="overlay" id="gscOverlay">
+    <div class="modal gsc-modal">
+      <h2>📡 Import from Google Search Console</h2>
+      <div class="modal-desc">Paste your GSC CSV export to see all your keyword rankings.</div>
+      <div class="manual-gsc">
+        <strong>How to export (2 min):</strong>
+        <ol>
+          <li>Open <strong>search.google.com/search-console</strong></li>
+          <li>Click <strong>Performance → Search results</strong></li>
+          <li>Click <strong>Export → Download CSV</strong></li>
+          <li>Paste the contents below ↓</li>
+        </ol>
+      </div>
+      <div style="margin-top:14px">
+        <div style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Paste CSV here</div>
+        <textarea id="gscCsvInput" style="width:100%;background:#0c0c14;border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-size:11px;font-family:monospace;resize:vertical;min-height:130px" placeholder="Query,Clicks,Impressions,CTR,Position&#10;resume builder,42,1200,3.5%,8.3&#10;..."></textarea>
+      </div>
+      <div style="margin-top:10px;display:flex;gap:8px">
+        <button class="btn btn-ghost" style="flex:1" onclick="rtLoadSample()">📋 Try sample data</button>
+        <button class="btn btn-primary" style="flex:1" onclick="rtImportCsv()">Import →</button>
+      </div>
+      <div style="margin-top:10px;text-align:center"><button class="btn btn-ghost" onclick="rtCloseGsc()">Cancel</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="kwOverlay">
+    <div class="modal kw-modal">
+      <h2 id="kwTitle"></h2>
+      <div class="modal-desc" id="kwUrl"></div>
+      <div class="modal-stat-row" id="kwStats"></div>
+      <div class="modal-section"><h4>💡 How to improve this ranking</h4><div id="kwTips"></div></div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="rtCloseKw()">Close</button>
+        <button class="btn btn-primary" id="kwSearchBtn">🔍 Check on Google</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="rt-main">
+    <div class="connect-banner" id="rtConnectBanner">
+      <div class="connect-icon">📡</div>
+      <div class="connect-body">
+        <h2>See exactly where you rank — keyword by keyword</h2>
+        <p>Import from Google Search Console and see every keyword your site appears for, its exact position, click data, and what to do to move up. Free, no paid tools needed.</p>
+        <div class="connect-steps">
+          <div class="cstep"><div class="cstep-n">1</div><div class="cstep-t">Export from GSC</div><div class="cstep-d">Performance → Search results → Export CSV</div></div>
+          <div class="cstep"><div class="cstep-n">2</div><div class="cstep-t">Paste here</div><div class="cstep-d">One-click import, stays in your browser</div></div>
+          <div class="cstep"><div class="cstep-n">3</div><div class="cstep-t">See rankings</div><div class="cstep-d">Every keyword + position + fix tips</div></div>
+        </div>
+        <div class="connect-actions">
+          <button class="btn btn-primary" onclick="rtOpenGsc()">📡 Import GSC Data</button>
+          <a href="https://search.google.com/search-console" target="_blank" class="connect-link">Open Search Console ↗</a>
+          <button class="btn btn-ghost" onclick="rtLoadSampleAndClose()">Try sample data</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="rtDashboard" style="display:none">
+      <div class="rt-stats-row" id="rtStatsRow"></div>
+      <div class="rt-notice" id="rtNotice" style="display:none"></div>
+      <div class="rt-section-hdr">
+        <h2>Your keyword rankings</h2>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span class="last-updated" id="rtLastUpdated"></span>
+          <button class="btn btn-ghost" onclick="rtOpenGsc()">↺ Update</button>
+        </div>
+      </div>
+      <div class="filter-row">
+        <span class="filter-label">Show:</span>
+        <button class="fpill active" onclick="rtSetFilter('all',this)">All</button>
+        <button class="fpill" onclick="rtSetFilter('top3',this)">🏆 Top 3</button>
+        <button class="fpill" onclick="rtSetFilter('top10',this)">✅ Top 10</button>
+        <button class="fpill" onclick="rtSetFilter('opportunity',this)">⚡ Opportunity (11–30)</button>
+        <button class="fpill" onclick="rtSetFilter('buried',this)">📉 Buried (30+)</button>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="leg-dot" style="background:rgba(34,197,94,.5)"></div>Top 3</div>
+        <div class="legend-item"><div class="leg-dot" style="background:rgba(108,99,255,.5)"></div>Top 10</div>
+        <div class="legend-item"><div class="leg-dot" style="background:rgba(251,191,36,.4)"></div>11–30 opportunity</div>
+        <div class="legend-item"><div class="leg-dot" style="background:rgba(239,68,68,.35)"></div>30+ needs work</div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-header">
+          <div>Keyword</div><div>Position</div><div class="col-vol">Impressions</div><div>Clicks</div><div class="col-ctr">CTR</div>
+        </div>
+        <div id="rtKwList"></div>
+      </div>
+      <div id="rtEmpty" style="display:none;text-align:center;padding:40px 20px;color:var(--dim)">No keywords match this filter.</div>
+    </div>
+  </div>
+  <div class="ftr">Data stays in your browser · Export from GSC weekly to keep fresh · Click any keyword for improvement tips</div>
+</div>
 
 <script>
-// ─────────────────────────────────────────────
-// STATE
-// ─────────────────────────────────────────────
-let anthropicKey = localStorage.getItem("fc_ant") || "";
-let googleKey    = localStorage.getItem("fc_goog") || "";
-let googleCX     = localStorage.getItem("fc_gcx") || "";
-let feedback     = JSON.parse(localStorage.getItem("fc_fb2") || "{}");
-let postedCount  = parseInt(localStorage.getItem("fc_posts") || "0");
-let scanResults  = {};
-let scanning     = false;
-let sourceCounts = {};
-let pendingProduct = null; // holds analyzed product during review step
-
-// ─────────────────────────────────────────────
-// DYNAMIC PRODUCTS (stored in localStorage)
-// ─────────────────────────────────────────────
-let PRODUCTS = JSON.parse(localStorage.getItem("fc_products") || "[]");
-
-function saveProducts(){
-  localStorage.setItem("fc_products", JSON.stringify(PRODUCTS));
-}
-
-function makeProductId(url){
-  return (url||"").replace(/https?:\/\/(www\.)?/,"").replace(/[^a-z0-9]/gi,"_").toLowerCase().slice(0,30) + "_" + Date.now().toString(36).slice(-4);
-}
-
-function addProductToList(product){
-  // Avoid duplicate URLs
-  PRODUCTS = PRODUCTS.filter(p => p.url !== product.url);
-  if(!product.id) product.id = makeProductId(product.url);
-  PRODUCTS.push(product);
-  saveProducts();
-  updateUI();
-}
-
-function removeProduct(pid){
-  if(!confirm("Remove this product? Its feedback history will be kept.")) return;
-  PRODUCTS = PRODUCTS.filter(p => p.id !== pid);
-  saveProducts();
-  // Clear scan results for this product
-  delete scanResults[pid];
-  updateUI();
-}
-
-function updateUI(){
-  const hasProd = PRODUCTS.length > 0;
-  document.getElementById("welcomeScreen").style.display = hasProd ? "none" : "block";
-  document.getElementById("tabsRow").style.display = hasProd ? "flex" : "none";
-  document.getElementById("scanBtn").style.display = hasProd ? "inline-flex" : "none";
-  // Rebuild tabs
-  rebuildTabs();
-}
-
-function rebuildTabs(){
-  const tabsEl = document.getElementById("tabs");
-  tabsEl.innerHTML = "";
-  PRODUCTS.forEach(p => {
-    const r = scanResults[p.id];
-    const cnt = r ? r.signals.length : "–";
-    const hv = r ? r.signals.filter(s=>s.relevance>=5).length : 0;
-    const hasFb = getFb(p.id).length > 0;
-    const tab = document.createElement("button");
-    tab.className = "tab";
-    tab.id = `tab-${p.id}`;
-    tab.onclick = () => showTab(p.id);
-    tab.innerHTML = `${p.name} <span class="tab-cnt">${cnt}</span>${hv>=2?" 🔥":""}${hasFb?" 🧠":""}<button class="tab-del" onclick="event.stopPropagation();removeProduct('${p.id}')" title="Remove">✕</button>`;
-    tabsEl.appendChild(tab);
-  });
-  // Activate first tab if exists
-  if(PRODUCTS.length > 0){
-    const firstId = PRODUCTS[0].id;
-    const panel = document.getElementById(`panel-${firstId}`);
-    if(panel) showTab(firstId);
-  }
-}
-
-// ─────────────────────────────────────────────
-// FETCH PAGE CONTENT FOR ANALYSIS
-// ─────────────────────────────────────────────
-async function fetchPageContent(url){
-  try{
-    const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-    const r = await fetch(proxy, {signal: AbortSignal.timeout(12000)});
-    const html = await r.text();
-    // Strip scripts, styles, tags
-    const clean = html
-      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, " ")
-      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, " ")
-      .replace(/<[^>]+>/g, " ")
-      .replace(/\s+/g, " ")
-      .trim()
-      .slice(0, 4500);
-    return clean;
-  }catch(e){
-    return "";
-  }
-}
-
-// ─────────────────────────────────────────────
-// AI PRODUCT ANALYSIS
-// ─────────────────────────────────────────────
-async function analyzeWithAI(url, pageContent){
-  const prompt = `Analyze this product website and configure a signal hunter tool that finds potential customers on Reddit, HackerNews, Dev.to, Stack Overflow, Lobste.rs and YouTube.
-
-URL: ${url}
-Page content: ${pageContent || "(could not fetch page — use URL to infer the product)"}
-
-Return ONLY valid JSON (no markdown, no explanation, no code blocks):
-{
-  "name": "Product Name",
-  "tagline": "what it does in one sentence",
-  "icp": "ideal customer profile — who has the pain this product solves",
-  "hnQ": ["3 HackerNews search queries about the PROBLEM, not the product"],
-  "redditQ": ["3 Reddit search queries about the pain point people experience"],
-  "subreddits": ["5 specific subreddits where target users actively post — e.g. resumes, jobs, cscareerquestions, not generic ones like startups"],
-  "devtoTags": ["3 dev.to tags relevant to this space"],
-  "devtoQ": ["2 dev.to search queries"],
-  "soQ": ["ONLY fill if this product solves a coding/technical problem. For job/resume/career/consumer products return empty array []"],
-  "ytQ": ["2 YouTube search queries about the problem or use case"],
-  "lobstersQ": ["1 Lobste.rs query — ONLY if product is dev/tech focused, else return empty string"],
-  "googleQ": ["3 Google search queries to find people discussing this problem on Reddit, Quora, forums — include site: operators like 'site:reddit.com resume rejected ATS'"],
-  "painPhrases": ["8-10 exact phrases people use when venting about this problem"],
-  "keywords": ["10 keywords for scoring relevance"]
-}
-
-CRITICAL: Make queries intent-focused — find people who HAVE THE PROBLEM, not people searching for solutions.
-Bad: "resume builder tool". Good: "resume rejected by ATS" or "not getting shortlisted despite applying".
-Bad: "video converter app". Good: "landscape video for Instagram reels" or "how to crop video for shorts".
-For subreddits: pick active communities where the ICP asks questions. Resume tool → ["resumes","jobs","cscareerquestions","careerguidance","jobsearchhacks"]. Dev tool → ["programming","webdev","learnprogramming"].`;
-
-  try{
-    const r = await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",
-      headers:{
-        "x-api-key":anthropicKey,
-        "anthropic-version":"2023-06-01",
-        "content-type":"application/json",
-        "anthropic-dangerous-direct-browser-access":"true"
-      },
-      body:JSON.stringify({
-        model:"claude-haiku-4-5-20251001",
-        max_tokens:1500,
-        messages:[{role:"user",content:prompt}]
-      })
-    });
-    if(!r.ok) return null;
-    const data = await r.json();
-    const text = data.content[0].text.trim();
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if(!jsonMatch) return null;
-    const parsed = JSON.parse(jsonMatch[0]);
-    parsed.url = url;
-    parsed.id = makeProductId(url);
-    return parsed;
-  }catch(e){
-    return null;
-  }
-}
-
-// ─────────────────────────────────────────────
-// ADD PRODUCT MODAL
-// ─────────────────────────────────────────────
-function openAdd(){
-  showStep1();
-  document.getElementById("addUrl").value = "";
-  document.getElementById("addError").style.display = "none";
-  document.getElementById("addOverlay").classList.add("open");
-}
-function closeAdd(){
-  document.getElementById("addOverlay").classList.remove("open");
-  pendingProduct = null;
-}
-
-function showStep1(){
-  document.getElementById("addStep1").style.display = "block";
-  document.getElementById("addLoading").style.display = "none";
-  document.getElementById("addManual").style.display = "none";
-  document.getElementById("addReview").style.display = "none";
-  document.getElementById("addError").style.display = "none";
-}
-function showManualForm(){
-  const url = document.getElementById("addUrl").value.trim();
-  document.getElementById("addStep1").style.display = "none";
-  document.getElementById("addLoading").style.display = "none";
-  document.getElementById("addManual").style.display = "block";
-  document.getElementById("addReview").style.display = "none";
-  if(url) document.getElementById("manualUrl").value = url;
-  document.getElementById("manualError").style.display = "none";
-}
-function showReview(product){
-  pendingProduct = product;
-  document.getElementById("reviewName").value = product.name || "";
-  document.getElementById("reviewTagline").value = product.tagline || "";
-  document.getElementById("reviewIcp").value = product.icp || "";
-  document.getElementById("reviewPain").value = (product.painPhrases||[]).join(", ");
-  document.getElementById("reviewKeywords").value = (product.keywords||[]).join(", ");
-  document.getElementById("addStep1").style.display = "none";
-  document.getElementById("addLoading").style.display = "none";
-  document.getElementById("addManual").style.display = "none";
-  document.getElementById("addReview").style.display = "block";
-}
-
-async function analyzeUrl(){
-  const url = document.getElementById("addUrl").value.trim();
-  if(!url){ showError("addError","Please enter a URL first."); return; }
-  if(!url.startsWith("http")){ showError("addError","Please enter a full URL starting with https://"); return; }
-
-  if(!anthropicKey){
-    // No AI key — switch to manual
-    showManualForm();
-    return;
-  }
-
-  // Show loading
-  document.getElementById("addStep1").style.display = "none";
-  document.getElementById("addLoading").style.display = "block";
-  document.getElementById("addLoadingMsg").textContent = "Fetching page content…";
-
-  const pageContent = await fetchPageContent(url);
-
-  document.getElementById("addLoadingMsg").textContent = "Analyzing with AI…";
-
-  const product = await analyzeWithAI(url, pageContent);
-
-  document.getElementById("addLoading").style.display = "none";
-
-  if(!product){
-    showStep1();
-    showError("addError","Couldn't analyze this URL. Try again or use manual entry.");
-    return;
-  }
-
-  showReview(product);
-}
-
-function confirmAddProduct(){
-  if(!pendingProduct) return;
-  // Update with any edits
-  pendingProduct.name = document.getElementById("reviewName").value.trim() || pendingProduct.name;
-  pendingProduct.tagline = document.getElementById("reviewTagline").value.trim() || pendingProduct.tagline;
-  pendingProduct.icp = document.getElementById("reviewIcp").value.trim() || pendingProduct.icp;
-  pendingProduct.painPhrases = document.getElementById("reviewPain").value.split(",").map(s=>s.trim()).filter(s=>s);
-  pendingProduct.keywords = document.getElementById("reviewKeywords").value.split(",").map(s=>s.trim()).filter(s=>s);
-  addProductAndClose(pendingProduct);
-}
-
-function submitManual(){
-  const url = document.getElementById("manualUrl").value.trim();
-  const name = document.getElementById("manualName").value.trim();
-  const tagline = document.getElementById("manualTagline").value.trim();
-  const icp = document.getElementById("manualIcp").value.trim();
-  const kws = document.getElementById("manualKeywords").value.trim();
-
-  if(!url||!name){ showError("manualError","URL and Product Name are required."); return; }
-
-  const keywords = kws ? kws.split(",").map(k=>k.trim()).filter(k=>k) : [name.toLowerCase()];
-  const mainKw = keywords.slice(0,3);
-
-  const product = {
-    id: makeProductId(url),
-    name, url, tagline: tagline||name, icp: icp||"Anyone with this problem",
-    hnQ: mainKw.map(k=>`${k} problem`),
-    redditQ: mainKw.map(k=>`${k} help`),
-    subreddits: ["startups","entrepreneur","SideProject"],
-    devtoTags: keywords.slice(0,3),
-    devtoQ: mainKw,
-    ytQ: mainKw.slice(0,2).map(k=>`how to ${k}`),
-    lobstersQ: [mainKw[0]||name],
-    painPhrases: keywords.slice(0,6).map(k=>`${k} issue`),
-    keywords
-  };
-
-  addProductAndClose(product);
-}
-
-function addProductAndClose(product){
-  addProductToList(product);
-  closeAdd();
-  // Create panel for new product
-  createProductPanel(product);
-  showTab(product.id);
-  // Update scan button visibility
-  document.getElementById("scanBtn").style.display = "inline-flex";
-}
-
-function showError(id, msg){
-  const el = document.getElementById(id);
-  el.textContent = msg;
-  el.style.display = "block";
-}
-
-// ─────────────────────────────────────────────
-// FEEDBACK
-// ─────────────────────────────────────────────
-function getFb(pid){ return feedback[pid] || []; }
-function saveFb(pid, sig, verdict){
-  if(!feedback[pid]) feedback[pid]=[];
-  feedback[pid] = feedback[pid].filter(f=>f.url!==sig.url);
-  feedback[pid].push({url:sig.url, title:sig.title.slice(0,120), platform:sig.platform, verdict});
-  if(feedback[pid].length>40) feedback[pid]=feedback[pid].slice(-40);
-  localStorage.setItem("fc_fb2",JSON.stringify(feedback));
-  updateLearnPill();
-}
-function fbContext(pid){
-  const all=getFb(pid), good=all.filter(f=>f.verdict==="good"), bad=all.filter(f=>f.verdict==="bad");
-  if(!good.length&&!bad.length) return "";
-  let c="\n\nAGENT MEMORY from past feedback:\n";
-  if(good.length) c+="\n✅ RELEVANT signals (find more like these):\n"+good.slice(-8).map(e=>`- "${e.title}" (${e.platform})`).join("\n");
-  if(bad.length)  c+="\n\n❌ NOT RELEVANT (avoid similar patterns):\n"+bad.slice(-8).map(e=>`- "${e.title}" (${e.platform})`).join("\n");
-  c+="\n\nApply this history to improve response quality.";
-  return c;
-}
-function totalFb(){ return Object.values(feedback).reduce((s,a)=>s+a.length,0); }
-function updateLearnPill(){
-  document.getElementById("learnCount").textContent = totalFb();
-  document.getElementById("stFb").textContent = totalFb();
-}
-function clearFeedback(){
-  if(!confirm("Clear all feedback? Agent starts learning from scratch.")) return;
-  feedback={}; localStorage.setItem("fc_fb2","{}");
-  updateLearnPill(); closeLearn();
-}
-
-// ─────────────────────────────────────────────
-// SETTINGS
-// ─────────────────────────────────────────────
-function openSettings(){
-  document.getElementById("anthropicKey").value=anthropicKey;
-  document.getElementById("googleKey").value=googleKey;
-  document.getElementById("googleCX").value=googleCX;
-  refreshStatuses();
-  document.getElementById("settingsOverlay").classList.add("open");
-}
-function closeSettings(){ document.getElementById("settingsOverlay").classList.remove("open"); }
-function saveSettings(){
-  anthropicKey=document.getElementById("anthropicKey").value.trim();
-  googleKey=document.getElementById("googleKey").value.trim();
-  googleCX=document.getElementById("googleCX").value.trim();
-  localStorage.setItem("fc_ant",anthropicKey);
-  localStorage.setItem("fc_goog",googleKey);
-  localStorage.setItem("fc_gcx",googleCX);
-  closeSettings(); updateNotice();
-}
-function refreshStatuses(){
-  const as=document.getElementById("anthropicStatus");
-  as.className=anthropicKey?"key-ok":"key-no";
-  as.textContent=anthropicKey?"✓ Key saved — AI analysis + drafting enabled":"Not set — manual setup only, no response drafting";
-  const gs=document.getElementById("googleStatus");
-  gs.className=googleKey?"key-ok":"key-no";
-  gs.textContent=googleKey?"✓ Key saved":"Not set — YouTube + Google Search disabled";
-  const cx=document.getElementById("googleCXStatus");
-  if(cx){ cx.className=googleCX?"key-ok":"key-no"; cx.textContent=googleCX?"✓ CX saved — Google Search enabled":"Not set — Google Search signals disabled"; }
-}
-function updateNotice(){ document.getElementById("noKeyNotice").style.display=anthropicKey?"none":"block"; }
-
-// ─────────────────────────────────────────────
-// LEARNED PANEL
-// ─────────────────────────────────────────────
-function openLearn(){
-  const total=totalFb();
-  const good=Object.values(feedback).flatMap(a=>a.filter(f=>f.verdict==="good")).length;
-  document.getElementById("lStats").innerHTML=`
-    <div class="l-stat"><div class="l-stat-n">${total}</div><div class="l-stat-l">Ratings</div></div>
-    <div class="l-stat"><div class="l-stat-n" style="color:var(--green)">${good}</div><div class="l-stat-l">Good</div></div>
-    <div class="l-stat"><div class="l-stat-n" style="color:var(--red)">${total-good}</div><div class="l-stat-l">Not Relevant</div></div>`;
-  const withData=PRODUCTS.filter(p=>getFb(p.id).length>0);
-  document.getElementById("lGrid").innerHTML = withData.length ? withData.map(p=>{
-    const items=getFb(p.id).slice(-5).reverse().map(e=>`<div class="l-item"><span class="${e.verdict==="good"?"vg":"vb"}">${e.verdict==="good"?"👍":"👎"}</span>${e.title.slice(0,55)}${e.title.length>55?"…":""}</div>`).join("");
-    return `<div class="l-card"><h4>${p.name}</h4>${items}</div>`;
-  }).join("") : `<div class="l-empty">No feedback yet — rate signals with 👍/👎 after scanning.</div>`;
-  document.getElementById("learnOverlay").classList.add("open");
-}
-function closeLearn(){ document.getElementById("learnOverlay").classList.remove("open"); }
-
-// ─────────────────────────────────────────────
-// SIGNAL SOURCES
-// ─────────────────────────────────────────────
-async function searchHN(query){
-  const cutoff=Math.floor((Date.now()-90*864e5)/1000); // 90 days window
-  try{
-    const r=await fetch(`https://hn.algolia.com/api/v1/search?query=${enc(query)}&tags=(ask_hn,show_hn,story)&hitsPerPage=20&numericFilters=created_at_i>${cutoff}`);
-    return (await r.json()).hits?.filter(h=>h.title).map(h=>({
-      platform:"HackerNews",color:"hn",
-      title:h.title, snippet:(h.story_text||"").slice(0,400),
-      url:`https://news.ycombinator.com/item?id=${h.objectID}`,
-      author:h.author||"", subreddit:null, score:h.points||0, comments:h.num_comments||0,
-      created_at:h.created_at||""
-    }))||[];
-  }catch{return[];}
-}
-
-// Pushshift keyword search — no proxy, searches across all of Reddit by title
-async function searchRedditPushshift(query){
-  try{
-    const r=await fetch(`https://api.pullpush.io/reddit/search/submission/?title=${enc(query)}&size=20&sort=desc`,{
-      signal:AbortSignal.timeout(10000)
-    });
-    const data=await r.json();
-    return(data?.data||[]).map(p=>({
-      platform:"Reddit",color:"reddit",
-      title:p.title||"", snippet:(p.selftext||"").slice(0,400),
-      url:p.url?.startsWith("http")?p.url:`https://reddit.com${p.permalink||""}`,
-      author:p.author||"", subreddit:p.subreddit||"",
-      score:p.score||0, comments:p.num_comments||0,
-      created_at:new Date((p.created_utc||0)*1000).toISOString()
-    })).filter(p=>p.title);
-  }catch{return[];}
-}
-
-async function searchReddit(query,sub){
-  const base=sub
-    ?`https://www.reddit.com/r/${sub}/search.json?q=${enc(query)}&sort=new&limit=15&t=year&restrict_sr=true`
-    :`https://www.reddit.com/search.json?q=${enc(query)}&sort=new&limit=15&t=year`;
-  const proxies=[
-    `https://api.allorigins.win/raw?url=${enc(base)}`,
-    `https://corsproxy.io/?${enc(base)}`
-  ];
-  for(const proxy of proxies){
-    try{
-      const r=await fetch(proxy,{signal:AbortSignal.timeout(8000)});
-      const data=await r.json();
-      const results=data?.data?.children?.map(p=>{
-        const d=p.data;
-        return{platform:"Reddit",color:"reddit",
-          title:d.title||"", snippet:(d.selftext||"").slice(0,400),
-          url:`https://reddit.com${d.permalink}`, author:d.author||"",
-          subreddit:d.subreddit||"", score:d.score||0, comments:d.num_comments||0,
-          created_at:new Date((d.created_utc||0)*1000).toISOString()};
-      }).filter(p=>p.title)||[];
-      if(results.length>0) return results;
-    }catch{}
-  }
-  return[];
-}
-
-// Browse subreddit via Pushshift mirror (pullpush.io) — no proxy, no auth, free
-async function browseSubreddit(sub){
-  try{
-    const r=await fetch(`https://api.pullpush.io/reddit/search/submission/?subreddit=${sub}&size=25&sort=desc`,{
-      signal:AbortSignal.timeout(10000)
-    });
-    const data=await r.json();
-    return(data?.data||[]).map(p=>({
-      platform:"Reddit",color:"reddit",
-      title:p.title||"", snippet:(p.selftext||"").slice(0,400),
-      url:p.url?.startsWith("http")?p.url:`https://reddit.com${p.permalink||""}`,
-      author:p.author||"", subreddit:p.subreddit||"",
-      score:p.score||0, comments:p.num_comments||0,
-      created_at:new Date((p.created_utc||0)*1000).toISOString()
-    })).filter(p=>p.title);
-  }catch{return[];}
-}
-
-async function searchDevTo(tag){
-  try{
-    const byTag=await fetch(`https://dev.to/api/articles?tag=${enc(tag)}&per_page=15&state=fresh`);
-    return (await byTag.json()).filter(a=>a.title||a.description).map(a=>({
-      platform:"Dev.to",color:"devto",
-      title:a.title||"", snippet:(a.description||"").slice(0,400),
-      url:a.url||`https://dev.to${a.path}`, author:a.user?.username||"",
-      subreddit:null, score:a.positive_reactions_count||0, comments:a.comments_count||0,
-      created_at:a.published_at||""
-    }));
-  }catch{return[];}
-}
-
-async function searchLobsters(query){
-  // Lobste.rs blocks direct browser requests — route via proxy
-  const base=`https://lobste.rs/search.json?q=${enc(query)}&what=stories&order=newest`;
-  const proxies=[
-    `https://api.allorigins.win/raw?url=${enc(base)}`,
-    `https://corsproxy.io/?${enc(base)}`
-  ];
-  for(const proxy of proxies){
-    try{
-      const r=await fetch(proxy,{signal:AbortSignal.timeout(8000)});
-      const data=await r.json();
-      const results=(data.results||[]).map(s=>({
-        platform:"Lobste.rs",color:"lobsters",
-        title:s.title||"", snippet:(s.description||"").slice(0,400),
-        url:s.url||s.short_id_url||"", author:s.submitter_user?.username||"",
-        subreddit:null, score:s.score||0, comments:s.comment_count||0,
-        created_at:s.created_at||""
-      })).filter(s=>s.title&&s.url);
-      if(results.length>0) return results;
-    }catch{}
-  }
-  return[];
-}
-
-async function searchYouTube(query){
-  if(!googleKey) return[];
-  try{
-    // Search by relevance, 6-month window, 15 results
-    const sixMonthsAgo = new Date(Date.now()-180*864e5).toISOString();
-    const searchUrl=`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${enc(query)}&type=video&order=relevance&maxResults=15&key=${googleKey}&relevanceLanguage=en&publishedAfter=${sixMonthsAgo}`;
-    const r=await fetch(searchUrl,{signal:AbortSignal.timeout(8000)});
-    const data=await r.json();
-    if(data.error) return[];
-    const items=(data.items||[]).filter(v=>v.snippet?.title);
-    if(!items.length) return[];
-
-    // Fetch view counts so we can filter out tiny channels
-    const ids=items.map(v=>v.id.videoId).filter(Boolean).join(",");
-    let viewMap={};
-    try{
-      const statsR=await fetch(`https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${ids}&key=${googleKey}`,{signal:AbortSignal.timeout(6000)});
-      const statsData=await statsR.json();
-      (statsData.items||[]).forEach(v=>{ viewMap[v.id]=parseInt(v.statistics?.viewCount||0); });
-    }catch{}
-
-    return items
-      .map(v=>({
-        platform:"YouTube",color:"youtube",
-        title:v.snippet.title||"",
-        snippet:(v.snippet.description||"").slice(0,400),
-        url:`https://youtube.com/watch?v=${v.id.videoId}`,
-        author:v.snippet.channelTitle||"",
-        subreddit:null,
-        score:viewMap[v.id.videoId]||0,  // view count as score
-        comments:0,
-        viewCount:viewMap[v.id.videoId]||0,
-        created_at:v.snippet.publishedAt||""
-      }))
-      .filter(v=>v.title && v.viewCount>=500); // skip videos with <500 views
-  }catch{return[];}
-}
-
-// 7. Google Custom Search (needs googleKey + googleCX, 100 free queries/day)
-async function searchGoogle(query){
-  if(!googleKey||!googleCX) return[];
-  try{
-    const r=await fetch(`https://www.googleapis.com/customsearch/v1?key=${googleKey}&cx=${googleCX}&q=${enc(query)}&num=10`,{
-      signal:AbortSignal.timeout(8000)
-    });
-    const data=await r.json();
-    if(data.error) return[];
-    return(data.items||[]).map(item=>{
-      // Detect the platform from the URL for better display
-      const u=item.link||"";
-      const isReddit=u.includes("reddit.com");
-      const isQuora=u.includes("quora.com");
-      const isMedium=u.includes("medium.com");
-      return{
-        platform:"Google",color:"google",
-        title:item.title||"", snippet:(item.snippet||"").slice(0,400),
-        url:u, author:item.displayLink||"",
-        subreddit:isReddit?(u.match(/\/r\/([^/]+)/)||[])[1]||null:null,
-        score:0, comments:0,
-        sourceLabel:isReddit?"Reddit":isQuora?"Quora":isMedium?"Medium":item.displayLink,
-        created_at:""
-      };
-    }).filter(r=>r.title&&r.url);
-  }catch{return[];}
-}
-
-// 6. Stack Overflow (free API — no key needed, 300 req/day)
-async function searchStackOverflow(query){
-  try{
-    const url=`https://api.stackexchange.com/2.3/search?order=desc&sort=votes&intitle=${enc(query)}&site=stackoverflow&pagesize=8&filter=withbody`;
-    const r=await fetch(url,{signal:AbortSignal.timeout(8000)});
-    const data=await r.json();
-    if(data.error_id) return[];
-    return (data.items||[]).map(q=>({
-      platform:"Stack Overflow",color:"stackoverflow",
-      title:q.title||"",
-      snippet:(q.body||"").replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim().slice(0,400),
-      url:q.link||"", author:q.owner?.display_name||"",
-      subreddit:null, score:q.score||0, comments:q.answer_count||0,
-      created_at:new Date((q.creation_date||0)*1000).toISOString()
-    })).filter(q=>q.title&&q.url);
-  }catch{return[];}
-}
-
-// ─────────────────────────────────────────────
-// SCORING
-// ─────────────────────────────────────────────
-function score(sig, product){
-  const text=(sig.title+" "+sig.snippet).toLowerCase();
-  let s=0;
-  for(const ph of (product.painPhrases||[])){if(text.includes(ph.toLowerCase())){s+=3;break;}}
-  for(const kw of (product.keywords||[])){if(text.includes(kw.toLowerCase())) s+=0.4;}
-  if(sig.snippet.trim().length>80) s+=1;
-  if((sig.comments||0)>=3) s+=1;
-  try{
-    const age=(Date.now()-new Date(sig.created_at).getTime())/864e5;
-    if(age<=3) s+=1;
-  }catch{}
-  const fb=getFb(product.id);
-  const good=fb.filter(f=>f.verdict==="good"), bad=fb.filter(f=>f.verdict==="bad");
-  for(const g of good){
-    const gt=(g.title).toLowerCase();
-    const overlap=(product.keywords||[]).filter(kw=>text.includes(kw.toLowerCase())&&gt.includes(kw.toLowerCase())).length;
-    if(overlap>=2) s+=1.5;
-  }
-  for(const b of bad){
-    const bt=(b.title).toLowerCase();
-    const overlap=(product.keywords||[]).filter(kw=>text.includes(kw.toLowerCase())&&bt.includes(kw.toLowerCase())).length;
-    if(overlap>=3) s-=1;
-  }
-  return Math.min(Math.max(Math.round(s),0),10);
-}
-
-// ─────────────────────────────────────────────
-// HUNT ONE PRODUCT — top 3 per platform
-// ─────────────────────────────────────────────
-async function huntProduct(product){
-  const seen = new Set();
-  // Collect per-platform buckets
-  const buckets = {
-    "HackerNews": [],
-    "Reddit": [],
-    "Dev.to": [],
-    "Stack Overflow": [],
-    "Lobste.rs": [],
-    "YouTube": []
-  };
-
-  function addToBucket(results){
-    for(const r of results){
-      if(!seen.has(r.url) && r.title){
-        seen.add(r.url);
-        r.relevance = score(r, product);
-        if(buckets[r.platform]) buckets[r.platform].push(r);
-      }
-    }
-  }
-
-  // HackerNews — product queries + broad keyword fallback
-  for(const q of (product.hnQ||[])){ addToBucket(await searchHN(q)); }
-  // Fallback: search HN for main keywords if hnQ yielded nothing
-  if(!buckets["HackerNews"].length){
-    const fallbackKws=(product.keywords||[]).slice(0,3);
-    for(const kw of fallbackKws){ addToBucket(await searchHN(kw)); }
-  }
-
-  // Reddit — browse subreddits via Pushshift (pullpush.io), no proxy needed
-  // If stored subreddits are generic placeholders, augment with keyword-based ones
-  const GENERIC_SUBS=new Set(["startups","entrepreneur","sideproject","sidehustle"]);
-  let subs=[...(product.subreddits||[])];
-  if(subs.every(s=>GENERIC_SUBS.has(s.toLowerCase()))){
-    // Build keyword-derived subreddits from product name and keywords
-    const kws=(product.keywords||[]).concat(product.name||"").map(k=>k.toLowerCase().replace(/\s+/g,""));
-    subs=[...subs,...kws.slice(0,3),"learnprogramming","programming"];
-  }
-  for(const sub of subs){ addToBucket(await browseSubreddit(sub)); await sleep(400); }
-  // Also try Pushshift keyword search as bonus
-  if(buckets["Reddit"].length < 5){
-    for(const q of (product.redditQ||[]).slice(0,2)){ addToBucket(await searchRedditPushshift(q)); await sleep(400); }
-  }
-
-  // Dev.to — all tags
-  for(const tag of (product.devtoTags||[])){ addToBucket(await searchDevTo(tag)); await sleep(200); }
-
-  // Stack Overflow — only use soQ if explicitly defined, else skip
-  if((product.soQ||[]).length){
-    for(const q of product.soQ){ addToBucket(await searchStackOverflow(q)); await sleep(300); }
-  }
-
-  // Lobste.rs — all queries
-  for(const q of (product.lobstersQ||[])){ addToBucket(await searchLobsters(q)); }
-
-  // YouTube (if key set)
-  if(googleKey){
-    for(const q of (product.ytQ||[])){ addToBucket(await searchYouTube(q)); await sleep(400); }
-  }
-
-  // Google Custom Search (if key + CX set) — searches web-wide: Reddit, Quora, Medium, forums
-  if(googleKey && googleCX){
-    const gQueries=(product.googleQ||product.redditQ||[]).slice(0,3);
-    for(const q of gQueries){ addToBucket(await searchGoogle(q)); await sleep(400); }
-  }
-
-  // Sort each platform bucket by relevance
-  // Cap Dev.to at 15 (it returns 15/tag × multiple tags = too many)
-  for(const [platform, results] of Object.entries(buckets)){
-    let sorted = results.sort((a,b) => b.relevance - a.relevance || b.comments - a.comments);
-    if(platform === "Dev.to") sorted = sorted.slice(0, 15);
-    buckets[platform] = sorted;
-    sorted.forEach(r => { sourceCounts[r.platform] = (sourceCounts[r.platform]||0)+1; });
-  }
-
-  // Merged view: all results sorted by relevance
-  const allSorted = Object.values(buckets).flat()
-    .sort((a,b) => b.relevance - a.relevance || b.comments - a.comments);
-
-  return { buckets, allSorted };
-}
-
-// ─────────────────────────────────────────────
-// RESPONSE DRAFTING
-// ─────────────────────────────────────────────
-async function draftResp(sig, product){
-  if(!anthropicKey) return null;
-  const prompt=`You are helping ${product.name} (${product.url}) get genuine customers.
-
-Product: ${product.name}
-What it does: ${product.tagline}
-Who it's for: ${product.icp}${fbContext(product.id)}
-
-Signal to respond to:
-Platform: ${sig.platform}${sig.subreddit?" · r/"+sig.subreddit:""}
-Title: ${sig.title}
-Content: ${sig.snippet||(sig.platform==="YouTube"?"(YouTube video — respond to the title/topic)":"(no body text)")}
-
-Rules:
-1. Genuinely help FIRST — answer the question or validate the problem
-2. Mention ${product.name} ONLY if it's a natural, honest fit
-3. Sound like a real person, not a marketer
-4. 3–5 sentences max
-5. If mentioning the product: ${product.url}
-6. Never start with "I" or use "Great question!"
-
-Write only the response text.`;
-
-  try{
-    const r=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",
-      headers:{"x-api-key":anthropicKey,"anthropic-version":"2023-06-01","content-type":"application/json","anthropic-dangerous-direct-browser-access":"true"},
-      body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:350,messages:[{role:"user",content:prompt}]})
-    });
-    if(!r.ok) throw new Error();
-    return (await r.json()).content[0].text.trim();
-  }catch{return null;}
-}
-
-// ─────────────────────────────────────────────
-// MAIN SCAN
-// ─────────────────────────────────────────────
-async function runScan(){
-  if(scanning||!PRODUCTS.length) return;
-  scanning=true; sourceCounts={};
-  const btn=document.getElementById("scanBtn");
-  btn.disabled=true; btn.textContent="⏳ Scanning…";
-  document.getElementById("sbar").style.display="none";
-  const panelsEl = document.getElementById("panels");
-  // Clear welcome screen
-  document.getElementById("welcomeScreen").style.display="none";
-  // Clear existing panels (not welcome)
-  panelsEl.querySelectorAll(".panel").forEach(p=>p.remove());
-  scanResults={};
-  const t0=Date.now();
-
-  for(const p of PRODUCTS){
-    renderLoadingPanel(p);
-    const {buckets, allSorted} = await huntProduct(p);
-    // Only auto-draft top 10 by relevance to save API credits
-    const toDraft = allSorted.slice(0, 10);
-    const responseMap = {};
-    if(anthropicKey && toDraft.length){
-      for(const s of toDraft){
-        responseMap[s.url] = await draftResp(s, p);
-        await sleep(300);
-      }
-    }
-    scanResults[p.id] = {signals: allSorted, buckets, responseMap};
-    renderPanel(p, allSorted, buckets, responseMap);
-    updateTabCount(p.id, allSorted.length, allSorted.filter(s=>s.relevance>=5).length);
-  }
-
-  const total=Object.values(scanResults).reduce((s,r)=>s+r.signals.length,0);
-  const hv=Object.values(scanResults).reduce((s,r)=>s+r.signals.filter(x=>x.relevance>=5).length,0);
-  document.getElementById("stTotal").textContent=total;
-  document.getElementById("stHV").textContent=hv;
-  document.getElementById("stPosted").textContent=postedCount;
-  document.getElementById("stTime").innerHTML=`<span class="sbar-n">${((Date.now()-t0)/1000).toFixed(0)}s</span>`;
-  document.getElementById("srcPills").innerHTML=Object.entries(sourceCounts).map(([src,n])=>
-    `<span class="src-pill ${src.toLowerCase().replace(/[\s.]/g,'')}">${src} ${n}</span>`).join("");
-  document.getElementById("sbar").style.display="flex";
-  updateLearnPill();
-
-  btn.disabled=false; btn.textContent="↺ Re-scan";
-  scanning=false;
-  if(PRODUCTS[0]) showTab(PRODUCTS[0].id);
-}
-
-// ─────────────────────────────────────────────
-// RENDERING
-// ─────────────────────────────────────────────
-function relBar(s){
-  const c=["#1e1e1e","#553","#663","#883","#9a4","#ab5","#5a5","#4a7","#4ab","#49c","#6c63ff"][Math.min(s,10)];
-  return `<span style="color:${c};font-family:monospace">${"█".repeat(s)}${"░".repeat(10-s)}</span>`;
-}
-
-function createProductPanel(p){
-  // Check if panel already exists
-  if(document.getElementById(`panel-${p.id}`)) return;
-  const panel=document.createElement("div");
-  panel.className="panel";
-  panel.id=`panel-${p.id}`;
-  panel.innerHTML=`<div class="prod-bar">
-    <a href="${p.url}" target="_blank" class="prod-url">🔗 ${p.url}</a>
-    <span class="prod-tag">${p.tagline||""}</span>
-    <button class="prod-del" onclick="removeProduct('${p.id}')">✕ Remove</button>
-  </div>
-  <div class="prompt"><div class="icon">🔍</div><h2>Ready to scan for ${p.name}</h2><p>Click "▶ Scan" to search 5 sources for people with the problems your product solves.</p></div>`;
-  document.getElementById("panels").appendChild(panel);
-}
-
-function renderLoadingPanel(p){
-  let panel=document.getElementById(`panel-${p.id}`);
-  if(!panel){
-    panel=document.createElement("div");
-    panel.className="panel";
-    panel.id=`panel-${p.id}`;
-    document.getElementById("panels").appendChild(panel);
-  }
-  panel.innerHTML=`<div class="prod-bar"><a href="${p.url}" target="_blank" class="prod-url">🔗 ${p.url}</a><span class="prod-tag">${p.tagline||""}</span></div><div class="loading"><div class="spinner"></div><div class="loading-msg">Scanning 5 sources for ${p.name}…</div></div>`;
-}
-
-const PLATFORM_META = {
-  "HackerNews":     {icon:"🟠", cls:"hn"},
-  "Reddit":         {icon:"🔴", cls:"reddit"},
-  "Dev.to":         {icon:"🔵", cls:"devto"},
-  "Stack Overflow": {icon:"🟧", cls:"stackoverflow"},
-  "Lobste.rs":      {icon:"🔻", cls:"lobsters"},
-  "YouTube":        {icon:"▶️", cls:"youtube", needsKey:true},
-  "Google":         {icon:"🔍", cls:"google", needsCX:true}
-};
-
-function renderPanel(p, signals, buckets, responseMap){
-  const panel=document.getElementById(`panel-${p.id}`);
-  if(!panel) return;
-  const hasFb=getFb(p.id).length>0;
-
-  // Build platform pills
-  let pillsHtml = `<div class="platform-row" id="plat-row-${p.id}">
-    <button class="plat-pill active" onclick="filterPlatform('${p.id}','all',this)">
-      All <span class="pcnt">${signals.length}</span>
-    </button>`;
-
-  for(const [name, meta] of Object.entries(PLATFORM_META)){
-    const count = (buckets[name]||[]).length;
-    const noYTKey = meta.needsKey && !googleKey;
-    const noCX = meta.needsCX && (!googleKey || !googleCX);
-    const label = name === "HackerNews" ? "HN" : name === "Stack Overflow" ? "Stack ↗" : name;
-    if(noYTKey){
-      pillsHtml += `<button class="plat-pill locked" onclick="openSettings()" title="Add Google API key to enable YouTube">
-        ${meta.icon} YouTube 🔒
-      </button>`;
-    } else if(noCX){
-      pillsHtml += `<button class="plat-pill locked" onclick="openSettings()" title="Add Google API key + CX to enable Google Search">
-        ${meta.icon} Google 🔒
-      </button>`;
-    } else {
-      const empty = count === 0 ? " empty" : "";
-      pillsHtml += `<button class="plat-pill${empty}" onclick="filterPlatform('${p.id}','${name}',this)">
-        ${meta.icon} ${label}
-        <span class="pcnt">${count}</span>
-      </button>`;
-    }
-  }
-  pillsHtml += `</div>`;
-
-  let html=`<div class="prod-bar">
-    <a href="${p.url}" target="_blank" class="prod-url">🔗 ${p.url}</a>
-    <span class="prod-tag">${p.tagline||""}</span>
-    ${hasFb?`<span class="prod-fb">🧠 ${getFb(p.id).length} learnings</span>`:""}
-    <button class="prod-del" onclick="removeProduct('${p.id}')">✕ Remove</button>
-  </div>${pillsHtml}`;
-
-  if(!signals.length){
-    html+=`<div class="empty">🔇 No signals found — try re-scanning.</div>`;
+// ═══════════════════════════════════════════
+// PAGE SWITCHER
+// ═══════════════════════════════════════════
+function switchPage(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  if(page==='signals'){
+    document.getElementById('pageSignals').classList.add('active');
+    document.getElementById('navSignals').classList.add('active');
+    document.getElementById('hdrTitle').innerHTML='🎯 <em>First</em>Customer <span style="font-size:10px;color:#333;font-weight:400">v4</span>';
+    document.getElementById('hdrSub').textContent='Signal hunter · 6 sources · top 3 per platform · learns from feedback';
+    document.getElementById('hdrRight').innerHTML=`
+      <div class="learn-pill" onclick="openLearn()">📚 Learned: <strong id="learnCount">${totalFb()}</strong></div>
+      <button class="btn btn-ghost" onclick="openSettings()">⚙️ Keys</button>
+      <button class="btn-add" onclick="openAdd()">＋ Add Product</button>
+      <button class="btn btn-primary" id="scanBtn" onclick="runScan()" style="display:${PRODUCTS.length?'inline-flex':'none'}">▶ Scan</button>`;
+  } else if(page==='rank'){
+    document.getElementById('pageRank').classList.add('active');
+    document.getElementById('navRank').classList.add('active');
+    document.getElementById('hdrTitle').innerHTML='📊 Rank <em>Tracker</em>';
+    document.getElementById('hdrSub').textContent='See where your pages rank · powered by Google Search Console';
+    document.getElementById('hdrRight').innerHTML=`<button class="btn btn-primary" onclick="rtOpenGsc()">📡 Import GSC Data</button>`;
   } else {
-    signals.forEach((sig,i)=>{
-      html += buildCard(sig, responseMap[sig.url]||null, p, i);
-    });
+    document.getElementById('pageYT').classList.add('active');
+    document.getElementById('navYT').classList.add('active');
+    document.getElementById('hdrTitle').innerHTML='📺 YouTube <em>Studio</em>';
+    document.getElementById('hdrSub').textContent='Keyword research · competitor analysis · trending videos · AI video optimizer';
+    document.getElementById('hdrRight').innerHTML=`
+      <button class="btn btn-ghost" onclick="openSettings()">⚙️ Keys</button>
+      <button class="btn btn-primary" onclick="ytOptimize()">✨ Optimize Video</button>`;
+    ytUpdateNoKey();
   }
-  panel.innerHTML=html;
 }
+switchPage('signals');
 
-function filterPlatform(pid, platform, btn){
-  // Update active pill
-  document.querySelectorAll(`#plat-row-${pid} .plat-pill`).forEach(b=>b.classList.remove("active"));
-  if(btn) btn.classList.add("active");
-
-  // Show/hide cards
-  const panel = document.getElementById(`panel-${pid}`);
-  if(!panel) return;
-  panel.querySelectorAll(".card").forEach(card=>{
-    if(platform==="all"){
-      card.style.display="";
-    } else {
-      card.style.display = card.dataset.platform === platform ? "" : "none";
-    }
-  });
-}
-
-function updateTabCount(pid, cnt, hv){
-  const tab=document.getElementById(`tab-${pid}`);
-  if(!tab) return;
-  const hasFb=getFb(pid).length>0;
-  const p=PRODUCTS.find(x=>x.id===pid);
-  if(!p) return;
-  tab.innerHTML=`${p.name} <span class="tab-cnt">${cnt}</span>${hv>=2?" 🔥":""}${hasFb?" 🧠":""}<button class="tab-del" onclick="event.stopPropagation();removeProduct('${pid}')" title="Remove">✕</button>`;
-}
-
-function buildCard(sig,resp,p,idx){
-  const subLabel=sig.subreddit?` · r/${sig.subreddit}`:"";
-  const e=getFb(p.id).find(f=>f.url===sig.url);
-
-  let respHtml="";
-  if(resp){
-    const safe=resp.replace(/</g,"&lt;").replace(/>/g,"&gt;");
-    const sigUrl=sig.url||"";
-    respHtml=`<div class="resp">
-      <div class="resp-lbl">✍️ Draft Response <span class="resp-note">— copy &amp; paste your reply</span></div>
-      <div class="resp-text" id="rt-${p.id}-${idx}">${safe}</div>
-      <div class="resp-acts">
-        <button class="copy-btn go-btn" onclick="copyAndOpen('${p.id}','${idx}','${sigUrl.replace(/'/g,"\\'")}',this)">📋 Copy &amp; Open →</button>
-        <button class="post-btn" id="pb-${p.id}-${idx}" onclick="markPosted('${p.id}','${idx}',this)">✓ Posted</button>
-      </div></div>`;
-  } else if(!anthropicKey){
-    respHtml=`<div class="resp no-key-resp">
-      <div class="resp-lbl">✍️ Draft Response</div>
-      <div class="resp-text dim">Add Anthropic key to get AI-drafted responses</div>
-      <div class="resp-acts"><button class="draft-btn" onclick="openSettings()">Add Key →</button></div></div>`;
-  } else {
-    respHtml=`<div class="resp">
-      <div class="resp-lbl">✍️ Draft Response</div>
-      <div class="resp-text dim" id="rt-${p.id}-${idx}">Draft unavailable</div>
-      <div class="resp-acts"><button class="draft-btn" onclick="redraft('${p.id}',${idx},this)">✦ Draft now</button></div></div>`;
-  }
-
-  return `<div class="card${e?.verdict==="good"?" voted-good":e?.verdict==="bad"?" voted-bad":""}" id="card-${p.id}-${idx}" data-platform="${sig.platform}">
-    <div class="card-top">
-      <span class="badge ${(sig.color||sig.platform||"hn").toLowerCase().replace(/[\s.]/g,'')}">
-        ${sig.platform==="HackerNews"?"🟠":sig.platform==="Reddit"?"🔴":sig.platform==="Dev.to"?"🔵":sig.platform==="Lobste.rs"?"🔻":sig.platform==="Stack Overflow"?"🟧":"▶️"}
-        ${sig.platform}${subLabel}
-      </span>
-      <span class="rel">${sig.relevance}/10 ${relBar(sig.relevance)}</span>
-    </div>
-    <a href="${sig.url}" target="_blank" class="card-title">${sig.title.replace(/</g,"&lt;").replace(/>/g,"&gt;")}</a>
-    <div class="card-snippet">${(sig.snippet||"No preview").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</div>
-    <div class="card-meta">👤 ${sig.author} &nbsp;·&nbsp; 💬 ${sig.comments} &nbsp;·&nbsp; ${sig.platform==="YouTube"?`👁 ${(sig.viewCount||sig.score||0).toLocaleString()} views`:`⬆ ${sig.score}`}</div>
-    <div class="fb-row">
-      <span class="fb-lbl">Relevant?</span>
-      <button class="fb-btn${e?.verdict==="good"?" good":""}" id="fbg-${p.id}-${idx}" onclick="vote('${p.id}',${idx},'good',this)">👍 Yes</button>
-      <button class="fb-btn${e?.verdict==="bad"?" bad":""}" id="fbb-${p.id}-${idx}" onclick="vote('${p.id}',${idx},'bad',this)">👎 No</button>
-      <span class="fb-saved${e?" show":""}" id="fbn-${p.id}-${idx}">
-        ${e?.verdict==="good"?"✓ Good — agent learned":"✓ Skipped — agent learned"}
-      </span>
-    </div>
-    ${respHtml}
-  </div>`;
-}
-
-// ─────────────────────────────────────────────
-// INTERACTIONS
-// ─────────────────────────────────────────────
-function showTab(pid){
-  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-  document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
-  const tab=document.getElementById(`tab-${pid}`);
-  const panel=document.getElementById(`panel-${pid}`);
-  if(tab) tab.classList.add("active");
-  if(panel) panel.classList.add("active");
-}
-
-function vote(pid,idx,verdict,btn){
-  const r=scanResults[pid]; if(!r) return;
-  saveFb(pid,r.signals[idx],verdict);
-  document.getElementById(`fbg-${pid}-${idx}`)?.classList.toggle("good",verdict==="good");
-  document.getElementById(`fbg-${pid}-${idx}`)?.classList.remove("bad");
-  document.getElementById(`fbb-${pid}-${idx}`)?.classList.toggle("bad",verdict==="bad");
-  document.getElementById(`fbb-${pid}-${idx}`)?.classList.remove("good");
-  const note=document.getElementById(`fbn-${pid}-${idx}`);
-  if(note){ note.textContent=verdict==="good"?"✓ Good — agent learned":"✓ Skipped — agent learned"; note.classList.add("show"); }
-  const card=document.getElementById(`card-${pid}-${idx}`);
-  if(card){ card.classList.remove("voted-good","voted-bad"); card.classList.add(verdict==="good"?"voted-good":"voted-bad"); }
-}
-
-function copyR(pid,idx,btn){
-  const el=document.getElementById(`rt-${pid}-${idx}`); if(!el) return;
-  navigator.clipboard.writeText(el.innerText).then(()=>{
-    btn.textContent="✓ Copied!"; btn.classList.add("ok");
-    setTimeout(()=>{btn.textContent="📋 Copy";btn.classList.remove("ok");},2200);
-  });
-}
-
-function copyAndOpen(pid,idx,url,btn){
-  const el=document.getElementById(`rt-${pid}-${idx}`); if(!el) return;
-  navigator.clipboard.writeText(el.innerText).then(()=>{
-    btn.textContent="✓ Copied! Opening…"; btn.classList.add("ok");
-    setTimeout(()=>{ btn.textContent="📋 Copy & Open →"; btn.classList.remove("ok"); },3000);
-  });
-  if(url) window.open(url,"_blank");
-}
-
-function markPosted(pid,idx,btn){
-  btn.textContent="✓ Posted!"; btn.classList.add("done"); btn.disabled=true;
-  postedCount++; localStorage.setItem("fc_posts",postedCount);
-  document.getElementById("stPosted").textContent=postedCount;
-}
-
-async function redraft(pid,idx,btn){
-  if(!anthropicKey){openSettings();return;}
-  const p=PRODUCTS.find(x=>x.id===pid), r=scanResults[pid]; if(!p||!r) return;
-  btn.textContent="Drafting…"; btn.disabled=true;
-  const resp=await draftResp(r.signals[idx],p);
-  const rtEl=document.getElementById(`rt-${pid}-${idx}`);
-  if(resp&&rtEl){
-    rtEl.className="resp-text"; rtEl.textContent=resp;
-    const acts=btn.closest(".resp-acts"); if(!acts) return;
-    acts.innerHTML=`
-      <button class="copy-btn go-btn" onclick="copyAndOpen('${pid}','${idx}','',this)">📋 Copy &amp; Open →</button>
-      <button class="post-btn" id="pb-${pid}-${idx}" onclick="markPosted('${pid}','${idx}',this)">✓ Posted</button>
-      <button class="draft-btn" onclick="redraft('${pid}',${idx},this)">↺ Re-draft</button>`;
-  } else { btn.textContent="↺ Retry"; btn.disabled=false; }
-}
-
+// ═══════════════════════════════════════════
+// SIGNALS — ALL ORIGINAL CODE
+// ═══════════════════════════════════════════
+let anthropicKey=localStorage.getItem("fc_ant")||"";
+let googleKey=localStorage.getItem("fc_goog")||"";
+let googleCX=localStorage.getItem("fc_gcx")||"";
+let feedback=JSON.parse(localStorage.getItem("fc_fb2")||"{}");
+let postedCount=parseInt(localStorage.getItem("fc_posts")||"0");
+let scanResults={};
+let scanning=false;
+let sourceCounts={};
+let pendingProduct=null;
+let PRODUCTS=JSON.parse(localStorage.getItem("fc_products")||"[]");
+function saveProducts(){localStorage.setItem("fc_products",JSON.stringify(PRODUCTS));}
+function makeProductId(url){return(url||"").replace(/https?:\/\/(www\.)?/,"").replace(/[^a-z0-9]/gi,"_").toLowerCase().slice(0,30)+"_"+Date.now().toString(36).slice(-4);}
+function addProductToList(product){PRODUCTS=PRODUCTS.filter(p=>p.url!==product.url);if(!product.id)product.id=makeProductId(product.url);PRODUCTS.push(product);saveProducts();updateUI();}
+function removeProduct(pid){if(!confirm("Remove this product?"))return;PRODUCTS=PRODUCTS.filter(p=>p.id!==pid);saveProducts();delete scanResults[pid];updateUI();}
+function updateUI(){const hasProd=PRODUCTS.length>0;document.getElementById("welcomeScreen").style.display=hasProd?"none":"block";document.getElementById("tabsRow").style.display=hasProd?"flex":"none";const sb=document.getElementById("scanBtn");if(sb)sb.style.display=hasProd?"inline-flex":"none";rebuildTabs();}
+function rebuildTabs(){const tabsEl=document.getElementById("tabs");tabsEl.innerHTML="";PRODUCTS.forEach(p=>{const r=scanResults[p.id];const cnt=r?r.signals.length:"–";const hv=r?r.signals.filter(s=>s.relevance>=5).length:0;const hasFb=getFb(p.id).length>0;const tab=document.createElement("button");tab.className="tab";tab.id=`tab-${p.id}`;tab.onclick=()=>showTab(p.id);tab.innerHTML=`${p.name} <span class="tab-cnt">${cnt}</span>${hv>=2?" 🔥":""}${hasFb?" 🧠":""}<button class="tab-del" onclick="event.stopPropagation();removeProduct('${p.id}')" title="Remove">✕</button>`;tabsEl.appendChild(tab);});if(PRODUCTS.length>0){const firstId=PRODUCTS[0].id;const panel=document.getElementById(`panel-${firstId}`);if(panel)showTab(firstId);}}
+async function fetchPageContent(url){try{const proxy=`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;const r=await fetch(proxy,{signal:AbortSignal.timeout(12000)});const html=await r.text();return html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi," ").replace(/<style[^>]*>[\s\S]*?<\/style>/gi," ").replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim().slice(0,4500);}catch(e){return "";}}
+async function analyzeWithAI(url,pageContent){const prompt=`Analyze this product website and configure a signal hunter.\nURL: ${url}\nPage: ${pageContent||"(unavailable)"}\nReturn ONLY valid JSON:\n{"name":"","tagline":"","icp":"","hnQ":[],"redditQ":[],"subreddits":[],"devtoTags":[],"devtoQ":[],"soQ":[],"ytQ":[],"lobstersQ":[],"googleQ":[],"painPhrases":[],"keywords":[]}`;try{const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"x-api-key":anthropicKey,"anthropic-version":"2023-06-01","content-type":"application/json","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:1500,messages:[{role:"user",content:prompt}]})});if(!r.ok)return null;const data=await r.json();const text=data.content[0].text.trim();const m=text.match(/\{[\s\S]*\}/);if(!m)return null;const parsed=JSON.parse(m[0]);parsed.url=url;parsed.id=makeProductId(url);return parsed;}catch{return null;}}
+function openAdd(){showStep1();document.getElementById("addUrl").value="";document.getElementById("addError").style.display="none";document.getElementById("addOverlay").classList.add("open");}
+function closeAdd(){document.getElementById("addOverlay").classList.remove("open");pendingProduct=null;}
+function showStep1(){["addStep1","addLoading","addManual","addReview"].forEach((id,i)=>document.getElementById(id).style.display=i===0?"block":"none");document.getElementById("addError").style.display="none";}
+function showManualForm(){const url=document.getElementById("addUrl").value.trim();["addStep1","addLoading","addManual","addReview"].forEach((id,i)=>document.getElementById(id).style.display=i===2?"block":"none");if(url)document.getElementById("manualUrl").value=url;document.getElementById("manualError").style.display="none";}
+function showReview(product){pendingProduct=product;document.getElementById("reviewName").value=product.name||"";document.getElementById("reviewTagline").value=product.tagline||"";document.getElementById("reviewIcp").value=product.icp||"";document.getElementById("reviewPain").value=(product.painPhrases||[]).join(", ");document.getElementById("reviewKeywords").value=(product.keywords||[]).join(", ");["addStep1","addLoading","addManual","addReview"].forEach((id,i)=>document.getElementById(id).style.display=i===3?"block":"none");}
+async function analyzeUrl(){const url=document.getElementById("addUrl").value.trim();if(!url){showError("addError","Please enter a URL.");return;}if(!url.startsWith("http")){showError("addError","Please start with https://");return;}if(!anthropicKey){showManualForm();return;}document.getElementById("addStep1").style.display="none";document.getElementById("addLoading").style.display="block";document.getElementById("addLoadingMsg").textContent="Fetching page…";const pageContent=await fetchPageContent(url);document.getElementById("addLoadingMsg").textContent="Analyzing with AI…";const product=await analyzeWithAI(url,pageContent);document.getElementById("addLoading").style.display="none";if(!product){showStep1();showError("addError","Couldn't analyze. Try again or enter manually.");return;}showReview(product);}
+function confirmAddProduct(){if(!pendingProduct)return;pendingProduct.name=document.getElementById("reviewName").value.trim()||pendingProduct.name;pendingProduct.tagline=document.getElementById("reviewTagline").value.trim()||pendingProduct.tagline;pendingProduct.icp=document.getElementById("reviewIcp").value.trim()||pendingProduct.icp;pendingProduct.painPhrases=document.getElementById("reviewPain").value.split(",").map(s=>s.trim()).filter(s=>s);pendingProduct.keywords=document.getElementById("reviewKeywords").value.split(",").map(s=>s.trim()).filter(s=>s);addProductAndClose(pendingProduct);}
+function submitManual(){const url=document.getElementById("manualUrl").value.trim();const name=document.getElementById("manualName").value.trim();if(!url||!name){showError("manualError","URL and name required.");return;}const kws=document.getElementById("manualKeywords").value.trim();const keywords=kws?kws.split(",").map(k=>k.trim()).filter(k=>k):[name.toLowerCase()];const mainKw=keywords.slice(0,3);const product={id:makeProductId(url),name,url,tagline:document.getElementById("manualTagline").value.trim()||name,icp:document.getElementById("manualIcp").value.trim()||"Anyone with this problem",hnQ:mainKw.map(k=>`${k} problem`),redditQ:mainKw.map(k=>`${k} help`),subreddits:["startups","entrepreneur","SideProject"],devtoTags:keywords.slice(0,3),devtoQ:mainKw,ytQ:mainKw.slice(0,2).map(k=>`how to ${k}`),lobstersQ:[mainKw[0]||name],painPhrases:keywords.slice(0,6).map(k=>`${k} issue`),keywords};addProductAndClose(product);}
+function addProductAndClose(product){addProductToList(product);closeAdd();createProductPanel(product);showTab(product.id);const sb=document.getElementById("scanBtn");if(sb)sb.style.display="inline-flex";}
+function showError(id,msg){const el=document.getElementById(id);el.textContent=msg;el.style.display="block";}
+function getFb(pid){return feedback[pid]||[];}
+function saveFb(pid,sig,verdict){if(!feedback[pid])feedback[pid]=[];feedback[pid]=feedback[pid].filter(f=>f.url!==sig.url);feedback[pid].push({url:sig.url,title:sig.title.slice(0,120),platform:sig.platform,verdict});if(feedback[pid].length>40)feedback[pid]=feedback[pid].slice(-40);localStorage.setItem("fc_fb2",JSON.stringify(feedback));updateLearnPill();}
+function fbContext(pid){const all=getFb(pid),good=all.filter(f=>f.verdict==="good"),bad=all.filter(f=>f.verdict==="bad");if(!good.length&&!bad.length)return"";let c="\n\nAGENT MEMORY:\n";if(good.length)c+="\n RELEVANT:\n"+good.slice(-8).map(e=>`- "${e.title}" (${e.platform})`).join("\n");if(bad.length)c+="\n\n NOT RELEVANT:\n"+bad.slice(-8).map(e=>`- "${e.title}" (${e.platform})`).join("\n");return c;}
+function totalFb(){return Object.values(feedback).reduce((s,a)=>s+a.length,0);}
+function updateLearnPill(){const lc=document.getElementById("learnCount");if(lc)lc.textContent=totalFb();const sf=document.getElementById("stFb");if(sf)sf.textContent=totalFb();}
+function clearFeedback(){if(!confirm("Clear all feedback?"))return;feedback={};localStorage.setItem("fc_fb2","{}");updateLearnPill();closeLearn();}
+function openSettings(){document.getElementById("anthropicKey").value=anthropicKey;document.getElementById("googleKey").value=googleKey;document.getElementById("googleCX").value=googleCX;refreshStatuses();document.getElementById("settingsOverlay").classList.add("open");}
+function closeSettings(){document.getElementById("settingsOverlay").classList.remove("open");}
+function saveSettings(){anthropicKey=document.getElementById("anthropicKey").value.trim();googleKey=document.getElementById("googleKey").value.trim();googleCX=document.getElementById("googleCX").value.trim();localStorage.setItem("fc_ant",anthropicKey);localStorage.setItem("fc_goog",googleKey);localStorage.setItem("fc_gcx",googleCX);closeSettings();updateNotice();}
+function refreshStatuses(){const as=document.getElementById("anthropicStatus");as.className=anthropicKey?"key-ok":"key-no";as.textContent=anthropicKey?"✓ Key saved":"Not set";const gs=document.getElementById("googleStatus");gs.className=googleKey?"key-ok":"key-no";gs.textContent=googleKey?"✓ Key saved":"Not set";const cx=document.getElementById("googleCXStatus");if(cx){cx.className=googleCX?"key-ok":"key-no";cx.textContent=googleCX?"✓ CX saved":"Not set";}}
+function updateNotice(){document.getElementById("noKeyNotice").style.display=anthropicKey?"none":"block";}
+function openLearn(){const total=totalFb();const good=Object.values(feedback).flatMap(a=>a.filter(f=>f.verdict==="good")).length;document.getElementById("lStats").innerHTML=`<div class="l-stat"><div class="l-stat-n">${total}</div><div class="l-stat-l">Ratings</div></div><div class="l-stat"><div class="l-stat-n" style="color:var(--green)">${good}</div><div class="l-stat-l">Good</div></div><div class="l-stat"><div class="l-stat-n" style="color:var(--red)">${total-good}</div><div class="l-stat-l">Not Relevant</div></div>`;const withData=PRODUCTS.filter(p=>getFb(p.id).length>0);document.getElementById("lGrid").innerHTML=withData.length?withData.map(p=>{const items=getFb(p.id).slice(-5).reverse().map(e=>`<div class="l-item"><span class="${e.verdict==="good"?"vg":"vb"}">${e.verdict==="good"?"👍":"👎"}</span>${e.title.slice(0,55)}${e.title.length>55?"…":""}</div>`).join("");return`<div class="l-card"><h4>${p.name}</h4>${items}</div>`;}).join(""):`<div class="l-empty">No feedback yet.</div>`;document.getElementById("learnOverlay").classList.add("open");}
+function closeLearn(){document.getElementById("learnOverlay").classList.remove("open");}
+async function searchHN(query){const cutoff=Math.floor((Date.now()-90*864e5)/1000);try{const r=await fetch(`https://hn.algolia.com/api/v1/search?query=${enc(query)}&tags=(ask_hn,show_hn,story)&hitsPerPage=20&numericFilters=created_at_i>${cutoff}`);return(await r.json()).hits?.filter(h=>h.title).map(h=>({platform:"HackerNews",color:"hn",title:h.title,snippet:(h.story_text||"").slice(0,400),url:`https://news.ycombinator.com/item?id=${h.objectID}`,author:h.author||"",subreddit:null,score:h.points||0,comments:h.num_comments||0,created_at:h.created_at||""}))||[];}catch{return[];}}
+async function searchRedditPushshift(query){try{const r=await fetch(`https://api.pullpush.io/reddit/search/submission/?title=${enc(query)}&size=20&sort=desc`,{signal:AbortSignal.timeout(10000)});const data=await r.json();return(data?.data||[]).map(p=>({platform:"Reddit",color:"reddit",title:p.title||"",snippet:(p.selftext||"").slice(0,400),url:p.url?.startsWith("http")?p.url:`https://reddit.com${p.permalink||""}`,author:p.author||"",subreddit:p.subreddit||"",score:p.score||0,comments:p.num_comments||0,created_at:new Date((p.created_utc||0)*1000).toISOString()})).filter(p=>p.title);}catch{return[];}}
+async function browseSubreddit(sub){try{const r=await fetch(`https://api.pullpush.io/reddit/search/submission/?subreddit=${sub}&size=25&sort=desc`,{signal:AbortSignal.timeout(10000)});const data=await r.json();return(data?.data||[]).map(p=>({platform:"Reddit",color:"reddit",title:p.title||"",snippet:(p.selftext||"").slice(0,400),url:p.url?.startsWith("http")?p.url:`https://reddit.com${p.permalink||""}`,author:p.author||"",subreddit:p.subreddit||"",score:p.score||0,comments:p.num_comments||0,created_at:new Date((p.created_utc||0)*1000).toISOString()})).filter(p=>p.title);}catch{return[];}}
+async function searchDevTo(tag){try{const r=await fetch(`https://dev.to/api/articles?tag=${enc(tag)}&per_page=15&state=fresh`);return(await r.json()).filter(a=>a.title||a.description).map(a=>({platform:"Dev.to",color:"devto",title:a.title||"",snippet:(a.description||"").slice(0,400),url:a.url||`https://dev.to${a.path}`,author:a.user?.username||"",subreddit:null,score:a.positive_reactions_count||0,comments:a.comments_count||0,created_at:a.published_at||""}));}catch{return[];}}
+async function searchLobsters(query){const base=`https://lobste.rs/search.json?q=${enc(query)}&what=stories&order=newest`;const proxies=[`https://api.allorigins.win/raw?url=${enc(base)}`,`https://corsproxy.io/?${enc(base)}`];for(const proxy of proxies){try{const r=await fetch(proxy,{signal:AbortSignal.timeout(8000)});const data=await r.json();const results=(data.results||[]).map(s=>({platform:"Lobste.rs",color:"lobsters",title:s.title||"",snippet:(s.description||"").slice(0,400),url:s.url||s.short_id_url||"",author:s.submitter_user?.username||"",subreddit:null,score:s.score||0,comments:s.comment_count||0,created_at:s.created_at||""})).filter(s=>s.title&&s.url);if(results.length>0)return results;}catch{}}return[];}
+async function searchYouTube(query){if(!googleKey)return[];try{const sixMonthsAgo=new Date(Date.now()-180*864e5).toISOString();const r=await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${enc(query)}&type=video&order=relevance&maxResults=15&key=${googleKey}&relevanceLanguage=en&publishedAfter=${sixMonthsAgo}`,{signal:AbortSignal.timeout(8000)});const data=await r.json();if(data.error)return[];const items=(data.items||[]).filter(v=>v.snippet?.title);if(!items.length)return[];const ids=items.map(v=>v.id.videoId).filter(Boolean).join(",");let viewMap={};try{const sr=await fetch(`https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${ids}&key=${googleKey}`,{signal:AbortSignal.timeout(6000)});const sd=await sr.json();(sd.items||[]).forEach(v=>{viewMap[v.id]=parseInt(v.statistics?.viewCount||0);});}catch{}return items.map(v=>({platform:"YouTube",color:"youtube",title:v.snippet.title||"",snippet:(v.snippet.description||"").slice(0,400),url:`https://youtube.com/watch?v=${v.id.videoId}`,author:v.snippet.channelTitle||"",subreddit:null,score:viewMap[v.id.videoId]||0,comments:0,viewCount:viewMap[v.id.videoId]||0,created_at:v.snippet.publishedAt||""})).filter(v=>v.title&&v.viewCount>=500);}catch{return[];}}
+async function searchGoogle(query){if(!googleKey||!googleCX)return[];try{const r=await fetch(`https://www.googleapis.com/customsearch/v1?key=${googleKey}&cx=${googleCX}&q=${enc(query)}&num=10`,{signal:AbortSignal.timeout(8000)});const data=await r.json();if(data.error)return[];return(data.items||[]).map(item=>{const u=item.link||"";const isReddit=u.includes("reddit.com");const isQuora=u.includes("quora.com");const isMedium=u.includes("medium.com");return{platform:"Google",color:"google",title:item.title||"",snippet:(item.snippet||"").slice(0,400),url:u,author:item.displayLink||"",subreddit:isReddit?(u.match(/\/r\/([^/]+)/)||[])[1]||null:null,score:0,comments:0,sourceLabel:isReddit?"Reddit":isQuora?"Quora":isMedium?"Medium":item.displayLink,created_at:""};}).filter(r=>r.title&&r.url);}catch{return[];}}
+async function searchStackOverflow(query){try{const r=await fetch(`https://api.stackexchange.com/2.3/search?order=desc&sort=votes&intitle=${enc(query)}&site=stackoverflow&pagesize=8&filter=withbody`,{signal:AbortSignal.timeout(8000)});const data=await r.json();if(data.error_id)return[];return(data.items||[]).map(q=>({platform:"Stack Overflow",color:"stackoverflow",title:q.title||"",snippet:(q.body||"").replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim().slice(0,400),url:q.link||"",author:q.owner?.display_name||"",subreddit:null,score:q.score||0,comments:q.answer_count||0,created_at:new Date((q.creation_date||0)*1000).toISOString()})).filter(q=>q.title&&q.url);}catch{return[];}}
+function score(sig,product){const text=(sig.title+" "+sig.snippet).toLowerCase();let s=0;for(const ph of(product.painPhrases||[])){if(text.includes(ph.toLowerCase())){s+=3;break;}}for(const kw of(product.keywords||[])){if(text.includes(kw.toLowerCase()))s+=0.4;}if(sig.snippet.trim().length>80)s+=1;if((sig.comments||0)>=3)s+=1;try{const age=(Date.now()-new Date(sig.created_at).getTime())/864e5;if(age<=3)s+=1;}catch{}const fb=getFb(product.id);for(const g of fb.filter(f=>f.verdict==="good")){const overlap=(product.keywords||[]).filter(kw=>text.includes(kw.toLowerCase())&&g.title.toLowerCase().includes(kw.toLowerCase())).length;if(overlap>=2)s+=1.5;}for(const b of fb.filter(f=>f.verdict==="bad")){const overlap=(product.keywords||[]).filter(kw=>text.includes(kw.toLowerCase())&&b.title.toLowerCase().includes(kw.toLowerCase())).length;if(overlap>=3)s-=1;}return Math.min(Math.max(Math.round(s),0),10);}
+async function huntProduct(product){const seen=new Set();const buckets={"HackerNews":[],"Reddit":[],"Dev.to":[],"Stack Overflow":[],"Lobste.rs":[],"YouTube":[]};function add(results){for(const r of results){if(!seen.has(r.url)&&r.title){seen.add(r.url);r.relevance=score(r,product);if(buckets[r.platform])buckets[r.platform].push(r);}}}for(const q of(product.hnQ||[]))add(await searchHN(q));if(!buckets["HackerNews"].length)for(const kw of(product.keywords||[]).slice(0,3))add(await searchHN(kw));const GENERIC=new Set(["startups","entrepreneur","sideproject","sidehustle"]);let subs=[...(product.subreddits||[])];if(subs.every(s=>GENERIC.has(s.toLowerCase()))){const kws=(product.keywords||[]).concat(product.name||"").map(k=>k.toLowerCase().replace(/\s+/g,""));subs=[...subs,...kws.slice(0,3),"learnprogramming","programming"];}for(const sub of subs){add(await browseSubreddit(sub));await sleep(400);}if(buckets["Reddit"].length<5)for(const q of(product.redditQ||[]).slice(0,2)){add(await searchRedditPushshift(q));await sleep(400);}for(const tag of(product.devtoTags||[])){add(await searchDevTo(tag));await sleep(200);}if((product.soQ||[]).length)for(const q of product.soQ){add(await searchStackOverflow(q));await sleep(300);}for(const q of(product.lobstersQ||[]))add(await searchLobsters(q));if(googleKey)for(const q of(product.ytQ||[])){add(await searchYouTube(q));await sleep(400);}if(googleKey&&googleCX)for(const q of(product.googleQ||product.redditQ||[]).slice(0,3)){add(await searchGoogle(q));await sleep(400);}for(const[platform,results]of Object.entries(buckets)){let sorted=results.sort((a,b)=>b.relevance-a.relevance||b.comments-a.comments);if(platform==="Dev.to")sorted=sorted.slice(0,15);buckets[platform]=sorted;sorted.forEach(r=>{sourceCounts[r.platform]=(sourceCounts[r.platform]||0)+1;});}return{buckets,allSorted:Object.values(buckets).flat().sort((a,b)=>b.relevance-a.relevance||b.comments-a.comments)};}
+async function draftResp(sig,product){if(!anthropicKey)return null;const prompt=`Help ${product.name} (${product.url}) get customers.\nProduct: ${product.name} — ${product.tagline}\nFor: ${product.icp}${fbContext(product.id)}\n\nSignal:\nPlatform: ${sig.platform}${sig.subreddit?" r/"+sig.subreddit:""}\nTitle: ${sig.title}\nContent: ${sig.snippet||(sig.platform==="YouTube"?"(YouTube video)":"(no body)")}\n\nRules: Help first. Mention product only if natural. 3-5 sentences. Sound human. URL if mentioned: ${product.url}\nWrite only the response.`;try{const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"x-api-key":anthropicKey,"anthropic-version":"2023-06-01","content-type":"application/json","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:350,messages:[{role:"user",content:prompt}]})});if(!r.ok)throw new Error();return(await r.json()).content[0].text.trim();}catch{return null;}}
+async function runScan(){if(scanning||!PRODUCTS.length)return;scanning=true;sourceCounts={};const btn=document.getElementById("scanBtn");btn.disabled=true;btn.textContent="Scanning…";document.getElementById("sbar").style.display="none";document.getElementById("welcomeScreen").style.display="none";document.getElementById("panels").querySelectorAll(".panel").forEach(p=>p.remove());scanResults={};const t0=Date.now();for(const p of PRODUCTS){renderLoadingPanel(p);const{buckets,allSorted}=await huntProduct(p);const toDraft=allSorted.slice(0,10);const responseMap={};if(anthropicKey&&toDraft.length)for(const s of toDraft){responseMap[s.url]=await draftResp(s,p);await sleep(300);}scanResults[p.id]={signals:allSorted,buckets,responseMap};renderPanel(p,allSorted,buckets,responseMap);updateTabCount(p.id,allSorted.length,allSorted.filter(s=>s.relevance>=5).length);}const total=Object.values(scanResults).reduce((s,r)=>s+r.signals.length,0);const hv=Object.values(scanResults).reduce((s,r)=>s+r.signals.filter(x=>x.relevance>=5).length,0);document.getElementById("stTotal").textContent=total;document.getElementById("stHV").textContent=hv;document.getElementById("stPosted").textContent=postedCount;document.getElementById("stTime").innerHTML=`<span class="sbar-n">${((Date.now()-t0)/1000).toFixed(0)}s</span>`;document.getElementById("srcPills").innerHTML=Object.entries(sourceCounts).map(([src,n])=>`<span class="src-pill ${src.toLowerCase().replace(/[\s.]/g,'')}">${src} ${n}</span>`).join("");document.getElementById("sbar").style.display="flex";updateLearnPill();btn.disabled=false;btn.textContent="Re-scan";scanning=false;if(PRODUCTS[0])showTab(PRODUCTS[0].id);}
+function relBar(s){const c=["#1e1e1e","#553","#663","#883","#9a4","#ab5","#5a5","#4a7","#4ab","#49c","#6c63ff"][Math.min(s,10)];return`<span style="color:${c};font-family:monospace">${"█".repeat(s)}${"░".repeat(10-s)}</span>`;}
+function createProductPanel(p){if(document.getElementById(`panel-${p.id}`))return;const panel=document.createElement("div");panel.className="panel";panel.id=`panel-${p.id}`;panel.innerHTML=`<div class="prod-bar"><a href="${p.url}" target="_blank" class="prod-url">${p.url}</a><span class="prod-tag">${p.tagline||""}</span><button class="prod-del" onclick="removeProduct('${p.id}')">Remove</button></div><div class="prompt"><div class="icon">🔍</div><h2>Ready to scan for ${p.name}</h2><p>Click Scan to find people with the pain your product solves.</p></div>`;document.getElementById("panels").appendChild(panel);}
+function renderLoadingPanel(p){let panel=document.getElementById(`panel-${p.id}`);if(!panel){panel=document.createElement("div");panel.className="panel";panel.id=`panel-${p.id}`;document.getElementById("panels").appendChild(panel);}panel.innerHTML=`<div class="prod-bar"><a href="${p.url}" target="_blank" class="prod-url">${p.url}</a><span class="prod-tag">${p.tagline||""}</span></div><div class="loading"><div class="spinner"></div><div class="loading-msg">Scanning for ${p.name}…</div></div>`;}
+const PLATFORM_META={"HackerNews":{icon:"🟠",cls:"hn"},"Reddit":{icon:"🔴",cls:"reddit"},"Dev.to":{icon:"🔵",cls:"devto"},"Stack Overflow":{icon:"🟧",cls:"stackoverflow"},"Lobste.rs":{icon:"🔻",cls:"lobsters"},"YouTube":{icon:"▶️",cls:"youtube",needsKey:true},"Google":{icon:"🔍",cls:"google",needsCX:true}};
+function renderPanel(p,signals,buckets,responseMap){const panel=document.getElementById(`panel-${p.id}`);if(!panel)return;const hasFb=getFb(p.id).length>0;let pillsHtml=`<div class="platform-row" id="plat-row-${p.id}"><button class="plat-pill active" onclick="filterPlatform('${p.id}','all',this)">All <span class="pcnt">${signals.length}</span></button>`;for(const[name,meta]of Object.entries(PLATFORM_META)){const count=(buckets[name]||[]).length;const noYTKey=meta.needsKey&&!googleKey;const noCX=meta.needsCX&&(!googleKey||!googleCX);const label=name==="HackerNews"?"HN":name==="Stack Overflow"?"Stack":name;if(noYTKey)pillsHtml+=`<button class="plat-pill locked" onclick="openSettings()">▶️ YouTube 🔒</button>`;else if(noCX)pillsHtml+=`<button class="plat-pill locked" onclick="openSettings()">🔍 Google 🔒</button>`;else{const empty=count===0?" empty":"";pillsHtml+=`<button class="plat-pill${empty}" onclick="filterPlatform('${p.id}','${name}',this)">${meta.icon} ${label} <span class="pcnt">${count}</span></button>`;}}pillsHtml+=`</div>`;let html=`<div class="prod-bar"><a href="${p.url}" target="_blank" class="prod-url">${p.url}</a><span class="prod-tag">${p.tagline||""}</span>${hasFb?`<span class="prod-fb">🧠 ${getFb(p.id).length} learnings</span>`:""}<button class="prod-del" onclick="removeProduct('${p.id}')">Remove</button></div>${pillsHtml}`;if(!signals.length)html+=`<div class="empty">No signals found — try re-scanning.</div>`;else signals.forEach((sig,i)=>{html+=buildCard(sig,responseMap[sig.url]||null,p,i);});panel.innerHTML=html;}
+function filterPlatform(pid,platform,btn){document.querySelectorAll(`#plat-row-${pid} .plat-pill`).forEach(b=>b.classList.remove("active"));if(btn)btn.classList.add("active");const panel=document.getElementById(`panel-${pid}`);if(!panel)return;panel.querySelectorAll(".card").forEach(card=>{card.style.display=platform==="all"||card.dataset.platform===platform?"":"none";});}
+function updateTabCount(pid,cnt,hv){const tab=document.getElementById(`tab-${pid}`);if(!tab)return;const hasFb=getFb(pid).length>0;const p=PRODUCTS.find(x=>x.id===pid);if(!p)return;tab.innerHTML=`${p.name} <span class="tab-cnt">${cnt}</span>${hv>=2?" 🔥":""}${hasFb?" 🧠":""}<button class="tab-del" onclick="event.stopPropagation();removeProduct('${pid}')">✕</button>`;}
+function buildCard(sig,resp,p,idx){const subLabel=sig.subreddit?` r/${sig.subreddit}`:"";const e=getFb(p.id).find(f=>f.url===sig.url);let respHtml="";if(resp){const safe=resp.replace(/</g,"&lt;").replace(/>/g,"&gt;");const sigUrl=sig.url||"";respHtml=`<div class="resp"><div class="resp-lbl">Draft Response <span class="resp-note">— copy &amp; paste</span></div><div class="resp-text" id="rt-${p.id}-${idx}">${safe}</div><div class="resp-acts"><button class="copy-btn go-btn" onclick="copyAndOpen('${p.id}','${idx}','${sigUrl.replace(/'/g,"\\'")}',this)">Copy &amp; Open</button><button class="post-btn" id="pb-${p.id}-${idx}" onclick="markPosted('${p.id}','${idx}',this)">Posted</button></div></div>`;}else if(!anthropicKey){respHtml=`<div class="resp no-key-resp"><div class="resp-lbl">Draft Response</div><div class="resp-text dim">Add Anthropic key to draft</div><div class="resp-acts"><button class="draft-btn" onclick="openSettings()">Add Key</button></div></div>`;}else{respHtml=`<div class="resp"><div class="resp-lbl">Draft Response</div><div class="resp-text dim" id="rt-${p.id}-${idx}">Draft unavailable</div><div class="resp-acts"><button class="draft-btn" onclick="redraft('${p.id}',${idx},this)">Draft now</button></div></div>`;}return`<div class="card${e?.verdict==="good"?" voted-good":e?.verdict==="bad"?" voted-bad":""}" id="card-${p.id}-${idx}" data-platform="${sig.platform}"><div class="card-top"><span class="badge ${(sig.color||"hn").toLowerCase().replace(/[\s.]/g,'')}">${sig.platform==="HackerNews"?"🟠":sig.platform==="Reddit"?"🔴":sig.platform==="Dev.to"?"🔵":sig.platform==="Lobste.rs"?"🔻":sig.platform==="Stack Overflow"?"🟧":"▶️"} ${sig.platform}${subLabel}</span><span class="rel">${sig.relevance}/10 ${relBar(sig.relevance)}</span></div><a href="${sig.url}" target="_blank" class="card-title">${sig.title.replace(/</g,"&lt;").replace(/>/g,"&gt;")}</a><div class="card-snippet">${(sig.snippet||"No preview").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</div><div class="card-meta">👤 ${sig.author} · 💬 ${sig.comments} · ${sig.platform==="YouTube"?`👁 ${(sig.viewCount||sig.score||0).toLocaleString()} views`:`⬆ ${sig.score}`}</div><div class="fb-row"><span class="fb-lbl">Relevant?</span><button class="fb-btn${e?.verdict==="good"?" good":""}" id="fbg-${p.id}-${idx}" onclick="vote('${p.id}',${idx},'good',this)">👍 Yes</button><button class="fb-btn${e?.verdict==="bad"?" bad":""}" id="fbb-${p.id}-${idx}" onclick="vote('${p.id}',${idx},'bad',this)">👎 No</button><span class="fb-saved${e?" show":""}" id="fbn-${p.id}-${idx}">${e?.verdict==="good"?"✓ Learned":"✓ Skipped"}</span></div>${respHtml}</div>`;}
+function showTab(pid){document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));const tab=document.getElementById(`tab-${pid}`);const panel=document.getElementById(`panel-${pid}`);if(tab)tab.classList.add("active");if(panel)panel.classList.add("active");}
+function vote(pid,idx,verdict,btn){const r=scanResults[pid];if(!r)return;saveFb(pid,r.signals[idx],verdict);document.getElementById(`fbg-${pid}-${idx}`)?.classList.toggle("good",verdict==="good");document.getElementById(`fbg-${pid}-${idx}`)?.classList.remove("bad");document.getElementById(`fbb-${pid}-${idx}`)?.classList.toggle("bad",verdict==="bad");document.getElementById(`fbb-${pid}-${idx}`)?.classList.remove("good");const note=document.getElementById(`fbn-${pid}-${idx}`);if(note){note.textContent=verdict==="good"?"✓ Learned":"✓ Skipped";note.classList.add("show");}const card=document.getElementById(`card-${pid}-${idx}`);if(card){card.classList.remove("voted-good","voted-bad");card.classList.add(verdict==="good"?"voted-good":"voted-bad");}}
+function copyAndOpen(pid,idx,url,btn){const el=document.getElementById(`rt-${pid}-${idx}`);if(!el)return;navigator.clipboard.writeText(el.innerText).then(()=>{btn.textContent="Copied!";btn.classList.add("ok");setTimeout(()=>{btn.textContent="Copy & Open";btn.classList.remove("ok");},3000);});if(url)window.open(url,"_blank");}
+function markPosted(pid,idx,btn){btn.textContent="Posted!";btn.classList.add("done");btn.disabled=true;postedCount++;localStorage.setItem("fc_posts",postedCount);document.getElementById("stPosted").textContent=postedCount;}
+async function redraft(pid,idx,btn){if(!anthropicKey){openSettings();return;}const p=PRODUCTS.find(x=>x.id===pid),r=scanResults[pid];if(!p||!r)return;btn.textContent="Drafting…";btn.disabled=true;const resp=await draftResp(r.signals[idx],p);const rtEl=document.getElementById(`rt-${pid}-${idx}`);if(resp&&rtEl){rtEl.className="resp-text";rtEl.textContent=resp;const acts=btn.closest(".resp-acts");if(!acts)return;acts.innerHTML=`<button class="copy-btn" onclick="copyAndOpen('${pid}','${idx}','',this)">Copy & Open</button><button class="post-btn" onclick="markPosted('${pid}','${idx}',this)">Posted</button><button class="draft-btn" onclick="redraft('${pid}',${idx},this)">Re-draft</button>`;}else{btn.textContent="Retry";btn.disabled=false;}}
 function enc(s){return encodeURIComponent(s);}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════
+// RANK TRACKER
+// ═══════════════════════════════════════════
+let rtKwData=JSON.parse(localStorage.getItem('rt_kw')||'[]');
+let rtFilter='all';
+const RT_SAMPLE=[
+  {query:'resume builder',clicks:42,impressions:1200,ctr:3.5,position:8.3,page:'https://yoursite.com/resume-builder'},
+  {query:'free resume template',clicks:18,impressions:890,ctr:2.0,position:14.1,page:'https://yoursite.com/templates'},
+  {query:'ats resume checker',clicks:7,impressions:540,ctr:1.3,position:22.4,page:'https://yoursite.com/ats'},
+  {query:'resume format for freshers',clicks:3,impressions:320,ctr:0.9,position:31.0,page:'https://yoursite.com/freshers'},
+  {query:'how to write resume',clicks:0,impressions:210,ctr:0.0,position:44.2,page:'https://yoursite.com/blog/how-to'},
+  {query:'resume tips 2024',clicks:1,impressions:180,ctr:0.6,position:18.7,page:'https://yoursite.com/blog/tips'},
+  {query:'job application resume',clicks:5,impressions:430,ctr:1.2,position:9.8,page:'https://yoursite.com/resume-builder'},
+  {query:'cv vs resume india',clicks:12,impressions:670,ctr:1.8,position:5.2,page:'https://yoursite.com/blog/cv-vs-resume'},
+  {query:'resume for it jobs',clicks:9,impressions:520,ctr:1.7,position:11.3,page:'https://yoursite.com/templates'},
+  {query:'one page resume',clicks:22,impressions:780,ctr:2.8,position:3.1,page:'https://yoursite.com/one-page'},
+  {query:'resume scan tool',clicks:0,impressions:90,ctr:0.0,position:61.5,page:'https://yoursite.com/ats'},
+  {query:'download resume pdf',clicks:6,impressions:310,ctr:1.9,position:7.4,page:'https://yoursite.com/download'},
+];
+function rtOpenGsc(){document.getElementById('gscOverlay').classList.add('open');}
+function rtCloseGsc(){document.getElementById('gscOverlay').classList.remove('open');}
+function rtCloseKw(){document.getElementById('kwOverlay').classList.remove('open');}
+function rtLoadSample(){document.getElementById('gscCsvInput').value='Query,Clicks,Impressions,CTR,Position\n'+RT_SAMPLE.map(r=>`${r.query},${r.clicks},${r.impressions},${r.ctr}%,${r.position}`).join('\n');}
+function rtLoadSampleAndClose(){rtKwData=RT_SAMPLE.map(r=>({...r,imported:new Date().toISOString()}));localStorage.setItem('rt_kw',JSON.stringify(rtKwData));rtCloseGsc();rtShowDashboard();}
+function rtImportCsv(){const raw=document.getElementById('gscCsvInput').value.trim();if(!raw){alert('Paste CSV first.');return;}const lines=raw.split('\n').map(l=>l.trim()).filter(l=>l);const parsed=[];for(let i=1;i<lines.length;i++){const cols=lines[i].split(',');if(cols.length<4)continue;const query=cols[0].trim();const clicks=parseInt(cols[1])||0;const impressions=parseInt(cols[2])||0;const ctr=parseFloat((cols[3]||'0').replace('%',''))||0;const position=parseFloat(cols[4])||0;if(!query||!position)continue;parsed.push({query,clicks,impressions,ctr,position,page:cols[5]?.trim()||'',imported:new Date().toISOString()});}if(!parsed.length){alert("Couldn't parse CSV.");return;}rtKwData=parsed;localStorage.setItem('rt_kw',JSON.stringify(rtKwData));rtCloseGsc();rtShowDashboard();}
+function rtShowDashboard(){document.getElementById('rtConnectBanner').style.display='none';document.getElementById('rtDashboard').style.display='block';rtRenderStats();rtRenderTable();const lu=document.getElementById('rtLastUpdated');if(lu&&rtKwData[0]?.imported)lu.textContent=`Updated ${rtTimeAgo(rtKwData[0].imported)}`;}
+function rtRenderStats(){const top3=rtKwData.filter(k=>k.position<=3).length;const top10=rtKwData.filter(k=>k.position>3&&k.position<=10).length;const opp=rtKwData.filter(k=>k.position>10&&k.position<=30).length;const buried=rtKwData.filter(k=>k.position>30).length;const totalClicks=rtKwData.reduce((s,k)=>s+k.clicks,0);const avgPos=rtKwData.length?(rtKwData.reduce((s,k)=>s+k.position,0)/rtKwData.length).toFixed(1):0;document.getElementById('rtStatsRow').innerHTML=`<div class="rt-stat green"><div class="rt-stat-n">${top3}</div><div class="rt-stat-l">Top 3</div></div><div class="rt-stat purple"><div class="rt-stat-n">${top10}</div><div class="rt-stat-l">Top 10</div></div><div class="rt-stat amber"><div class="rt-stat-n">${opp}</div><div class="rt-stat-l">Opportunity</div></div><div class="rt-stat red"><div class="rt-stat-n">${buried}</div><div class="rt-stat-l">Needs Work</div></div><div class="rt-stat"><div class="rt-stat-n">${totalClicks.toLocaleString()}</div><div class="rt-stat-l">Total Clicks</div></div><div class="rt-stat"><div class="rt-stat-n">${avgPos}</div><div class="rt-stat-l">Avg Position</div></div>`;const notice=document.getElementById('rtNotice');if(opp>0){notice.style.display='block';notice.innerHTML=`<strong>${opp} keywords</strong> are ranked 11–30 — your biggest opportunity. Small content improvements could push them to page 1.`;}}
+function rtRenderTable(){let filtered=[...rtKwData].sort((a,b)=>a.position-b.position);if(rtFilter==='top3')filtered=filtered.filter(k=>k.position<=3);else if(rtFilter==='top10')filtered=filtered.filter(k=>k.position>3&&k.position<=10);else if(rtFilter==='opportunity')filtered=filtered.filter(k=>k.position>10&&k.position<=30);else if(rtFilter==='buried')filtered=filtered.filter(k=>k.position>30);const list=document.getElementById('rtKwList');const empty=document.getElementById('rtEmpty');if(!filtered.length){list.innerHTML='';empty.style.display='block';return;}empty.style.display='none';const maxImpr=Math.max(...rtKwData.map(k=>k.impressions),1);list.innerHTML=filtered.map(kw=>{const pos=Math.round(kw.position);const badgeCls=pos<=3?'rank-top3':pos<=10?'rank-top10':pos<=30?'rank-top50':'rank-low';const pct=Math.round((kw.impressions/maxImpr)*100);const ctrStr=kw.ctr?kw.ctr.toFixed(1)+'%':'—';const shortPage=kw.page?kw.page.replace(/https?:\/\/(www\.)?/,'').slice(0,45):'';const idx=rtKwData.indexOf(kw);return`<div class="kw-row" onclick="rtOpenKwModal(${idx})"><div><div class="kw-name">${rtEsc(kw.query)}</div>${shortPage?`<div class="kw-page">${rtEsc(shortPage)}</div>`:''}</div><div><span class="rank-badge ${badgeCls}">#${pos}</span></div><div class="col-vol"><div class="vol-bar-wrap"><div class="vol-bar" style="width:${pct}%"></div></div><div class="vol-num">${kw.impressions.toLocaleString()}</div></div><div class="ctr-num">${kw.clicks.toLocaleString()}</div><div class="col-ctr ctr-num">${ctrStr}</div></div>`;}).join('');}
+function rtSetFilter(f,btn){rtFilter=f;document.querySelectorAll('.fpill').forEach(p=>p.classList.remove('active'));btn.classList.add('active');rtRenderTable();}
+function rtOpenKwModal(idx){const kw=rtKwData[idx];if(!kw)return;const pos=Math.round(kw.position);document.getElementById('kwTitle').textContent=kw.query;document.getElementById('kwUrl').textContent=kw.page||'No page URL';document.getElementById('kwStats').innerHTML=`<div class="mstat"><div class="mstat-n" style="color:${pos<=3?'var(--green)':pos<=10?'var(--purple2)':pos<=30?'var(--amber)':'var(--red)'}">#${pos}</div><div class="mstat-l">Position</div></div><div class="mstat"><div class="mstat-n">${kw.clicks.toLocaleString()}</div><div class="mstat-l">Clicks</div></div><div class="mstat"><div class="mstat-n">${kw.impressions.toLocaleString()}</div><div class="mstat-l">Impressions</div></div><div class="mstat"><div class="mstat-n">${kw.ctr?kw.ctr.toFixed(1)+'%':'—'}</div><div class="mstat-l">CTR</div></div>`;document.getElementById('kwTips').innerHTML=rtGetTips(kw).map(t=>`<div class="tip-item">${t}</div>`).join('');document.getElementById('kwSearchBtn').onclick=()=>window.open(`https://www.google.com/search?q=${encodeURIComponent(kw.query)}`,'_blank');document.getElementById('kwOverlay').classList.add('open');}
+function rtGetTips(kw){const pos=Math.round(kw.position);const tips=[];if(pos<=3){tips.push(`🏆 <strong>Top 3!</strong> Protect this by keeping the page updated and building more links.`);if(kw.ctr<3)tips.push(`📊 CTR is ${kw.ctr.toFixed(1)}% — rewrite your meta title to be more compelling.`);tips.push(`🔗 Add internal links from other pages on your site to this one.`);}else if(pos<=10){tips.push(`✅ <strong>Page 1</strong> at #${pos}. A few tweaks could push you top 3.`);tips.push(`📝 Add depth — answer related questions the top 3 cover. Aim 200–400 more words.`);if(kw.ctr<2)tips.push(`🎯 Low CTR. Make your meta description more specific with numbers or a clear promise.`);tips.push(`⭐ Add FAQ schema markup to get rich snippets.`);}else if(pos<=30){tips.push(`⚡ <strong>Opportunity!</strong> Position ${pos} = page 2–3. One push gets you to page 1.`);tips.push(`🔎 Search "${kw.query}" in incognito. Study the top 3 — what do they cover that you don't?`);tips.push(`🔗 Get 2–3 external sites to link to this page. Even one quality backlink can flip page-2.`);tips.push(`📱 Check PageSpeed Insights — mobile speed is heavily weighted here.`);}else{tips.push(`📉 <strong>Needs work.</strong> Position ${pos} gets almost no traffic, but fixable.`);tips.push(`🔄 Check if a more relevant page should rank instead — sometimes the wrong page ranks.`);tips.push(`📝 Make sure "${kw.query}" appears in your H1 and first paragraph.`);tips.push(`💡 Target a long-tail version first — easier to rank, still drives traffic.`);}return tips;}
+function rtEsc(s){return String(s).replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function rtTimeAgo(iso){const s=Math.floor((Date.now()-new Date(iso).getTime())/1000);if(s<60)return'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago';}
+
+// ═══════════════════════════════════════════
 // INIT
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════
+document.getElementById('settingsOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeSettings();});
+document.getElementById('learnOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeLearn();});
+document.getElementById('addOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeAdd();});
+document.getElementById('gscOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)rtCloseGsc();});
+document.getElementById('kwOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)rtCloseKw();});
 updateNotice();
 updateLearnPill();
 updateUI();
+PRODUCTS.forEach(p=>createProductPanel(p));
+if(PRODUCTS.length>0)showTab(PRODUCTS[0].id);
+if(rtKwData.length)rtShowDashboard();
 
-// Restore product panels for saved products
-PRODUCTS.forEach(p => createProductPanel(p));
-if(PRODUCTS.length > 0) showTab(PRODUCTS[0].id);
+// ═══════════════════════════════════════════
+// YOUTUBE STUDIO FUNCTIONS
+// ═══════════════════════════════════════════
+function ytUpdateNoKey(){
+  var el=document.getElementById('ytNoKeyNotice');
+  if(el) el.style.display=googleKey?'none':'block';
+}
+function fmtN(n){
+  if(n>=1e9)return(n/1e9).toFixed(1)+'B';
+  if(n>=1e6)return(n/1e6).toFixed(1)+'M';
+  if(n>=1e3)return(n/1e3).toFixed(1)+'K';
+  return String(n);
+}
+function ytEsc(s){return String(s||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function ytCopyEl(btn,id){
+  var el=document.getElementById(id);if(!el)return;
+  navigator.clipboard.writeText(el.innerText).then(()=>{btn.textContent='Copied!';btn.classList.add('ok');setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('ok');},2000);});
+}
+function ytQuickKw(kw){document.getElementById('ytKwInput').value=kw;ytResearchKeyword();}
 
-document.getElementById("settingsOverlay").addEventListener("click",e=>{if(e.target===e.currentTarget)closeSettings();});
-document.getElementById("learnOverlay").addEventListener("click",e=>{if(e.target===e.currentTarget)closeLearn();});
-document.getElementById("addOverlay").addEventListener("click",e=>{if(e.target===e.currentTarget)closeAdd();});
+async function ytResearchKeyword(){
+  var q=document.getElementById('ytKwInput').value.trim();if(!q)return;
+  if(!googleKey){openSettings();return;}
+  var btn=document.getElementById('ytKwBtn'),res=document.getElementById('ytKwResults');
+  btn.disabled=true;btn.textContent='Searching…';
+  res.innerHTML='<div><span class="yt-spin"></span><span style="color:var(--muted);font-size:12px">Fetching keyword data…</span></div>';
+  try{
+    var sixmo=new Date(Date.now()-180*864e5).toISOString();
+    var r=await fetch('https://www.googleapis.com/youtube/v3/search?part=snippet&q='+enc(q)+'&type=video&order=viewCount&maxResults=20&key='+googleKey+'&relevanceLanguage=en&publishedAfter='+sixmo,{signal:AbortSignal.timeout(8000)});
+    var data=await r.json();
+    if(data.error){res.innerHTML='<div style="color:var(--red);font-size:12px">API error: '+data.error.message+'</div>';return;}
+    var ids=(data.items||[]).map(v=>v.id.videoId).filter(Boolean).join(',');
+    var viewMap={};
+    if(ids){var sr=await fetch('https://www.googleapis.com/youtube/v3/videos?part=statistics&id='+ids+'&key='+googleKey,{signal:AbortSignal.timeout(6000)});var sd=await sr.json();(sd.items||[]).forEach(v=>{viewMap[v.id]=parseInt(v.statistics?.viewCount||0);});}
+    var titles=(data.items||[]).map(v=>v.snippet?.title||'');
+    var wordFreq={};
+    var stopwords=['this','that','with','your','from','have','will','what','when','they','their','been','were','into','more','than','also','video','youtube'];
+    titles.forEach(t=>{t.toLowerCase().replace(/[^a-z0-9 ]/g,' ').split(' ').filter(w=>w.length>3&&!stopwords.includes(w)).forEach(w=>{wordFreq[w]=(wordFreq[w]||0)+1;});});
+    var related=Object.entries(wordFreq).sort((a,b)=>b[1]-a[1]).slice(0,12).map(([w,cnt])=>({kw:q+' '+w,score:cnt>=4?'hot':cnt>=2?'med':'low'}));
+    var totalViews=Object.values(viewMap).reduce((s,v)=>s+v,0);
+    var avgViews=Object.keys(viewMap).length?Math.round(totalViews/Object.keys(viewMap).length):0;
+    var demandLabel=avgViews>500000?'🔥 High demand':avgViews>100000?'⚡ Medium demand':'💧 Lower demand';
+    var html='<div style="font-size:11px;color:var(--muted);margin-bottom:8px"><strong style="color:#fff">"'+ytEsc(q)+'"</strong> — '+demandLabel+' · avg '+fmtN(avgViews)+' views/video</div>';
+    if(related.length){
+      html+='<div style="font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:.4px">Related keywords (click to search)</div><div class="kw-chips">';
+      related.forEach(r=>{html+='<div class="kw-chip" onclick="ytQuickKw(\''+r.kw.replace(/'/g,"\\'")+'\')">'+ytEsc(r.kw)+' <span class="score score-'+r.score+'">'+(r.score==='hot'?'🔥':r.score==='med'?'⚡':'💧')+'</span></div>';});
+      html+='</div>';
+    }
+    html+='<div style="margin-top:12px;font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">Top videos for this keyword</div>';
+    (data.items||[]).slice(0,4).forEach(v=>{
+      var views=viewMap[v.id.videoId]||0;
+      var thumb=v.snippet.thumbnails?.default?.url||'';
+      html+='<div class="yt-vid-card" onclick="window.open(\'https://youtube.com/watch?v='+v.id.videoId+'\',\'_blank\')">'+(thumb?'<img class="yt-thumb" src="'+thumb+'" alt="" loading="lazy">':'<div class="yt-thumb"></div>')+'<div class="yt-vid-info"><div class="yt-vid-title">'+ytEsc(v.snippet.title)+'</div><div class="yt-vid-meta">'+ytEsc(v.snippet.channelTitle)+'</div><div class="yt-vid-views">'+fmtN(views)+' views</div></div></div>';
+    });
+    res.innerHTML=html;
+  }catch(e){res.innerHTML='<div style="color:var(--red);font-size:12px">Error. Check your Google API key.</div>';}
+  btn.disabled=false;btn.textContent='Search';
+}
+
+async function ytSearchChannels(){
+  var q=document.getElementById('ytChanInput').value.trim();if(!q)return;
+  if(!googleKey){openSettings();return;}
+  var btn=document.getElementById('ytChanBtn'),res=document.getElementById('ytChanResults');
+  btn.disabled=true;btn.textContent='Searching…';
+  res.innerHTML='<div><span class="yt-spin"></span><span style="color:var(--muted);font-size:12px">Finding channels…</span></div>';
+  try{
+    var r=await fetch('https://www.googleapis.com/youtube/v3/search?part=snippet&q='+enc(q)+'&type=channel&maxResults=6&key='+googleKey,{signal:AbortSignal.timeout(8000)});
+    var data=await r.json();
+    if(data.error){res.innerHTML='<div style="color:var(--red);font-size:12px">API error: '+data.error.message+'</div>';return;}
+    var chanIds=(data.items||[]).map(c=>c.id.channelId).filter(Boolean).join(',');
+    var statsMap={};
+    if(chanIds){var sr=await fetch('https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet&id='+chanIds+'&key='+googleKey,{signal:AbortSignal.timeout(6000)});var sd=await sr.json();(sd.items||[]).forEach(c=>{statsMap[c.id]={subs:parseInt(c.statistics?.subscriberCount||0),views:parseInt(c.statistics?.viewCount||0),videos:parseInt(c.statistics?.videoCount||0),desc:c.snippet?.description||''};});}
+    var html='';
+    (data.items||[]).forEach(c=>{
+      var cid=c.id.channelId;var st=statsMap[cid]||{subs:0,views:0,videos:0,desc:''};
+      var thumb=c.snippet?.thumbnails?.default?.url||'';
+      html+='<div class="yt-chan-card" onclick="window.open(\'https://youtube.com/channel/'+cid+'\',\'_blank\')">'+(thumb?'<img class="yt-chan-thumb" src="'+thumb+'" alt="">':'<div class="yt-chan-thumb"></div>')+'<div style="flex:1;min-width:0"><div class="yt-chan-name">'+ytEsc(c.snippet.channelTitle||c.snippet.title)+'</div><div class="yt-chan-subs">'+fmtN(st.subs)+' subscribers · '+fmtN(st.videos)+' videos · '+fmtN(st.views)+' total views</div><div class="yt-chan-desc">'+ytEsc((st.desc||c.snippet.description||'').slice(0,120))+'</div></div></div>';
+    });
+    res.innerHTML=html||'<div style="color:var(--muted);font-size:12px">No channels found.</div>';
+  }catch(e){res.innerHTML='<div style="color:var(--red);font-size:12px">Error. Check API key.</div>';}
+  btn.disabled=false;btn.textContent='Search';
+}
+
+async function ytTrending(){
+  var q=document.getElementById('ytTrendInput').value.trim();if(!q)return;
+  if(!googleKey){openSettings();return;}
+  var btn=document.getElementById('ytTrendBtn'),res=document.getElementById('ytTrendResults');
+  btn.disabled=true;btn.textContent='Finding…';
+  res.innerHTML='<div><span class="yt-spin"></span><span style="color:var(--muted);font-size:12px">Finding trending videos…</span></div>';
+  try{
+    var weekAgo=new Date(Date.now()-7*864e5).toISOString();
+    var r=await fetch('https://www.googleapis.com/youtube/v3/search?part=snippet&q='+enc(q)+'&type=video&order=viewCount&maxResults=10&key='+googleKey+'&publishedAfter='+weekAgo,{signal:AbortSignal.timeout(8000)});
+    var data=await r.json();
+    if(data.error){res.innerHTML='<div style="color:var(--red);font-size:12px">API error: '+data.error.message+'</div>';return;}
+    var ids=(data.items||[]).map(v=>v.id.videoId).filter(Boolean).join(',');
+    var viewMap={};
+    if(ids){var sr=await fetch('https://www.googleapis.com/youtube/v3/videos?part=statistics&id='+ids+'&key='+googleKey,{signal:AbortSignal.timeout(6000)});var sd=await sr.json();(sd.items||[]).forEach(v=>{viewMap[v.id]=parseInt(v.statistics?.viewCount||0);});}
+    var html='<div style="font-size:11px;color:var(--muted);margin-bottom:8px">🔥 Top videos last 7 days for <strong style="color:#fff">"'+ytEsc(q)+'"</strong></div>';
+    (data.items||[]).slice(0,5).forEach((v,i)=>{
+      var views=viewMap[v.id.videoId]||0;
+      var thumb=v.snippet.thumbnails?.default?.url||'';
+      var age=Math.round((Date.now()-new Date(v.snippet.publishedAt).getTime())/864e5);
+      html+='<div class="yt-vid-card" onclick="window.open(\'https://youtube.com/watch?v='+v.id.videoId+'\',\'_blank\')"><div style="font-size:14px;font-weight:800;color:var(--purple2);width:20px;flex-shrink:0">#'+(i+1)+'</div>'+(thumb?'<img class="yt-thumb" src="'+thumb+'" alt="" loading="lazy">':'<div class="yt-thumb"></div>')+'<div class="yt-vid-info"><div class="yt-vid-title">'+ytEsc(v.snippet.title)+'</div><div class="yt-vid-meta">'+ytEsc(v.snippet.channelTitle)+' · '+(age===0?'today':age===1?'yesterday':age+'d ago')+'</div><div class="yt-vid-views">'+fmtN(views)+' views</div></div></div>';
+    });
+    if(data.items&&data.items.length){
+      var allTitles=data.items.map(v=>v.snippet.title||'').join(' ');
+      var tips=[];
+      if(/\d+/.test(allTitles))tips.push('📌 Top videos use numbers in titles (lists perform well here)');
+      if(/how|what|why|when|which/i.test(allTitles))tips.push('❓ Question-style titles dominate this niche');
+      if(/202[3-9]/.test(allTitles))tips.push('📅 Include the year — viewers prefer fresh, dated content');
+      if(tips.length)html+='<div style="background:rgba(108,99,255,.06);border:1px solid rgba(108,99,255,.15);border-radius:7px;padding:10px 12px;margin-top:10px">'+tips.map(t=>'<div style="font-size:11px;color:#bbb;padding:2px 0">'+t+'</div>').join('')+'</div>';
+    }
+    res.innerHTML=html;
+  }catch(e){res.innerHTML='<div style="color:var(--red);font-size:12px">Error. Check API key.</div>';}
+  btn.disabled=false;btn.textContent='Find Trending';
+}
+
+async function ytScoreVideo(){
+  var url=document.getElementById('ytSeoInput').value.trim();if(!url)return;
+  if(!googleKey){openSettings();return;}
+  var m=url.match(/(?:v=|youtu\.be\/)([^&\s?]+)/);
+  var vidId=m&&m[1];
+  if(!vidId){document.getElementById('ytSeoResults').innerHTML='<div style="color:var(--red);font-size:12px">Paste a valid YouTube URL.</div>';return;}
+  var btn=document.getElementById('ytSeoBtn'),res=document.getElementById('ytSeoResults');
+  btn.disabled=true;btn.textContent='Scoring…';
+  res.innerHTML='<div><span class="yt-spin"></span><span style="color:var(--muted);font-size:12px">Analyzing video…</span></div>';
+  try{
+    var r=await fetch('https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id='+vidId+'&key='+googleKey,{signal:AbortSignal.timeout(8000)});
+    var data=await r.json();var v=data.items&&data.items[0];
+    if(!v){res.innerHTML='<div style="color:var(--red);font-size:12px">Video not found.</div>';return;}
+    var sn=v.snippet,st=v.statistics;
+    var title=sn.title||'',desc=sn.description||'',tags=sn.tags||[];
+    var views=parseInt(st.viewCount||0),likes=parseInt(st.likeCount||0);
+    var checks=[
+      {label:'Title length (50–70 chars)',pass:title.length>=40&&title.length<=70,tip:title.length<40?'Title too short — aim 50-70 chars':title.length>70?'Trim to under 70 chars':'Good length'},
+      {label:'Keyword in first 5 words',pass:title.split(' ').slice(0,5).join(' ').length>12,tip:'Put your main keyword early in the title'},
+      {label:'Description 200+ words',pass:desc.split(/\s+/).filter(w=>w).length>=200,tip:'Description has '+desc.split(/\s+/).filter(w=>w).length+' words — aim for 200+'},
+      {label:'Links or timestamps in description',pass:desc.includes('http')||desc.includes(':'),tip:'Add timestamps and links to boost clicks'},
+      {label:'5+ tags added',pass:tags.length>=5,tip:tags.length===0?'No tags — add 10-15 relevant ones':tags.length<5?'Only '+tags.length+' tags, add more':tags.length+' tags found'},
+      {label:'Healthy like ratio (2%+)',pass:views>0&&(likes/views)>=0.02,tip:views===0?'No views yet':'Like ratio: '+((likes/views)*100).toFixed(1)+'% — aim for 2%+'},
+    ];
+    var passed=checks.filter(c=>c.pass).length;
+    var score=Math.round((passed/checks.length)*100);
+    var ringColor=score>=80?'var(--green)':score>=50?'var(--amber)':'var(--red)';
+    var html='<div style="display:flex;gap:16px;align-items:center;margin-top:10px;padding-bottom:10px;border-bottom:1px solid var(--border)"><div class="seo-score-ring" style="border-color:'+ringColor+';color:'+ringColor+'">'+score+'</div><div><div style="font-size:14px;font-weight:700;color:#fff">'+ytEsc(title.slice(0,50))+(title.length>50?'…':'')+'</div><div style="font-size:11px;color:var(--muted);margin-top:2px">'+fmtN(views)+' views · '+fmtN(likes)+' likes</div><div style="font-size:11px;color:'+ringColor+';font-weight:600;margin-top:3px">'+(score>=80?'Well optimized':score>=50?'Room to improve':'Needs optimization')+'</div></div></div><div class="seo-checks">';
+    checks.forEach(c=>{html+='<div class="seo-check"><span class="seo-check-icon">'+(c.pass?'✅':'❌')+'</span><div style="flex:1"><div style="font-weight:600">'+c.label+'</div>'+(c.pass?'':'<div style="color:var(--muted);font-size:10px;margin-top:1px">'+c.tip+'</div>')+'</div></div>';});
+    html+='</div>';
+    if(anthropicKey)html+='<button class="btn btn-primary" style="margin-top:12px;font-size:11px" onclick="ytAiFixVideo(\''+vidId+'\',\''+title.replace(/'/g,"\\'").slice(0,100)+'\',\''+desc.slice(0,200).replace(/'/g,"\\'").replace(/\n/g,' ')+'\',\''+tags.slice(0,8).join(',').replace(/'/g,"\\'")+'\')">✨ AI-fix title, description &amp; tags</button>';
+    res.innerHTML=html;
+  }catch(e){res.innerHTML='<div style="color:var(--red);font-size:12px">Error. Check API key.</div>';}
+  btn.disabled=false;btn.textContent='Score';
+}
+
+async function ytAiFixVideo(vidId,title,descSnip,tagsStr){
+  if(!anthropicKey){openSettings();return;}
+  var res=document.getElementById('ytSeoResults');
+  var existing=res.innerHTML;
+  res.innerHTML+=('<div style="margin-top:12px"><span class="yt-spin"></span><span style="color:var(--muted);font-size:12px">AI generating improvements…</span></div>');
+  var prompt='YouTube SEO expert. Improve this video metadata.\n\nTitle: '+title+'\nDescription start: '+descSnip+'\nTags: '+tagsStr+'\n\nReturn ONLY JSON:\n{"titles":["3 improved titles, 50-65 chars, keyword-first"],"description":"200+ word optimized description","tags":["15 tags"]}';
+  try{
+    var r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'x-api-key':anthropicKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    var data=await r.json();var text=data.content[0].text.trim();
+    var m=text.match(/\{[\s\S]*\}/);if(!m)throw new Error();
+    var p=JSON.parse(m[0]);
+    var aiHtml='<div class="ai-output" style="margin-top:12px"><div class="ai-output-lbl">✨ AI Improvements</div><div class="ai-section"><div class="ai-section-title">Title Options (click to copy)</div>'+(p.titles||[]).map((t,i)=>'<div style="background:#0c0c14;border:1px solid var(--border);border-radius:6px;padding:8px 10px;margin-bottom:5px;font-size:12px;color:#bbb;cursor:pointer" onclick="navigator.clipboard.writeText(this.innerText.replace(/^\\d+\\. /,\'\'));this.style.color=\'var(--green)\';setTimeout(()=>this.style.color=\'#bbb\',1500)">'+(i+1)+'. '+ytEsc(t)+'</div>').join('')+'</div><div class="ai-section"><div class="ai-section-title" style="display:flex;justify-content:space-between">Description <button class="ai-copy-btn" onclick="ytCopyEl(this,\'ytAiDesc\')">Copy</button></div><div style="background:#0c0c14;border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:11px;color:#bbb;line-height:1.7;white-space:pre-wrap;max-height:150px;overflow-y:auto;margin-top:4px" id="ytAiDesc">'+ytEsc(p.description||'')+'</div></div><div class="ai-section"><div class="ai-section-title" style="display:flex;justify-content:space-between">Tags <button class="ai-copy-btn" onclick="ytCopyEl(this,\'ytAiTags\')">Copy</button></div><div style="font-size:11px;color:#bbb;background:#0c0c14;border:1px solid var(--border);border-radius:6px;padding:8px 10px;margin-top:4px" id="ytAiTags">'+ytEsc((p.tags||[]).join(', '))+'</div></div></div>';
+    res.innerHTML=existing+aiHtml;
+  }catch(e){res.innerHTML=existing+'<div style="color:var(--red);font-size:12px;margin-top:8px">AI failed. Try again.</div>';}
+}
+
+async function ytOptimize(){
+  var topic=document.getElementById('ytOptimizerTopic').value.trim();if(!topic)return;
+  if(!anthropicKey){openSettings();return;}
+  var kw=document.getElementById('ytOptimizerKw').value.trim();
+  var niche=document.getElementById('ytOptimizerNiche').value.trim();
+  var btn=document.getElementById('ytOptimizerBtn'),res=document.getElementById('ytOptimizerResults');
+  btn.disabled=true;btn.textContent='Generating…';
+  res.innerHTML='<div style="margin-top:12px"><span class="yt-spin"></span><span style="color:var(--muted);font-size:12px">AI writing your metadata…</span></div>';
+  var prompt='You are a top YouTube SEO strategist. Generate optimized video metadata.\n\nVideo topic: '+topic+(kw?'\nTarget keyword: '+kw:'')+(niche?'\nChannel niche / audience: '+niche:'')+'\n\nReturn ONLY JSON (no markdown):\n{"titles":["5 title options, 50-65 chars, keyword-first, compelling"],"description":"Full 250+ word SEO description with timestamps placeholder [TIMESTAMPS], subscribe CTA, and links placeholder [LINKS]","tags":["15 relevant tags, mix broad and specific"],"thumbnail_ideas":["3 thumbnail concept ideas with text overlay suggestions"],"hook":"Punchy first 30-second script hook to maximize retention"}';
+  try{
+    var r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'x-api-key':anthropicKey,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1500,messages:[{role:'user',content:prompt}]})});
+    if(!r.ok)throw new Error();
+    var data=await r.json();var text=data.content[0].text.trim();
+    var m=text.match(/\{[\s\S]*\}/);if(!m)throw new Error();
+    var p=JSON.parse(m[0]);
+    res.innerHTML='<div class="ai-output" style="margin-top:14px"><div class="ai-output-lbl">✨ AI-Generated Video Metadata</div><div class="ai-section" style="margin-bottom:14px"><div class="ai-section-title">📌 Title Options (click to copy)</div>'+(p.titles||[]).map((t,i)=>'<div style="background:#0c0c14;border:1px solid var(--border);border-radius:6px;padding:9px 12px;margin-bottom:5px;font-size:12px;color:#bbb;cursor:pointer;transition:border-color .12s" onmouseover="this.style.borderColor=\'var(--purple)\'" onmouseout="this.style.borderColor=\'var(--border)\'" onclick="navigator.clipboard.writeText(this.innerText.replace(/^\\d+\\. /,\'\'));this.style.color=\'var(--green)\';setTimeout(()=>this.style.color=\'#bbb\',1500)">'+(i+1)+'. '+ytEsc(t)+'</div>').join('')+'</div><div class="ai-section" style="margin-bottom:14px"><div class="ai-section-title" style="display:flex;justify-content:space-between;align-items:center">📝 SEO Description <button class="ai-copy-btn" onclick="ytCopyEl(this,\'ytOptDesc\')">Copy</button></div><div style="background:#0c0c14;border:1px solid var(--border);border-radius:6px;padding:10px 12px;font-size:11px;color:#bbb;line-height:1.8;white-space:pre-wrap;max-height:200px;overflow-y:auto;margin-top:6px" id="ytOptDesc">'+ytEsc(p.description||'')+'</div></div><div class="ai-section" style="margin-bottom:14px"><div class="ai-section-title" style="display:flex;justify-content:space-between;align-items:center">🏷️ Tags <button class="ai-copy-btn" onclick="ytCopyEl(this,\'ytOptTags\')">Copy</button></div><div style="background:#0c0c14;border:1px solid var(--border);border-radius:6px;padding:10px 12px;font-size:11px;color:#bbb;margin-top:6px" id="ytOptTags">'+ytEsc((p.tags||[]).join(', '))+'</div></div><div class="ai-section" style="margin-bottom:14px"><div class="ai-section-title">🖼️ Thumbnail Ideas</div>'+(p.thumbnail_ideas||[]).map((t,i)=>'<div style="background:#0c0c14;border:1px solid var(--border);border-radius:6px;padding:8px 12px;margin-bottom:5px;font-size:11px;color:#bbb">'+(i+1)+'. '+ytEsc(t)+'</div>').join('')+'</div><div class="ai-section"><div class="ai-section-title" style="display:flex;justify-content:space-between;align-items:center">🎬 Opening Hook Script <button class="ai-copy-btn" onclick="ytCopyEl(this,\'ytOptHook\')">Copy</button></div><div style="background:#0c0c14;border:1px solid var(--border);border-radius:6px;padding:10px 12px;font-size:11px;color:#bbb;line-height:1.8;white-space:pre-wrap;margin-top:6px" id="ytOptHook">'+ytEsc(p.hook||'')+'</div></div></div>';
+  }catch(e){res.innerHTML='<div style="color:var(--red);font-size:12px;margin-top:8px">Generation failed. Try again.</div>';}
+  btn.disabled=false;btn.textContent='✨ Generate Title, Description & Tags';
+}
+
 </script>
+
+<!-- ══════════ PAGE: YOUTUBE STUDIO ══════════ -->
+<div class="page" id="pageYT">
+  <div class="yt-main">
+
+    <!-- No key notice -->
+    <div class="yt-no-key" id="ytNoKeyNotice" style="display:none">
+      ⚡ Add a Google API key to enable YouTube features. <a onclick="openSettings()">Add key →</a>
+    </div>
+
+    <!-- ── ROW 1: Keyword Research + Competitor Analysis ── -->
+    <div class="yt-grid">
+
+      <!-- KEYWORD RESEARCH -->
+      <div class="yt-card">
+        <h3>🔍 Keyword Research</h3>
+        <p>Find what people search on YouTube. Enter a seed topic and see related keywords ranked by competition.</p>
+        <div class="yt-input-row">
+          <input class="yt-input" id="ytKwInput" placeholder="e.g. resume builder, video editing…" onkeydown="if(event.key==='Enter')ytResearchKeyword()">
+          <button class="btn btn-primary" style="white-space:nowrap" onclick="ytResearchKeyword()" id="ytKwBtn">Search</button>
+        </div>
+        <div class="yt-results" id="ytKwResults">
+          <div style="font-size:11px;color:#333">Try: <span class="trend-pill" onclick="ytQuickKw('resume builder')">resume builder</span><span class="trend-pill" onclick="ytQuickKw('video editing')">video editing</span><span class="trend-pill" onclick="ytQuickKw('ai tools 2024')">ai tools 2024</span></div>
+        </div>
+      </div>
+
+      <!-- COMPETITOR ANALYSIS -->
+      <div class="yt-card">
+        <h3>📊 Competitor Channels</h3>
+        <p>Search for YouTube channels in your niche. See their subscriber count, view stats, and top content.</p>
+        <div class="yt-input-row">
+          <input class="yt-input" id="ytChanInput" placeholder="e.g. resume tips, marketing tutorial…" onkeydown="if(event.key==='Enter')ytSearchChannels()">
+          <button class="btn btn-primary" style="white-space:nowrap" onclick="ytSearchChannels()" id="ytChanBtn">Search</button>
+        </div>
+        <div class="yt-results" id="ytChanResults"></div>
+      </div>
+    </div>
+
+    <!-- ── ROW 2: Trending Videos + Video SEO Scorer ── -->
+    <div class="yt-grid">
+
+      <!-- TRENDING VIDEOS -->
+      <div class="yt-card">
+        <h3>🔥 Trending Videos</h3>
+        <p>Find top-performing recent videos for any topic. Spot patterns in titles, thumbnails, and view counts.</p>
+        <div class="yt-input-row">
+          <input class="yt-input" id="ytTrendInput" placeholder="e.g. ats resume, job search tips…" onkeydown="if(event.key==='Enter')ytTrending()">
+          <button class="btn btn-primary" style="white-space:nowrap" onclick="ytTrending()" id="ytTrendBtn">Find Trending</button>
+        </div>
+        <div class="yt-results" id="ytTrendResults"></div>
+      </div>
+
+      <!-- VIDEO SEO SCORER -->
+      <div class="yt-card">
+        <h3>⭐ Video SEO Scorer</h3>
+        <p>Paste a YouTube video URL to get an SEO score and specific tips to improve its discoverability.</p>
+        <div class="yt-input-row">
+          <input class="yt-input" id="ytSeoInput" placeholder="https://youtube.com/watch?v=…" onkeydown="if(event.key==='Enter')ytScoreVideo()">
+          <button class="btn btn-primary" style="white-space:nowrap" onclick="ytScoreVideo()" id="ytSeoBtn">Score</button>
+        </div>
+        <div class="yt-results" id="ytSeoResults"></div>
+      </div>
+    </div>
+
+    <!-- ── AI VIDEO OPTIMIZER (full width) ── -->
+    <div class="yt-card-full">
+      <h3>✨ AI Video Optimizer</h3>
+      <p>Describe your video and get AI-generated title options, a SEO description, and tags — ready to copy into YouTube Studio. Requires Anthropic key.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <div>
+          <div style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">What's your video about?</div>
+          <textarea class="yt-textarea" id="ytOptimizerTopic" placeholder="e.g. How to beat ATS resume filters in 2024 — I show 5 proven tricks that got me interviews at Google and Meta"></textarea>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Target keyword (optional)</div>
+          <input class="yt-input" id="ytOptimizerKw" placeholder="e.g. ats resume tips" style="margin-bottom:8px">
+          <div style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Channel niche / audience</div>
+          <input class="yt-input" id="ytOptimizerNiche" placeholder="e.g. freshers and job seekers in India">
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="ytOptimize()" id="ytOptimizerBtn">✨ Generate Title, Description &amp; Tags</button>
+      <div id="ytOptimizerResults"></div>
+    </div>
+
+  </div>
+  <div class="ftr">YouTube data via Google Data API v3 · AI optimization via Anthropic · All data stays in your browser</div>
+</div>
+
 </body>
 </html>

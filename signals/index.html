@@ -3587,48 +3587,126 @@ function lfRenderPlatformBtns(){
     </a>`).join("");
 }
 
-// Main search
+// Clean input — remove slashes, extra spaces, special chars
+function lfClean(str){
+  return str.replace(/[\/\\|]/g," ").replace(/\s+/g," ").trim();
+}
+
+// Extract core keyword from service string (first 2 meaningful words)
+function lfCore(svc){
+  const words = lfClean(svc).toLowerCase().split(" ")
+    .filter(w=>w.length>2&&!["and","the","for","with","our","your","best","free","help","india","business"].includes(w));
+  return words.slice(0,2).join(" ")||lfClean(svc).split(" ").slice(0,2).join(" ");
+}
+
+// Generate rich query set — pain-focused, broad to narrow
+function lfDefaultQueries(svc, cust){
+  const s = lfClean(svc);
+  const c = lfClean(cust).replace(/india\s*/i,"").trim()||"business";
+  const core = lfCore(svc);
+  const isIndia = /india/i.test(cust+svc);
+
+  const queries = [
+    // Pain-point queries (highest signal)
+    `need help with ${core}`,
+    `${core} help`,
+    `how to ${core}`,
+    `best ${core} service`,
+    // Broader discovery
+    `looking for ${s}`,
+    `recommend ${core}`,
+    `${c} ${core}`,
+    // India-specific if relevant
+    ...(isIndia ? [`${core} India`, `${core} freelancer India`] : []),
+    // Job/service seeking
+    `${core} anyone`,
+    `struggling with ${core}`
+  ];
+  return [...new Set(queries)]; // dedupe
+}
+
+// Main search — tries waves of queries, widens if needed
 async function lfSearch(){
-  const svc = document.getElementById("lfService").value.trim();
-  const cust = document.getElementById("lfCustomer").value.trim();
-  if(!svc||!cust){ alert("Fill in your service and target customer first."); return; }
+  const rawSvc = document.getElementById("lfService").value.trim();
+  const rawCust = document.getElementById("lfCustomer").value.trim();
+  if(!rawSvc){ alert("Enter your service first (e.g. resume writing, SEO, logo design)."); return; }
+
+  const svc = lfClean(rawSvc);
+  const cust = lfClean(rawCust)||"small business";
 
   lfRenderPlatformBtns();
 
   const btn = document.getElementById("lfSearchBtn");
   btn.innerHTML=`<span class="cs-spinner"></span>Scanning…`; btn.disabled=true;
   const out = document.getElementById("lfResults");
-  out.innerHTML=`<div class="loading"><div class="spinner"></div><div class="loading-msg">Searching Reddit for "${svc}" leads…</div></div>`;
   document.getElementById("lfCount").textContent="";
 
-  // Generate smart search queries using AI if key available, else use defaults
-  let queries = lfDefaultQueries(svc, cust);
+  // Wave 1: AI queries (if key set) or smart defaults
+  let wave1Queries = lfDefaultQueries(svc, cust).slice(0,5);
   if(anthropicKey){
     try{
       const aiQ = await lfAIQueries(svc, cust);
-      if(aiQ.length) queries = aiQ;
+      if(aiQ.length) wave1Queries = aiQ.concat(lfDefaultQueries(svc,cust)).slice(0,6);
     }catch{}
   }
 
   const allResults = [];
   const seen = new Set();
 
-  for(const q of queries.slice(0,4)){
-    const results = await lfRedditSearch(q);
+  const addResults = (results)=>{
     for(const r of results){
       if(!seen.has(r.url)){ seen.add(r.url); allResults.push(r); }
     }
-    await sleep(400);
+  };
+
+  // Run wave 1
+  out.innerHTML=`<div class="loading"><div class="spinner"></div><div class="loading-msg">Searching Reddit… trying ${wave1Queries.length} queries</div></div>`;
+  for(const q of wave1Queries){
+    addResults(await lfRedditSearch(q));
+    await sleep(300);
+  }
+
+  // Wave 2: If still empty, try core keyword only (broadest fallback)
+  if(!allResults.length){
+    const core = lfCore(svc);
+    out.innerHTML=`<div class="loading"><div class="spinner"></div><div class="loading-msg">Widening search for "${core}"…</div></div>`;
+    const fallbacks=[core, `need ${core}`, `${core} recommendation`, `${core} freelance`];
+    for(const q of fallbacks){
+      addResults(await lfRedditSearch(q));
+      await sleep(300);
+    }
   }
 
   lfLeads = allResults;
   btn.innerHTML="🔍 Find Leads"; btn.disabled=false;
 
   if(!allResults.length){
-    out.innerHTML=`<div class="rt-empty" style="text-align:center;padding:30px">
-      <div style="font-size:32px;margin-bottom:10px">🔍</div>
-      <div style="color:var(--muted);font-size:13px">No Reddit leads found for this search. Try broader terms, or use the platform buttons above to search LinkedIn, Twitter, and Quora manually.</div>
-    </div>`;
+    // Show helpful no-results panel with suggested fixes
+    const core = lfCore(svc);
+    out.innerHTML=`
+      <div style="background:#0c0c14;border:1px solid var(--border);border-radius:12px;padding:24px;text-align:center">
+        <div style="font-size:36px;margin-bottom:12px">🔍</div>
+        <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:6px">No Reddit results found for "${svc}"</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:20px">Reddit didn't return posts for these search terms. Try one of these fixes:</div>
+        <div style="display:grid;gap:8px;text-align:left;margin-bottom:20px">
+          <div style="background:#111122;border-radius:8px;padding:12px;font-size:12px;color:var(--muted)">
+            <strong style="color:#fff">1. Use simpler keywords</strong> — try just the core word. Instead of "resume/ CV writing service", try:
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+              ${["resume","CV writing","resume help","resume builder","job application"].map(s=>`<button onclick="document.getElementById('lfService').value='${s}';lfSearch()" style="background:#1a0a2e;border:1px solid #3d1a5f;color:#818cf8;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer">${s}</button>`).join("")}
+            </div>
+          </div>
+          <div style="background:#111122;border-radius:8px;padding:12px;font-size:12px;color:var(--muted)">
+            <strong style="color:#fff">2. Search by the pain, not the service</strong> — what problem does your service solve?
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+              ${["job search help","interview preparation","career advice","ATS resume","job rejection"].map(s=>`<button onclick="document.getElementById('lfService').value='${s}';lfSearch()" style="background:#1a0a2e;border:1px solid #3d1a5f;color:#818cf8;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer">${s}</button>`).join("")}
+            </div>
+          </div>
+          <div style="background:#111122;border-radius:8px;padding:12px;font-size:12px;color:var(--muted)">
+            <strong style="color:#fff">3. Change timeframe</strong> — switch "Past week" to <button onclick="document.getElementById('lfTimeframe').value='month';lfSearch()" style="background:#1a0a2e;border:1px solid #3d1a5f;color:#818cf8;border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer">Past month</button> or <button onclick="document.getElementById('lfTimeframe').value='year';lfSearch()" style="background:#1a0a2e;border:1px solid #3d1a5f;color:#818cf8;border-radius:6px;padding:3px 8px;font-size:11px;cursor:pointer">Past year</button>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--muted)">Or use the <strong style="color:#fff">platform buttons above</strong> → LinkedIn and Quora often have more leads for professional services like resume writing.</div>
+      </div>`;
     return;
   }
 
@@ -3637,20 +3715,19 @@ async function lfSearch(){
   lfRenderResults(allResults, svc);
 }
 
-function lfDefaultQueries(svc, cust){
-  return [
-    `${cust} need help ${svc}`,
-    `${cust} looking for ${svc}`,
-    `${svc} small business`,
-    `how to find clients ${svc}`
-  ];
-}
-
 async function lfAIQueries(svc, cust){
-  const prompt=`Generate 4 Reddit search queries to find potential clients for someone who offers "${svc}" targeting "${cust}".
-The queries should find posts where people are expressing a NEED or PROBLEM that this service solves.
-Reply with ONLY 4 search queries, one per line, no numbering, no explanation.
-Make them natural Reddit-style search terms (2-5 words each).`;
+  const prompt=`Generate 6 Reddit search queries to find people who NEED "${svc}" (targeting: ${cust}).
+
+Rules:
+- Focus on the PAIN the person feels, not the service name
+- Use words people actually type when frustrated or seeking help
+- 2-4 words each, simple and natural
+- Think: what does someone say on Reddit BEFORE they know your service exists?
+- Include at least 2 very broad fallback queries that would return results even on a quiet topic
+
+Examples for "resume writing": need resume help, job application failing, resume getting rejected, ATS resume tips, career advice job search
+
+Reply with ONLY 6 queries, one per line, no numbers, no explanation.`;
   const r = await fetch("https://api.anthropic.com/v1/messages",{
     method:"POST",
     headers:{"x-api-key":anthropicKey,"anthropic-version":"2023-06-01","content-type":"application/json","anthropic-dangerous-direct-browser-access":"true"},

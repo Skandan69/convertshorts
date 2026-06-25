@@ -323,9 +323,64 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div id="googleCXStatus"></div>
       <div class="field-note">→ <a href="https://programmablesearchengine.google.com/" target="_blank">programmablesearchengine.google.com</a> · Create engine → "Search entire web" → copy the ID (cx=...)</div>
     </div>
+    <div class="field">
+      <label>Rank-Check CX ID <span style="color:#444">(for checking your Google rankings — separate CX)</span></label>
+      <input type="text" id="googleWebCX" placeholder="Paste CX ID here" autocomplete="off">
+      <div id="googleWebCXStatus"></div>
+      <div class="field-note">→ Same site as above · Create a <strong>second</strong> engine set to "Search entire web" · Used by Rank Tracker to check where your site appears in Google results</div>
+    </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeSettings()">Cancel</button>
       <button class="btn btn-primary" onclick="saveSettings()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ONBOARDING MODAL -->
+<div class="overlay" id="onboardOverlay">
+  <div class="modal" style="max-width:580px;max-height:90vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h2 style="font-size:18px">👋 Welcome to FirstCustomer</h2>
+      <button onclick="closeOnboard()" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer">✕</button>
+    </div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6">This tool has 3 sections. Here's what each one does and what <strong style="color:#fff">you need to do</strong> in each.</p>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+
+      <div style="background:#111122;border:1px solid var(--border);border-radius:10px;padding:16px">
+        <div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:6px">🎯 Signal Hunter</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:10px">Scans Reddit, HackerNews, YouTube, and more for people asking questions that your product answers. Shows you those posts so you can reply and introduce your product naturally.</div>
+        <div style="font-size:11px;font-weight:700;color:var(--purple2);margin-bottom:6px">YOUR ROLE:</div>
+        <div style="font-size:12px;color:#ccc;line-height:1.6">1. Click <strong>+ Add Product</strong> → enter your product name, website, and a 1-line description<br>2. Click <strong>🔍 Hunt Signals</strong> — it scans 7 platforms automatically<br>3. Read the results → click <strong>✨ Draft Reply</strong> to generate a response<br>4. Copy the reply → paste it on the platform → click <strong>Posted ✓</strong></div>
+      </div>
+
+      <div style="background:#111122;border:1px solid var(--border);border-radius:10px;padding:16px">
+        <div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:6px">📊 Rank Tracker</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:10px">Shows where your website appears in Google search results for specific keywords. Helps you see which keywords need work and which are almost on page 1.</div>
+        <div style="font-size:11px;font-weight:700;color:var(--purple2);margin-bottom:6px">YOUR ROLE:</div>
+        <div style="font-size:12px;color:#ccc;line-height:1.6">1. Enter your website URL → click <strong>Scan &amp; Check Rankings</strong> (needs Rank-Check CX key)<br>&nbsp;&nbsp;&nbsp;<em style="color:#666">OR</em> click <strong>✏️ Enter manually</strong> → type keywords you want to rank for + their current positions<br>2. Check the dashboard — orange = opportunity (positions 11–20), red = buried (20+)<br>3. Use the tips in each keyword row to improve your page for that keyword</div>
+      </div>
+
+      <div style="background:#111122;border:1px solid var(--border);border-radius:10px;padding:16px">
+        <div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:6px">📺 YouTube Studio</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:10px">Tools for growing a YouTube channel. Find trending keywords, spy on competitor channels, score your video titles for SEO, and use AI to generate better titles/descriptions/tags.</div>
+        <div style="font-size:11px;font-weight:700;color:var(--purple2);margin-bottom:6px">YOUR ROLE:</div>
+        <div style="font-size:12px;color:#ccc;line-height:1.6">1. Add your Google API key in Keys (⚙️ top right) — this enables YouTube features<br>2. Use <strong>Keyword Research</strong> to find what people search for in your niche<br>3. Use <strong>Video SEO Scorer</strong> → paste your video title/description/tags → fix the issues<br>4. Use <strong>AI Optimizer</strong> → paste your topic → get AI-written title, description, and tags</div>
+      </div>
+
+      <div style="background:#0a1a0a;border:1px solid #1a3a1a;border-radius:10px;padding:14px">
+        <div style="font-size:12px;font-weight:700;color:#22c55e;margin-bottom:8px">⚙️ FIRST STEP — Add your API keys</div>
+        <div style="font-size:12px;color:#ccc;line-height:1.7">Click the <strong style="color:#fff">⚙️ Keys</strong> button (top right) to add:<br>
+        • <strong>Anthropic key</strong> → enables AI reply drafting &amp; YouTube optimizer<br>
+        • <strong>Google API key</strong> → enables YouTube features &amp; Google Search signals<br>
+        • <strong>Google CX IDs</strong> → enables Google signals + rank checking<br><br>
+        <span style="color:#666">Keys are stored only in your browser. Nothing is sent to us.</span></div>
+      </div>
+    </div>
+
+    <div style="margin-top:18px;display:flex;gap:10px">
+      <button onclick="closeOnboard()" class="btn btn-primary" style="flex:1">Got it — let's go 🚀</button>
+      <button onclick="closeOnboard();openSettings()" class="btn btn-ghost">⚙️ Set up keys first</button>
     </div>
   </div>
 </div>
@@ -456,6 +511,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
   <div class="hdr-right">
     <div class="learn-pill" onclick="openLearn()">📚 Learned: <strong id="learnCount">0</strong></div>
+    <button class="btn btn-ghost" onclick="openOnboard()" style="font-size:11px;padding:6px 10px" title="How it works">❓ Help</button>
     <button class="btn btn-ghost" onclick="openSettings()">⚙️ Keys</button>
     <button class="btn-add" id="addProdBtn" onclick="openAdd()">＋ Add Product</button>
     <button class="btn btn-primary" id="scanBtn" onclick="runScan()" style="display:none">▶ Scan</button>
@@ -531,7 +587,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="rt-hero">
     <div style="font-size:42px;margin-bottom:10px">📊</div>
     <h2>Keyword Rank Tracker</h2>
-    <p>Track keyword rankings — import from Google Search Console or enter manually.</p>
+    <p>Track keyword rankings — scan your website automatically or enter manually.</p>
+
+    <!-- URL Scan box -->
+    <div style="background:#111122;border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:18px;text-align:left">
+      <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:4px">🌐 Auto-scan your website</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Paste your URL → we fetch the page, extract keywords from your title/headings, then check where you rank on Google for each one.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input id="rtScanUrlInput" placeholder="https://buildurresume.com" style="flex:1;min-width:180px;background:#0c0c14;border:1px solid var(--border);border-radius:7px;padding:8px 11px;color:var(--text);font-size:12px">
+        <button onclick="rtScanWebsite()" class="btn btn-primary" style="white-space:nowrap">🔍 Scan &amp; Check Rankings</button>
+      </div>
+      <div id="rtScanProgress" style="display:none;margin-top:10px;font-size:12px;color:var(--muted)"></div>
+      <div id="rtScanNoKey" style="display:none;margin-top:10px;font-size:11px;background:#1a1000;border:1px solid #3a2500;border-radius:7px;padding:10px;color:#fbbf24">
+        ⚠️ To auto-check rankings you need a <strong>Rank-Check CX ID</strong> in your Keys. <button onclick="closeOnboard&&closeOnboard();openSettings()" style="background:none;border:none;color:var(--purple2);cursor:pointer;font-size:11px;padding:0;text-decoration:underline">Add it now →</button><br>
+        <span style="color:#666;font-size:10px;margin-top:4px;display:block">It's free: go to programmablesearchengine.google.com → New → Search entire web → copy CX ID → paste in Keys</span>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+      <span style="font-size:11px;color:var(--muted)">OR import manually</span>
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+    </div>
 
     <!-- Tab switcher -->
     <div style="display:flex;gap:8px;justify-content:center;margin-bottom:18px;flex-wrap:wrap">
@@ -753,6 +830,7 @@ free resume template,18,890,2.0%,14.1"></textarea>
 let anthropicKey = localStorage.getItem("fc_ant") || "";
 let googleKey    = localStorage.getItem("fc_goog") || "";
 let googleCX     = localStorage.getItem("fc_gcx") || "";
+let googleWebCX  = localStorage.getItem("fc_gwcx") || "";
 let feedback     = JSON.parse(localStorage.getItem("fc_fb2") || "{}");
 let postedCount  = parseInt(localStorage.getItem("fc_posts") || "0");
 let scanResults  = {};
@@ -1077,6 +1155,7 @@ function openSettings(){
   document.getElementById("anthropicKey").value=anthropicKey;
   document.getElementById("googleKey").value=googleKey;
   document.getElementById("googleCX").value=googleCX;
+  document.getElementById("googleWebCX").value=googleWebCX;
   refreshStatuses();
   document.getElementById("settingsOverlay").classList.add("open");
 }
@@ -1085,9 +1164,11 @@ function saveSettings(){
   anthropicKey=document.getElementById("anthropicKey").value.trim();
   googleKey=document.getElementById("googleKey").value.trim();
   googleCX=document.getElementById("googleCX").value.trim();
+  googleWebCX=document.getElementById("googleWebCX").value.trim();
   localStorage.setItem("fc_ant",anthropicKey);
   localStorage.setItem("fc_goog",googleKey);
   localStorage.setItem("fc_gcx",googleCX);
+  localStorage.setItem("fc_gwcx",googleWebCX);
   closeSettings(); updateNotice();
 }
 function refreshStatuses(){
@@ -1099,6 +1180,8 @@ function refreshStatuses(){
   gs.textContent=googleKey?"✓ Key saved":"Not set — YouTube + Google Search disabled";
   const cx=document.getElementById("googleCXStatus");
   if(cx){ cx.className=googleCX?"key-ok":"key-no"; cx.textContent=googleCX?"✓ CX saved — Google Search enabled":"Not set — Google Search signals disabled"; }
+  const wcx=document.getElementById("googleWebCXStatus");
+  if(wcx){ wcx.className=googleWebCX?"key-ok":"key-no"; wcx.textContent=googleWebCX?"✓ Rank-Check CX saved — auto rank scanning enabled":"Not set — auto rank scanning disabled (manual entry still works)"; }
 }
 function updateNotice(){ document.getElementById("noKeyNotice").style.display=anthropicKey?"none":"block"; }
 
@@ -1763,6 +1846,150 @@ function enc(s){return encodeURIComponent(s);}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 
 // ─────────────────────────────────────────────
+// ONBOARDING
+// ─────────────────────────────────────────────
+function openOnboard(){ document.getElementById("onboardOverlay").classList.add("open"); }
+function closeOnboard(){ document.getElementById("onboardOverlay").classList.remove("open"); localStorage.setItem("fc_onboarded","1"); }
+
+// ─────────────────────────────────────────────
+// RANK TRACKER — URL SCAN + GOOGLE RANK CHECK
+// ─────────────────────────────────────────────
+const RT_STOPWORDS = new Set(["the","a","an","and","or","but","in","on","at","to","for","of","with","by","from","is","are","was","were","be","been","being","have","has","had","do","does","did","will","would","could","should","may","might","shall","can","this","that","these","those","it","its","we","our","your","my","their","you","i","he","she","they","who","what","which","how","when","where","why","get","got","make","made","use","used","need","want","help","all","more","than","so","if","as","up","out","about","just","into","over","also","new","now","free","best","top","good"]);
+
+function rtExtractKeywords(html){
+  try{
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+    const title = doc.querySelector("title")?.textContent||"";
+    const metaDesc = doc.querySelector('meta[name="description"]')?.getAttribute("content")||"";
+    const metaKw = doc.querySelector('meta[name="keywords"]')?.getAttribute("content")||"";
+    const h1 = [...doc.querySelectorAll("h1")].map(h=>h.textContent).join(" ");
+    const h2 = [...doc.querySelectorAll("h2")].map(h=>h.textContent).join(" ");
+    const ogTitle = doc.querySelector('meta[property="og:title"]')?.getAttribute("content")||"";
+    const ogDesc = doc.querySelector('meta[property="og:description"]')?.getAttribute("content")||"";
+
+    // Combine all text, weight title/h1 more heavily
+    const allText = [title,title,ogTitle,metaDesc,ogDesc,metaKw,h1,h1,h2].join(" ");
+    const cleaned = allText.toLowerCase().replace(/[^a-z0-9\s\-]/g," ").replace(/\s+/g," ").trim();
+    const words = cleaned.split(" ").filter(w=>w.length>2 && !RT_STOPWORDS.has(w));
+
+    const phrases = new Set();
+    // 1-word important terms
+    words.forEach(w=>{ if(w.length>4) phrases.add(w); });
+    // 2-word phrases
+    for(let i=0;i<words.length-1;i++){
+      if(!RT_STOPWORDS.has(words[i])&&!RT_STOPWORDS.has(words[i+1])) phrases.add(words[i]+" "+words[i+1]);
+    }
+    // 3-word phrases
+    for(let i=0;i<words.length-2;i++){
+      if(!RT_STOPWORDS.has(words[i])&&!RT_STOPWORDS.has(words[i+2])) phrases.add(words[i]+" "+words[i+1]+" "+words[i+2]);
+    }
+    // Remove duplicates that are substrings of longer phrases
+    const sorted = [...phrases].sort((a,b)=>b.split(" ").length-a.split(" ").length);
+    const filtered = sorted.filter((p,i)=>!sorted.slice(0,i).some(longer=>longer.includes(p)));
+    return filtered.slice(0,10);
+  }catch(e){ return []; }
+}
+
+async function rtCheckGoogleRank(keyword, domain){
+  if(!googleKey||!googleWebCX) return 999;
+  try{
+    await sleep(300); // rate limiting
+    const r = await fetch(`https://www.googleapis.com/customsearch/v1?key=${googleKey}&cx=${googleWebCX}&q=${enc(keyword)}&num=10`,{signal:AbortSignal.timeout(8000)});
+    const data = await r.json();
+    if(data.error) return 999;
+    const items = data.items||[];
+    for(let i=0;i<items.length;i++){
+      const link=(items[i].link||"")+(items[i].displayLink||"");
+      if(link.includes(domain)) return i+1;
+    }
+    // Check positions 11–20
+    await sleep(300);
+    const r2 = await fetch(`https://www.googleapis.com/customsearch/v1?key=${googleKey}&cx=${googleWebCX}&q=${enc(keyword)}&num=10&start=11`,{signal:AbortSignal.timeout(8000)});
+    const data2 = await r2.json();
+    if(!data2.error){
+      const items2 = data2.items||[];
+      for(let i=0;i<items2.length;i++){
+        const link=(items2[i].link||"")+(items2[i].displayLink||"");
+        if(link.includes(domain)) return i+11;
+      }
+    }
+    return 100; // Not found in top 20 → show as 100
+  }catch{ return 999; }
+}
+
+async function rtScanWebsite(){
+  const raw = document.getElementById("rtScanUrlInput").value.trim();
+  if(!raw){ alert("Enter your website URL first."); return; }
+  const url = raw.startsWith("http") ? raw : "https://"+raw;
+  let domain;
+  try{ domain = new URL(url).hostname; }catch{ alert("That doesn't look like a valid URL."); return; }
+
+  const prog = document.getElementById("rtScanProgress");
+  const noKey = document.getElementById("rtScanNoKey");
+  noKey.style.display = "none";
+
+  // If no rank-check CX, still extract keywords but skip rank checking
+  const canCheckRank = !!(googleKey && googleWebCX);
+
+  prog.style.display = "block";
+  prog.innerHTML = `<div class="loading"><div class="spinner"></div><div class="loading-msg">Fetching ${domain}…</div></div>`;
+
+  try{
+    // Fetch via CORS proxy
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+    const r = await fetch(proxyUrl,{signal:AbortSignal.timeout(18000)});
+    const json = await r.json();
+    const html = json.contents||"";
+    if(!html){ prog.innerHTML=`<div class="rt-empty">Could not fetch that page. Try the manual entry option instead.</div>`; return; }
+
+    const keywords = rtExtractKeywords(html);
+    if(!keywords.length){ prog.innerHTML=`<div class="rt-empty">Couldn't extract keywords from that page. Try the manual entry option.</div>`; return; }
+
+    if(!canCheckRank){
+      // No rank-check CX — just pre-fill keywords for manual entry
+      noKey.style.display = "block";
+      prog.innerHTML = `<div style="font-size:12px;color:var(--muted)">Found <strong style="color:#fff">${keywords.length} keywords</strong> from your page. Switching to manual entry — add your positions:</div>`;
+      rtShowTab("manual");
+      document.getElementById("rtManualRows").innerHTML="";
+      rtManualRowCount=0;
+      keywords.forEach(kw=>{ rtAddManualRow(); const id=rtManualRowCount; document.getElementById("rtMrQ"+id).value=kw; });
+      return;
+    }
+
+    // Check ranks for each keyword
+    rtData = [];
+    prog.innerHTML = `<div style="font-size:12px;color:var(--muted)">Found ${keywords.length} keywords · Checking Google rankings… <span id="rtScanCount">0/${keywords.length}</span></div><div style="height:6px;background:var(--bg3);border-radius:3px;margin-top:8px;overflow:hidden"><div id="rtScanBar" style="height:100%;background:var(--purple);border-radius:3px;width:0%;transition:width .3s"></div></div>`;
+
+    for(let i=0;i<keywords.length;i++){
+      const kw=keywords[i];
+      const pos = await rtCheckGoogleRank(kw, domain);
+      rtData.push({query:kw, position:pos===999?100:pos, clicks:0, impressions:0, ctr:0});
+      const pct=Math.round((i+1)/keywords.length*100);
+      const countEl=document.getElementById("rtScanCount"); if(countEl) countEl.textContent=`${i+1}/${keywords.length}`;
+      const barEl=document.getElementById("rtScanBar"); if(barEl) barEl.style.width=pct+"%";
+    }
+
+    if(!rtData.length){ prog.innerHTML=`<div class="rt-empty">No results found. Check your Rank-Check CX key in Settings.</div>`; return; }
+    rtData.sort((a,b)=>a.position-b.position);
+
+    const total=rtData.length;
+    const ranked=rtData.filter(r=>r.position<100).length;
+    const avgPos=ranked>0?(rtData.filter(r=>r.position<100).reduce((s,r)=>s+r.position,0)/ranked).toFixed(1):"–";
+    document.getElementById("rtKwCount").textContent=total;
+    document.getElementById("rtAvgPos").textContent=avgPos;
+    document.getElementById("rtTotalClicks").textContent="–";
+    prog.style.display="none";
+    ["rtModeFile","rtModePaste","rtModeManual"].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display="none";});
+    document.getElementById("rtDash").style.display="block";
+    rtRender();
+
+  }catch(e){
+    prog.innerHTML=`<div class="rt-empty">Scan failed: ${e.message}. Try the manual entry option instead.</div>`;
+  }
+}
+
+// ─────────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────────
 updateNotice();
@@ -1777,6 +2004,10 @@ document.getElementById("settingsOverlay").addEventListener("click",e=>{if(e.tar
 document.getElementById("learnOverlay").addEventListener("click",e=>{if(e.target===e.currentTarget)closeLearn();});
 document.getElementById("addOverlay").addEventListener("click",e=>{if(e.target===e.currentTarget)closeAdd();});
 document.getElementById("rtTipOverlay").addEventListener("click",e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove("open");});
+document.getElementById("onboardOverlay").addEventListener("click",e=>{if(e.target===e.currentTarget)closeOnboard();});
+
+// Show onboarding for first-time visitors
+if(!localStorage.getItem("fc_onboarded")) setTimeout(openOnboard, 600);
 
 // ─────────────────────────────────────────────
 // PAGE SWITCHING

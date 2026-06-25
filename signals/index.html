@@ -323,6 +323,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div id="googleCXStatus"></div>
       <div class="field-note">→ <a href="https://programmablesearchengine.google.com/" target="_blank">programmablesearchengine.google.com</a> · Create engine → "Search entire web" → copy the ID (cx=...)</div>
     </div>
+    <div class="field">
+      <label>SerpAPI Key <span style="color:#444">(auto rank checking — 100 free/month)</span></label>
+      <input type="password" id="serpApiKey" placeholder="Paste your SerpAPI key" autocomplete="off">
+      <div id="serpApiStatus"></div>
+      <div class="field-note">→ <a href="https://serpapi.com" target="_blank">serpapi.com</a> · Sign up free · Get API key · Enables "Auto-check positions" button in Rank Tracker · 100 checks/month free</div>
+    </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeSettings()">Cancel</button>
       <button class="btn btn-primary" onclick="saveSettings()">Save</button>
@@ -645,7 +651,10 @@ free resume template,18,890,2.0%,14.1"></textarea>
       <div style="font-size:12px;color:var(--muted)"><span id="rtKwCount" style="color:#fff;font-weight:700">0</span> keywords tracked</div>
       <div style="font-size:12px;color:var(--muted)">Avg position: <span id="rtAvgPos" style="color:#fff;font-weight:700">–</span></div>
       <div style="font-size:12px;color:var(--muted)">Total clicks: <span id="rtTotalClicks" style="color:#fff;font-weight:700">–</span></div>
-      <button class="btn btn-ghost" style="margin-left:auto;font-size:11px" onclick="rtData=[];document.getElementById('rtDash').style.display='none';rtShowTab('file');document.querySelectorAll('#rtModeFile,#rtModePaste,#rtModeManual,#rtDropZone').forEach(e=>{if(e)e.style.display='block'})">↻ Re-import</button>
+      <div style="display:flex;gap:8px;margin-left:auto;flex-wrap:wrap">
+        <button id="rtAutoCheckBtn" class="btn btn-ghost" style="font-size:11px;display:none" onclick="rtAutoCheckAll()">🔄 Auto-check positions</button>
+        <button class="btn btn-ghost" style="font-size:11px" onclick="rtData=[];document.getElementById('rtDash').style.display='none';rtShowTab('file');document.querySelectorAll('#rtModeFile,#rtModePaste,#rtModeManual,#rtDropZone').forEach(e=>{if(e)e.style.display='block'})">↻ Re-import</button>
+      </div>
     </div>
     <div class="rt-filters">
       <button class="rt-filter-pill active" data-rtf="all" onclick="rtFilter('all',this)">All</button>
@@ -673,6 +682,21 @@ free resume template,18,890,2.0%,14.1"></textarea>
       </tr></thead>
       <tbody id="rtTbody"></tbody>
     </table>
+
+    <!-- Keyword Suggestions -->
+    <div style="margin-top:28px;border-top:1px solid var(--border);padding-top:22px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#fff">💡 Keyword Suggestions</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">Real searches people type into Google — create a page on your site for each one to start ranking</div>
+        </div>
+        <button onclick="rtGetSuggestions()" class="btn btn-primary" style="font-size:11px">Find Keywords People Search For →</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
+        <input id="rtSuggestSeed" placeholder="Type your niche (e.g. ayurvedic herbs, resume builder, AI chatbot)" style="flex:1;min-width:200px;background:#0c0c14;border:1px solid var(--border);border-radius:7px;padding:8px 11px;color:var(--text);font-size:12px">
+      </div>
+      <div id="rtSuggestResults" style="display:none"></div>
+    </div>
   </div>
 </div>
 
@@ -823,6 +847,7 @@ let anthropicKey = localStorage.getItem("fc_ant") || "";
 let googleKey    = localStorage.getItem("fc_goog") || "";
 let googleCX     = localStorage.getItem("fc_gcx") || "";
 let googleWebCX  = localStorage.getItem("fc_gwcx") || "";
+let serpApiKey   = localStorage.getItem("fc_serp") || "";
 let feedback     = JSON.parse(localStorage.getItem("fc_fb2") || "{}");
 let postedCount  = parseInt(localStorage.getItem("fc_posts") || "0");
 let scanResults  = {};
@@ -1148,6 +1173,7 @@ function openSettings(){
   document.getElementById("googleKey").value=googleKey;
   document.getElementById("googleCX").value=googleCX;
   document.getElementById("googleWebCX").value=googleWebCX;
+  document.getElementById("serpApiKey").value=serpApiKey;
   refreshStatuses();
   document.getElementById("settingsOverlay").classList.add("open");
 }
@@ -1157,10 +1183,13 @@ function saveSettings(){
   googleKey=document.getElementById("googleKey").value.trim();
   googleCX=document.getElementById("googleCX").value.trim();
   googleWebCX=document.getElementById("googleWebCX").value.trim();
+  serpApiKey=document.getElementById("serpApiKey").value.trim();
   localStorage.setItem("fc_ant",anthropicKey);
   localStorage.setItem("fc_goog",googleKey);
   localStorage.setItem("fc_gcx",googleCX);
   localStorage.setItem("fc_gwcx",googleWebCX);
+  localStorage.setItem("fc_serp",serpApiKey);
+  const sb=document.getElementById("rtAutoCheckBtn"); if(sb) sb.style.display=serpApiKey?"inline-flex":"none";
   closeSettings(); updateNotice();
 }
 function refreshStatuses(){
@@ -1173,7 +1202,9 @@ function refreshStatuses(){
   const cx=document.getElementById("googleCXStatus");
   if(cx){ cx.className=googleCX?"key-ok":"key-no"; cx.textContent=googleCX?"✓ CX saved — Google Search enabled":"Not set — Google Search signals disabled"; }
   const wcx=document.getElementById("googleWebCXStatus");
-  if(wcx){ wcx.className=googleWebCX?"key-ok":"key-no"; wcx.textContent=googleWebCX?"✓ Rank-Check CX saved — auto rank scanning enabled":"Not set — auto rank scanning disabled (manual entry still works)"; }
+  if(wcx){ wcx.className=googleWebCX?"key-ok":"key-no"; wcx.textContent=googleWebCX?"✓ Rank-Check CX saved":"Not set"; }
+  const ss=document.getElementById("serpApiStatus");
+  if(ss){ ss.className=serpApiKey?"key-ok":"key-no"; ss.textContent=serpApiKey?"✓ SerpAPI key saved — auto rank checking enabled":"Not set — manual position entry only (free tier: serpapi.com gives 100/month free)"; }
 }
 function updateNotice(){ document.getElementById("noKeyNotice").style.display=anthropicKey?"none":"block"; }
 
@@ -1838,6 +1869,115 @@ function enc(s){return encodeURIComponent(s);}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 
 // ─────────────────────────────────────────────
+// SERP API — AUTO RANK CHECKING
+// ─────────────────────────────────────────────
+async function rtAutoCheckAll(){
+  if(!serpApiKey){ openSettings(); return; }
+  if(!rtData.length) return;
+  const btn = document.getElementById("rtAutoCheckBtn");
+  btn.textContent="⏳ Checking…"; btn.disabled=true;
+  let checked=0;
+  for(const row of rtData){
+    try{
+      const url=`https://serpapi.com/search.json?q=${enc(row.query)}&api_key=${serpApiKey}&num=100&engine=google`;
+      const r = await fetch(url,{signal:AbortSignal.timeout(12000)});
+      const data = await r.json();
+      if(data.error){ console.warn("SerpAPI:",data.error); continue; }
+      const results = data.organic_results||[];
+      // Find domain in results
+      const domainInput = document.getElementById("rtScanUrlInput")?.value||"";
+      let domain="";
+      try{ domain=new URL(domainInput.startsWith("http")?domainInput:"https://"+domainInput).hostname; }catch{}
+      if(domain){
+        const hit = results.findIndex(r2=>(r2.link||"").includes(domain));
+        if(hit>=0) row.position = hit+1;
+        else row.position = 100;
+      }
+      checked++;
+      btn.textContent=`⏳ ${checked}/${rtData.length}…`;
+      await sleep(500);
+    }catch(e){ console.warn(e); }
+  }
+  btn.textContent="🔄 Auto-check positions"; btn.disabled=false;
+  // Update stats
+  const ranked=rtData.filter(r=>r.position<100);
+  const avgPos=ranked.length?(ranked.reduce((s,r)=>s+r.position,0)/ranked.length).toFixed(1):"–";
+  document.getElementById("rtAvgPos").textContent=avgPos;
+  document.getElementById("rtKwCount").textContent=rtData.length;
+  rtRender();
+  alert(`✅ Updated positions for ${checked} keywords!`);
+}
+
+// ─────────────────────────────────────────────
+// KEYWORD SUGGESTIONS (Google Autocomplete — free)
+// ─────────────────────────────────────────────
+async function rtGetSuggestions(){
+  const seed = document.getElementById("rtSuggestSeed").value.trim();
+  if(!seed){ alert("Type your niche or a keyword to start with — e.g. 'ayurvedic herbs' or 'resume builder'"); return; }
+  const el = document.getElementById("rtSuggestResults");
+  el.style.display="block";
+  el.innerHTML=`<div class="loading"><div class="spinner"></div><div class="loading-msg">Fetching what people search for…</div></div>`;
+
+  try{
+    // Query Google autocomplete via proxy for multiple prefix variants
+    const prefixes = [seed, seed+" for", seed+" how", seed+" best", "best "+seed, "free "+seed, seed+" in india"];
+    const allSuggestions = new Set();
+
+    for(const prefix of prefixes.slice(0,4)){
+      try{
+        const proxyUrl=`https://api.allorigins.win/get?url=${encodeURIComponent("https://suggestqueries.google.com/complete/search?client=firefox&q="+encodeURIComponent(prefix))}`;
+        const r=await fetch(proxyUrl,{signal:AbortSignal.timeout(8000)});
+        const json=await r.json();
+        // Parse the JSON array response
+        const text=json.contents||"";
+        const match=text.match(/\[.*?\]/s);
+        if(match){
+          const parsed=JSON.parse(match[0]);
+          const suggestions=Array.isArray(parsed[1])?parsed[1]:[];
+          suggestions.forEach(s=>{ if(typeof s==="string") allSuggestions.add(s); else if(Array.isArray(s)&&s[0]) allSuggestions.add(s[0]); });
+        }
+        await sleep(300);
+      }catch{}
+    }
+
+    const suggestions=[...allSuggestions].filter(s=>s.length>5&&s.length<60).slice(0,20);
+
+    if(!suggestions.length){
+      el.innerHTML=`<div class="rt-empty">Couldn't load suggestions. Check your connection and try again.</div>`;
+      return;
+    }
+
+    // Already tracked keywords
+    const tracked=new Set(rtData.map(r=>r.query.toLowerCase()));
+
+    el.innerHTML=`
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px">These are real searches from Google. <strong style="color:#fff">Green = not tracked yet.</strong> Add the ones that match what your site is about — then create a page on your site for each one.</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        ${suggestions.map((s,i)=>{
+          const isNew=!tracked.has(s.toLowerCase());
+          return `<div style="display:flex;align-items:center;gap:6px;background:${isNew?"#0a1a0a":"#111122"};border:1px solid ${isNew?"#1a3a1a":"var(--border)"};border-radius:20px;padding:5px 12px;font-size:12px">
+            <span style="color:${isNew?"#22c55e":"var(--muted)"}">${s}</span>
+            ${isNew?`<button onclick="rtAddSuggestion('${s.replace(/'/g,"\\'")}',this)" style="background:#22c55e;border:none;color:#000;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;cursor:pointer">+ Track</button>`:`<span style="font-size:10px;color:#444">tracked</span>`}
+          </div>`;
+        }).join("")}
+      </div>
+      <div style="margin-top:14px;padding:12px;background:#111122;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--muted);line-height:1.7">
+        💡 <strong style="color:#fff">What to do with these:</strong><br>
+        Pick 2–3 keywords that match what your site is about → click <strong style="color:#fff">+ Track</strong> → then go to your website and <strong style="color:#fff">create one new page for each keyword</strong> (a blog post, product page, or info page titled exactly that keyword). Google will find it and start ranking you. Check back in 3–4 weeks to see your position improve.
+      </div>`;
+  }catch(e){
+    el.innerHTML=`<div class="rt-empty">Failed to load suggestions: ${e.message}</div>`;
+  }
+}
+
+function rtAddSuggestion(kw, btn){
+  rtData.push({query:kw, position:100, clicks:0, impressions:0, ctr:0});
+  btn.textContent="✓ Added"; btn.style.background="#444"; btn.disabled=true;
+  document.getElementById("rtKwCount").textContent=rtData.length;
+  rtRender();
+}
+
+// ─────────────────────────────────────────────
 // ONBOARDING
 // ─────────────────────────────────────────────
 function openOnboard(){ document.getElementById("onboardOverlay").classList.add("open"); }
@@ -2280,6 +2420,17 @@ function rtFilterMatch(row, f){
 }
 
 function rtRender(){
+  // Auto-fill suggestion seed from keywords
+  const seedEl=document.getElementById("rtSuggestSeed");
+  if(seedEl&&!seedEl.value&&rtData.length){
+    // Take the 2 most common meaningful words across all keywords
+    const wordFreq={};
+    rtData.forEach(r=>r.query.split(" ").filter(w=>w.length>3&&!RT_STOPWORDS.has(w)).forEach(w=>{wordFreq[w]=(wordFreq[w]||0)+1;}));
+    const topWords=Object.entries(wordFreq).sort((a,b)=>b[1]-a[1]).slice(0,2).map(([w])=>w);
+    if(topWords.length) seedEl.value=topWords.join(" ");
+  }
+  // Show/hide auto-check button
+  const sb=document.getElementById("rtAutoCheckBtn"); if(sb) sb.style.display=serpApiKey?"inline-flex":"none";
   const sort = document.getElementById("rtSortSel").value;
   let rows = rtData.filter(r=>rtFilterMatch(r,rtActiveFilter));
   rows.sort((a,b)=>sort==="clicks"?b.clicks-a.clicks:sort==="impressions"?b.impressions-a.impressions:a.position-b.position);

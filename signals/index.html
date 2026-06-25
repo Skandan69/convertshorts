@@ -523,6 +523,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <button class="top-nav-btn active" id="nav-signal" onclick="switchPage('signal')">🎯 Signal Hunter</button>
   <button class="top-nav-btn" id="nav-rank" onclick="switchPage('rank')">📊 Rank Tracker</button>
   <button class="top-nav-btn" id="nav-yt" onclick="switchPage('yt')">📺 YouTube Studio</button>
+  <button class="top-nav-btn" id="nav-content" onclick="switchPage('content')" style="color:#f472b6">✍️ Content Studio</button>
   <button class="top-nav-btn" id="nav-guide" onclick="switchPage('guide')" style="color:#818cf8">📖 SEO Guide</button>
 </nav>
 
@@ -839,6 +840,190 @@ free resume template,18,890,2.0%,14.1"></textarea>
   </div>
 </div>
 </div><!-- /page-yt -->
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PAGE: CONTENT STUDIO                      -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="page" id="page-content">
+<div style="max-width:820px;margin:0 auto;padding:24px 16px 60px">
+
+  <!-- Header -->
+  <div style="margin-bottom:28px">
+    <h2 style="font-size:22px;font-weight:800;color:#fff;margin-bottom:6px">✍️ Content Studio</h2>
+    <p style="color:var(--muted);font-size:13px">Generate SEO articles, social posts, email campaigns and ad copy — powered by your Anthropic key. One keyword in, everything you need out.</p>
+    <div id="csNoKey" style="display:none;margin-top:10px;padding:10px 14px;background:#1a0a0a;border:1px solid #3a1010;border-radius:8px;font-size:12px;color:#f87171">
+      ⚠️ Add your Anthropic API key in <button onclick="openSettings()" style="background:none;border:none;color:#f472b6;cursor:pointer;font-size:12px;text-decoration:underline">⚙️ Settings</button> to use Content Studio.
+    </div>
+  </div>
+
+  <!-- Sub-tab switcher -->
+  <div style="display:flex;gap:0;margin-bottom:24px;border:1px solid var(--border);border-radius:10px;overflow:hidden;width:fit-content">
+    <button id="cst-article" onclick="csSwitchTab('article')" class="cs-subtab cs-subtab-active">📄 Article Writer</button>
+    <button id="cst-social" onclick="csSwitchTab('social')" class="cs-subtab">📱 Social Posts</button>
+    <button id="cst-email" onclick="csSwitchTab('email')" class="cs-subtab">📧 Email Campaign</button>
+    <button id="cst-ads" onclick="csSwitchTab('ads')" class="cs-subtab">🎯 Ad Copy</button>
+  </div>
+
+  <!-- ── ARTICLE WRITER ── -->
+  <div id="cs-article">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+      <div>
+        <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:5px">TARGET KEYWORD <span style="color:#f472b6">*</span></label>
+        <input id="cgKeyword" placeholder="e.g. ayurvedic herbs for hair growth india" style="width:100%;background:#0c0c14;border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-size:13px;box-sizing:border-box">
+        <div id="cgKwSuggestions" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px"></div>
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:5px">YOUR WEBSITE / BUSINESS (optional)</label>
+        <input id="cgSiteDesc" placeholder="e.g. myayurai.com — ayurvedic herb library for India" style="width:100%;background:#0c0c14;border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-size:13px;box-sizing:border-box">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+      <select id="cgTone" style="background:#0c0c14;border:1px solid var(--border);border-radius:7px;padding:8px 12px;color:var(--text);font-size:12px">
+        <option value="friendly">Tone: Friendly & helpful</option>
+        <option value="professional">Tone: Professional</option>
+        <option value="simple">Tone: Simple (beginner-friendly)</option>
+        <option value="authoritative">Tone: Expert / Authoritative</option>
+      </select>
+      <select id="cgLength" style="background:#0c0c14;border:1px solid var(--border);border-radius:7px;padding:8px 12px;color:var(--text);font-size:12px">
+        <option value="500">Length: ~500 words</option>
+        <option value="800">Length: ~800 words</option>
+        <option value="300">Length: ~300 words (short)</option>
+      </select>
+      <button onclick="cgGenerate()" id="cgBtn" class="btn btn-primary" style="background:linear-gradient(135deg,#be185d,#9333ea)">✨ Generate Everything</button>
+    </div>
+
+    <!-- Output area -->
+    <div id="cgOutput" style="display:none">
+      <!-- Meta section -->
+      <div class="cs-card" id="cgMetaCard">
+        <div class="cs-card-header">
+          <span>🔖 SEO Meta (copy these into your website)</span>
+          <button onclick="csCopySection('cgMetaText')" class="cs-copy-btn">Copy all</button>
+        </div>
+        <div id="cgMetaText" class="cs-output-text" style="font-size:12px"></div>
+      </div>
+
+      <!-- Article section -->
+      <div class="cs-card" style="margin-top:14px">
+        <div class="cs-card-header">
+          <span>📄 Article (paste this on your website page)</span>
+          <button onclick="csCopySection('cgArticleText')" class="cs-copy-btn">Copy article</button>
+        </div>
+        <div id="cgArticleText" class="cs-output-text"></div>
+      </div>
+
+      <!-- Social captions -->
+      <div class="cs-card" style="margin-top:14px">
+        <div class="cs-card-header"><span>📱 Social Captions (ready to post)</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px" id="cgSocialGrid"></div>
+      </div>
+
+      <!-- What to do next -->
+      <div style="margin-top:14px;padding:14px;background:#0d0d1f;border:1px solid #2d2d5f;border-radius:8px;font-size:12px;color:var(--muted);line-height:1.8">
+        <strong style="color:#818cf8">📌 What to do with this content:</strong><br>
+        <strong style="color:#fff">1.</strong> Copy the <strong style="color:#fff">SEO Meta</strong> → go to your website → add the Title and Description in your page settings (SEO section).<br>
+        <strong style="color:#fff">2.</strong> Copy the <strong style="color:#fff">Article</strong> → create a new page or blog post on your site → paste the content → set the URL to the slug above → publish.<br>
+        <strong style="color:#fff">3.</strong> Come back to <strong style="color:#fff">Rank Tracker</strong> → track this keyword → check your position in 4 weeks.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SOCIAL POSTS ── -->
+  <div id="cs-social" style="display:none">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+      <div>
+        <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:5px">TOPIC / KEYWORD <span style="color:#f472b6">*</span></label>
+        <input id="spTopic" placeholder="e.g. benefits of ashwagandha" style="width:100%;background:#0c0c14;border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-size:13px;box-sizing:border-box">
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:5px">YOUR PRODUCT / WEBSITE (optional)</label>
+        <input id="spProduct" placeholder="e.g. myayurai.com" style="width:100%;background:#0c0c14;border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-size:13px;box-sizing:border-box">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:center">
+      <label style="font-size:12px;color:var(--muted)">Platforms:</label>
+      <label class="cs-check"><input type="checkbox" id="spInsta" checked> Instagram</label>
+      <label class="cs-check"><input type="checkbox" id="spLinkedIn" checked> LinkedIn</label>
+      <label class="cs-check"><input type="checkbox" id="spWhatsapp" checked> WhatsApp</label>
+      <label class="cs-check"><input type="checkbox" id="spTwitter" checked> Twitter/X</label>
+      <button onclick="spGenerate()" id="spBtn" class="btn btn-primary" style="background:linear-gradient(135deg,#be185d,#9333ea);margin-left:auto">✨ Generate Posts</button>
+    </div>
+    <div id="spOutput" style="display:none;display:grid;gap:12px"></div>
+  </div>
+
+  <!-- ── EMAIL CAMPAIGN ── -->
+  <div id="cs-email" style="display:none">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+      <div>
+        <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:5px">PRODUCT / SERVICE <span style="color:#f472b6">*</span></label>
+        <input id="emProduct" placeholder="e.g. Ayurvedic herb subscription box" style="width:100%;background:#0c0c14;border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-size:13px;box-sizing:border-box">
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:5px">EMAIL GOAL</label>
+        <select id="emGoal" style="width:100%;background:#0c0c14;border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-size:13px">
+          <option value="launch">Product launch / announcement</option>
+          <option value="promo">Promotional offer / discount</option>
+          <option value="nurture">Educational / build trust</option>
+          <option value="reactivate">Re-engage inactive customers</option>
+          <option value="welcome">Welcome new subscribers</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-bottom:16px">
+      <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:5px">KEY BENEFIT OR OFFER (optional)</label>
+      <input id="emBenefit" placeholder="e.g. 30% off, free trial, proven results in 2 weeks" style="width:100%;background:#0c0c14;border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-size:13px;box-sizing:border-box">
+    </div>
+    <button onclick="emGenerate()" id="emBtn" class="btn btn-primary" style="background:linear-gradient(135deg,#be185d,#9333ea);margin-bottom:20px">✨ Generate Email</button>
+    <div id="emOutput" style="display:none"></div>
+  </div>
+
+  <!-- ── AD COPY ── -->
+  <div id="cs-ads" style="display:none">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+      <div>
+        <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:5px">PRODUCT / SERVICE <span style="color:#f472b6">*</span></label>
+        <input id="adProduct" placeholder="e.g. AI chatbot for UPSC preparation" style="width:100%;background:#0c0c14;border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-size:13px;box-sizing:border-box">
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:5px">TARGET CUSTOMER</label>
+        <input id="adAudience" placeholder="e.g. UPSC students in India aged 20-28" style="width:100%;background:#0c0c14;border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-size:13px;box-sizing:border-box">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+      <select id="adPlatform" style="background:#0c0c14;border:1px solid var(--border);border-radius:7px;padding:8px 12px;color:var(--text);font-size:12px">
+        <option value="google">Google Ads</option>
+        <option value="meta">Meta / Instagram Ads</option>
+        <option value="linkedin">LinkedIn Ads</option>
+      </select>
+      <select id="adGoal" style="background:#0c0c14;border:1px solid var(--border);border-radius:7px;padding:8px 12px;color:var(--text);font-size:12px">
+        <option value="signups">Get signups / leads</option>
+        <option value="sales">Drive sales</option>
+        <option value="awareness">Brand awareness</option>
+        <option value="traffic">Drive website traffic</option>
+      </select>
+      <button onclick="adGenerate()" id="adBtn" class="btn btn-primary" style="background:linear-gradient(135deg,#be185d,#9333ea)">✨ Generate Ad Copy</button>
+    </div>
+    <div id="adOutput" style="display:none"></div>
+  </div>
+
+</div>
+</div><!-- /page-content -->
+
+<style>
+.cs-subtab { background:#0c0c14;border:none;color:var(--muted);padding:9px 16px;font-size:12px;cursor:pointer;transition:all .2s;border-right:1px solid var(--border); }
+.cs-subtab:last-child { border-right:none; }
+.cs-subtab-active { background:#1a0a1f;color:#f472b6;font-weight:700; }
+.cs-card { background:#0c0c14;border:1px solid var(--border);border-radius:10px;padding:14px; }
+.cs-card-header { display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:12px;font-weight:700;color:#fff; }
+.cs-copy-btn { background:#1e293b;border:1px solid #334155;color:#94a3b8;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer; }
+.cs-copy-btn:hover { background:#334155;color:#fff; }
+.cs-output-text { font-size:12px;color:#e2e8f0;line-height:1.8;white-space:pre-wrap;word-break:break-word; }
+.cs-social-card { background:#111122;border:1px solid var(--border);border-radius:8px;padding:12px; }
+.cs-social-card-header { display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:11px;font-weight:700;color:#fff; }
+.cs-check { display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);cursor:pointer; }
+.cs-check input { accent-color:#f472b6; }
+.cs-spinner { display:inline-block;width:14px;height:14px;border:2px solid #444;border-top-color:#f472b6;border-radius:50%;animation:spin .6s linear infinite;margin-right:6px;vertical-align:middle; }
+</style>
 
 <!-- ═══════════════════════════════════════════ -->
 <!-- PAGE: SEO GUIDE                           -->
@@ -2618,6 +2803,365 @@ document.getElementById("onboardOverlay").addEventListener("click",e=>{if(e.targ
 if(!localStorage.getItem("fc_onboarded")) setTimeout(openOnboard, 600);
 
 // ─────────────────────────────────────────────
+// CONTENT STUDIO
+// ─────────────────────────────────────────────
+
+function csSwitchTab(tab){
+  ["article","social","email","ads"].forEach(t=>{
+    document.getElementById("cs-"+t).style.display = t===tab?"block":"none";
+    const btn = document.getElementById("cst-"+t);
+    if(btn){ btn.classList.toggle("cs-subtab-active", t===tab); }
+  });
+}
+
+function csCheckKey(){
+  const noKey = document.getElementById("csNoKey");
+  if(noKey) noKey.style.display = anthropicKey ? "none" : "block";
+}
+
+function csCopySection(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  navigator.clipboard.writeText(el.innerText||el.textContent).then(()=>{
+    const btn = el.parentElement.querySelector(".cs-copy-btn");
+    if(btn){ const orig=btn.textContent; btn.textContent="✓ Copied!"; setTimeout(()=>btn.textContent=orig,2000); }
+  });
+}
+
+async function csCallAI(prompt, maxTokens=1800){
+  if(!anthropicKey){ alert("Add your Anthropic API key in ⚙️ Settings first."); return null; }
+  const r = await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{
+      "x-api-key":anthropicKey,
+      "anthropic-version":"2023-06-01",
+      "content-type":"application/json",
+      "anthropic-dangerous-direct-browser-access":"true"
+    },
+    body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:maxTokens,messages:[{role:"user",content:prompt}]})
+  });
+  if(!r.ok) throw new Error("API error: "+r.status);
+  const data = await r.json();
+  return data.content?.[0]?.text||"";
+}
+
+// ── Article Writer ──
+async function cgGenerate(){
+  const kw = document.getElementById("cgKeyword").value.trim();
+  const site = document.getElementById("cgSiteDesc").value.trim();
+  const tone = document.getElementById("cgTone").value;
+  const length = document.getElementById("cgLength").value;
+  if(!kw){ alert("Enter a keyword first."); return; }
+  if(!anthropicKey){ alert("Add your Anthropic API key in ⚙️ Settings first."); return; }
+
+  const btn = document.getElementById("cgBtn");
+  btn.innerHTML=`<span class="cs-spinner"></span>Generating…`; btn.disabled=true;
+  document.getElementById("cgOutput").style.display="none";
+
+  const toneMap={friendly:"friendly and helpful",professional:"professional and authoritative",simple:"very simple and easy for beginners",authoritative:"expert and authoritative"};
+  const prompt=`You are an expert SEO content writer. Generate complete website content for this keyword.
+
+Keyword: "${kw}"
+Website/Business: ${site||"a small business website"}
+Tone: ${toneMap[tone]||"friendly"}
+Article length: approximately ${length} words
+
+Reply with EXACTLY this format (keep the === markers):
+
+===META===
+Page Title: [compelling SEO title 50-60 chars including "${kw}"]
+Meta Description: [150 chars including "${kw}", tells visitor what they'll get]
+URL Slug: /${kw.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
+
+===ARTICLE===
+# ${kw.charAt(0).toUpperCase()+kw.slice(1)}
+
+[Write ${length}-word article here with:
+- The H1 heading above (already written)
+- 3-4 sections with ## subheadings
+- Keyword "${kw}" used naturally 3-4 times total
+- ${toneMap[tone]} tone
+- Practical, helpful information real people want
+- Final paragraph: clear call to action]
+
+===INSTAGRAM===
+[150-word Instagram caption about "${kw}" with line breaks for readability, end with 8-10 relevant hashtags]
+
+===LINKEDIN===
+[120-word professional LinkedIn post about "${kw}", insight-driven, ends with a question to drive comments]
+
+===WHATSAPP===
+[50-word casual WhatsApp-friendly message about "${kw}" that's easy to forward, no hashtags]
+
+===TWITTER===
+[280-char tweet about "${kw}" that's punchy and shareable]`;
+
+  try{
+    const text = await csCallAI(prompt, 2200);
+    if(!text){ btn.innerHTML="✨ Generate Everything"; btn.disabled=false; return; }
+
+    // Parse sections
+    const get=(marker,next)=>{
+      const rx=new RegExp(`===${marker}===\\n([\\s\\S]*?)(?:===${next}===|$)`);
+      return (text.match(rx)||[])[1]?.trim()||"";
+    };
+
+    const meta = get("META","ARTICLE");
+    const article = get("ARTICLE","INSTAGRAM");
+    const insta = get("INSTAGRAM","LINKEDIN");
+    const linkedin = get("LINKEDIN","WHATSAPP");
+    const whatsapp = get("WHATSAPP","TWITTER");
+    const twitter = get("TWITTER","$");
+
+    document.getElementById("cgMetaText").textContent = meta;
+    document.getElementById("cgArticleText").textContent = article;
+
+    const platforms = [
+      {label:"📸 Instagram",icon:"🟣",text:insta},
+      {label:"💼 LinkedIn",icon:"🔵",text:linkedin},
+      {label:"💬 WhatsApp",icon:"🟢",text:whatsapp},
+      {label:"🐦 Twitter/X",icon:"⚫",text:twitter}
+    ];
+    document.getElementById("cgSocialGrid").innerHTML = platforms.map((p,i)=>`
+      <div class="cs-social-card">
+        <div class="cs-social-card-header">
+          <span>${p.label}</span>
+          <button onclick="csCopySocial(${i})" class="cs-copy-btn" id="cgSocCopy${i}">Copy</button>
+        </div>
+        <div id="cgSocText${i}" class="cs-output-text" style="font-size:11px;color:var(--muted);max-height:120px;overflow-y:auto">${p.text.replace(/\n/g,"<br>")}</div>
+      </div>`).join("");
+
+    // Store for copying
+    window._cgSocialTexts = platforms.map(p=>p.text);
+
+    document.getElementById("cgOutput").style.display="block";
+    document.getElementById("cgOutput").scrollIntoView({behavior:"smooth",block:"start"});
+
+    // Suggest tracked keywords
+    if(rtData.length){
+      const pills = rtData.slice(0,6).map(r=>`<button onclick="document.getElementById('cgKeyword').value='${r.query.replace(/'/g,"\\'")}'" style="background:#111122;border:1px solid var(--border);border-radius:12px;padding:3px 10px;font-size:11px;color:var(--muted);cursor:pointer">${r.query}</button>`).join("");
+      document.getElementById("cgKwSuggestions").innerHTML = `<span style="font-size:10px;color:#444;margin-right:4px">From tracker:</span>`+pills;
+    }
+
+  }catch(e){
+    alert("Generation failed: "+e.message);
+  }
+  btn.innerHTML="✨ Generate Everything"; btn.disabled=false;
+}
+
+function csCopySocial(i){
+  const text=window._cgSocialTexts?.[i]||"";
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.getElementById("cgSocCopy"+i);
+    if(btn){ btn.textContent="✓ Copied!"; setTimeout(()=>btn.textContent="Copy",2000); }
+  });
+}
+
+// ── Social Posts ──
+async function spGenerate(){
+  const topic = document.getElementById("spTopic").value.trim();
+  const product = document.getElementById("spProduct").value.trim();
+  if(!topic){ alert("Enter a topic first."); return; }
+  if(!anthropicKey){ alert("Add your Anthropic API key in ⚙️ Settings first."); return; }
+
+  const platforms=[];
+  if(document.getElementById("spInsta").checked) platforms.push("Instagram");
+  if(document.getElementById("spLinkedIn").checked) platforms.push("LinkedIn");
+  if(document.getElementById("spWhatsapp").checked) platforms.push("WhatsApp");
+  if(document.getElementById("spTwitter").checked) platforms.push("Twitter/X");
+  if(!platforms.length){ alert("Select at least one platform."); return; }
+
+  const btn=document.getElementById("spBtn");
+  btn.innerHTML=`<span class="cs-spinner"></span>Generating…`; btn.disabled=true;
+  const out=document.getElementById("spOutput");
+  out.style.display="block";
+  out.innerHTML=`<div class="loading"><div class="spinner"></div><div class="loading-msg">Writing posts for ${platforms.join(", ")}…</div></div>`;
+
+  const platformInstructions={
+    Instagram:`Instagram caption (150 words, engaging, line breaks for readability, 8-10 hashtags at end)`,
+    LinkedIn:`LinkedIn post (120 words, professional insight, ends with a question to drive engagement, no hashtags)`,
+    WhatsApp:`WhatsApp message (50 words max, casual, conversational, easy to forward, no hashtags)`,
+    "Twitter/X":`Tweet (under 280 characters, punchy, shareable, optionally 1-2 hashtags)`
+  };
+
+  const prompt=`Write social media posts about the following topic for multiple platforms.
+
+Topic: "${topic}"
+${product?`Product/Website: ${product}`:""}
+
+Write a post for each platform below. Use EXACTLY these section markers:
+
+${platforms.map(p=>`===${p.toUpperCase().replace("/","_")}===\n[${platformInstructions[p]}]`).join("\n\n")}
+
+Keep each post focused on the topic. Make them feel authentic, not robotic. Include a call to action where relevant.`;
+
+  try{
+    const text = await csCallAI(prompt, 1400);
+    if(!text){ out.innerHTML="Failed to generate. Try again."; btn.innerHTML="✨ Generate Posts"; btn.disabled=false; return; }
+
+    const icons={Instagram:"📸",LinkedIn:"💼",WhatsApp:"💬","Twitter/X":"🐦"};
+    const colors={Instagram:"#c026d3",LinkedIn:"#2563eb",WhatsApp:"#16a34a","Twitter/X":"#475569"};
+
+    out.innerHTML="";
+    platforms.forEach((p,i)=>{
+      const marker=p.toUpperCase().replace("/","_");
+      const next=platforms[i+1]?.toUpperCase().replace("/","_");
+      const rx=new RegExp(`===${marker}===\\n([\\s\\S]*?)(?:===${next}===|$)`);
+      const content=(text.match(rx)||[])[1]?.trim()||"";
+
+      const div=document.createElement("div");
+      div.className="cs-card";
+      div.innerHTML=`
+        <div class="cs-card-header">
+          <span>${icons[p]||"📝"} ${p}</span>
+          <button onclick="this.dataset.text='${encodeURIComponent(content)}';navigator.clipboard.writeText(decodeURIComponent(this.dataset.text)).then(()=>{const o=this.textContent;this.textContent='✓ Copied!';setTimeout(()=>this.textContent=o,2000)})" class="cs-copy-btn">Copy</button>
+        </div>
+        <div class="cs-output-text" style="color:var(--muted)">${content.replace(/\n/g,"<br>")}</div>
+        <div style="margin-top:8px;font-size:10px;color:#444">${p==="Twitter/X"?`${content.length}/280 chars`:""}</div>`;
+      out.appendChild(div);
+    });
+  }catch(e){
+    out.innerHTML=`<div class="rt-empty">Failed: ${e.message}</div>`;
+  }
+  btn.innerHTML="✨ Generate Posts"; btn.disabled=false;
+}
+
+// ── Email Campaign ──
+async function emGenerate(){
+  const product = document.getElementById("emProduct").value.trim();
+  const goal = document.getElementById("emGoal").value;
+  const benefit = document.getElementById("emBenefit").value.trim();
+  if(!product){ alert("Enter your product or service first."); return; }
+  if(!anthropicKey){ alert("Add your Anthropic API key in ⚙️ Settings first."); return; }
+
+  const btn=document.getElementById("emBtn");
+  btn.innerHTML=`<span class="cs-spinner"></span>Writing email…`; btn.disabled=true;
+  const out=document.getElementById("emOutput");
+  out.style.display="block";
+  out.innerHTML=`<div class="loading"><div class="spinner"></div><div class="loading-msg">Crafting your email…</div></div>`;
+
+  const goalMap={launch:"product launch announcement",promo:"promotional offer",nurture:"educational / trust-building",reactivate:"re-engage inactive customers",welcome:"welcome new subscribers"};
+  const prompt=`Write a complete email campaign for the following:
+
+Product/Service: "${product}"
+Email Goal: ${goalMap[goal]||goal}
+${benefit?`Key Benefit/Offer: ${benefit}`:""}
+
+Reply with EXACTLY this format:
+
+===SUBJECT===
+[3 subject line options, each on a new line, numbered 1. 2. 3. — make them compelling and curiosity-driven]
+
+===PREVIEW===
+[Preview text / pre-header, 80-100 chars, complements subject line]
+
+===BODY===
+[Full email body — 200-300 words. Include:
+- Warm greeting
+- Opening hook (1-2 sentences that make them want to read)
+- Main value proposition or story
+- Key benefit or offer (if provided)
+- Clear CTA button text in [brackets] like [Start Free Trial] or [Get 30% Off]
+- Closing sign-off]
+
+===TIP===
+[One practical tip for sending this email — best send time, audience, or A/B test idea]`;
+
+  try{
+    const text = await csCallAI(prompt, 1200);
+    if(!text){ out.innerHTML="Failed to generate. Try again."; btn.innerHTML="✨ Generate Email"; btn.disabled=false; return; }
+
+    const get=(m,n)=>{
+      const rx=new RegExp(`===${m}===\\n([\\s\\S]*?)(?:===${n}===|$)`);
+      return (text.match(rx)||[])[1]?.trim()||"";
+    };
+    const subject=get("SUBJECT","PREVIEW");
+    const preview=get("PREVIEW","BODY");
+    const body=get("BODY","TIP");
+    const tip=get("TIP","$");
+
+    out.innerHTML=`
+      <div class="cs-card">
+        <div class="cs-card-header"><span>✉️ Subject Lines (test all 3)</span><button onclick="csCopyText(this,'${encodeURIComponent(subject)}')" class="cs-copy-btn">Copy</button></div>
+        <div class="cs-output-text">${subject.replace(/\n/g,"<br>")}</div>
+      </div>
+      <div class="cs-card" style="margin-top:12px">
+        <div class="cs-card-header"><span>👁️ Preview Text</span><button onclick="csCopyText(this,'${encodeURIComponent(preview)}')" class="cs-copy-btn">Copy</button></div>
+        <div class="cs-output-text">${preview}</div>
+      </div>
+      <div class="cs-card" style="margin-top:12px">
+        <div class="cs-card-header"><span>📧 Email Body</span><button onclick="csCopyText(this,'${encodeURIComponent(body)}')" class="cs-copy-btn">Copy</button></div>
+        <div class="cs-output-text">${body.replace(/\n/g,"<br>")}</div>
+      </div>
+      <div style="margin-top:12px;padding:12px;background:#0d1117;border:1px solid #1e2d3d;border-radius:8px;font-size:12px;color:var(--muted)">
+        💡 <strong style="color:#60a5fa">Pro tip:</strong> ${tip}
+      </div>`;
+  }catch(e){
+    out.innerHTML=`<div class="rt-empty">Failed: ${e.message}</div>`;
+  }
+  btn.innerHTML="✨ Generate Email"; btn.disabled=false;
+}
+
+// ── Ad Copy ──
+async function adGenerate(){
+  const product = document.getElementById("adProduct").value.trim();
+  const audience = document.getElementById("adAudience").value.trim();
+  const platform = document.getElementById("adPlatform").value;
+  const goal = document.getElementById("adGoal").value;
+  if(!product){ alert("Enter your product or service first."); return; }
+  if(!anthropicKey){ alert("Add your Anthropic API key in ⚙️ Settings first."); return; }
+
+  const btn=document.getElementById("adBtn");
+  btn.innerHTML=`<span class="cs-spinner"></span>Writing ads…`; btn.disabled=true;
+  const out=document.getElementById("adOutput");
+  out.style.display="block";
+  out.innerHTML=`<div class="loading"><div class="spinner"></div><div class="loading-msg">Writing ad copy…</div></div>`;
+
+  const platformDetails={
+    google:`Google Search Ads (write 3 headlines max 30 chars each, 2 descriptions max 90 chars each, and 1 display URL path)`,
+    meta:`Meta/Instagram Ads (write primary text max 125 chars, headline max 27 chars, description max 27 chars, and 3 hook variations for the opening 3 seconds of a video/image ad)`,
+    linkedin:`LinkedIn Ads (write introductory text 150 chars, headline 70 chars, description 100 chars)`
+  };
+  const goalMap={signups:"get signups/leads",sales:"drive sales/conversions",awareness:"brand awareness",traffic:"website traffic"};
+
+  const prompt=`Write high-converting ad copy for the following:
+
+Product/Service: "${product}"
+Target Audience: ${audience||"general audience"}
+Platform: ${platformDetails[platform]||platform}
+Campaign Goal: ${goalMap[goal]||goal}
+
+Format your response with clear labels for each element. Write 2-3 variations for the most important elements so the advertiser can A/B test. Include a note on why the copy works.`;
+
+  try{
+    const text = await csCallAI(prompt, 1000);
+    if(!text){ out.innerHTML="Failed to generate."; btn.innerHTML="✨ Generate Ad Copy"; btn.disabled=false; return; }
+
+    out.innerHTML=`
+      <div class="cs-card">
+        <div class="cs-card-header">
+          <span>🎯 ${platform==="google"?"Google Ads":platform==="meta"?"Meta / Instagram Ads":"LinkedIn Ads"} Copy</span>
+          <button onclick="navigator.clipboard.writeText(document.getElementById('adOutputText').innerText).then(()=>{this.textContent='✓ Copied!';setTimeout(()=>this.textContent='Copy all',2000)})" class="cs-copy-btn">Copy all</button>
+        </div>
+        <div id="adOutputText" class="cs-output-text">${text.replace(/\n/g,"<br>")}</div>
+      </div>
+      <div style="margin-top:12px;padding:12px;background:#0d1117;border:1px solid #1e2d3d;border-radius:8px;font-size:12px;color:var(--muted)">
+        💡 <strong style="color:#60a5fa">Next step:</strong> Copy the best variation → go to your ad platform → create a new campaign → paste this copy → set your daily budget to ₹200-500 to test before scaling.
+      </div>`;
+  }catch(e){
+    out.innerHTML=`<div class="rt-empty">Failed: ${e.message}</div>`;
+  }
+  btn.innerHTML="✨ Generate Ad Copy"; btn.disabled=false;
+}
+
+function csCopyText(btn, encoded){
+  const text=decodeURIComponent(encoded);
+  navigator.clipboard.writeText(text).then(()=>{
+    const orig=btn.textContent; btn.textContent="✓ Copied!"; setTimeout(()=>btn.textContent=orig,2000);
+  });
+}
+
+// ─────────────────────────────────────────────
 // PAGE SWITCHING
 // ─────────────────────────────────────────────
 function switchPage(page){
@@ -2633,6 +3177,15 @@ function switchPage(page){
     const scanBtn=document.getElementById("scanBtn");
     if(addBtn) addBtn.style.display=isSignal?"inline-flex":"none";
     if(scanBtn) scanBtn.style.display=(isSignal&&PRODUCTS.length>0)?"inline-flex":"none";
+    if(page==="content"){
+      csCheckKey();
+      // Pre-fill keyword suggestions from tracker
+      if(rtData.length){
+        const pills=rtData.slice(0,8).map(r=>`<button onclick="document.getElementById('cgKeyword').value='${r.query.replace(/'/g,"\\'")}'" style="background:#111122;border:1px solid var(--border);border-radius:12px;padding:3px 10px;font-size:11px;color:var(--muted);cursor:pointer;margin:2px">${r.query}</button>`).join("");
+        const el=document.getElementById("cgKwSuggestions");
+        if(el) el.innerHTML=`<span style="font-size:10px;color:#444;margin-right:4px">From Rank Tracker:</span>`+pills;
+      }
+    }
   }catch(e){ console.error("switchPage error:",e); }
 }
 

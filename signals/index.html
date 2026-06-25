@@ -524,6 +524,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <button class="top-nav-btn" id="nav-rank" onclick="switchPage('rank')">📊 Rank Tracker</button>
   <button class="top-nav-btn" id="nav-yt" onclick="switchPage('yt')">📺 YouTube Studio</button>
   <button class="top-nav-btn" id="nav-content" onclick="switchPage('content')" style="color:#f472b6">✍️ Content Studio</button>
+  <button class="top-nav-btn" id="nav-leads" onclick="switchPage('leads')" style="color:#34d399">🎯 Lead Finder</button>
   <button class="top-nav-btn" id="nav-guide" onclick="switchPage('guide')" style="color:#818cf8">📖 SEO Guide</button>
 </nav>
 
@@ -840,6 +841,86 @@ free resume template,18,890,2.0%,14.1"></textarea>
   </div>
 </div>
 </div><!-- /page-yt -->
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PAGE: LEAD FINDER                         -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="page" id="page-leads">
+<div style="max-width:860px;margin:0 auto;padding:24px 16px 60px">
+
+  <!-- Header -->
+  <div style="margin-bottom:24px">
+    <h2 style="font-size:22px;font-weight:800;color:#fff;margin-bottom:6px">🎯 Lead Finder</h2>
+    <p style="color:var(--muted);font-size:13px">Find people actively asking for what you offer — on Reddit, LinkedIn, Twitter, Quora and more. Generate a personalised outreach message for each one in one click.</p>
+  </div>
+
+  <!-- Search panel -->
+  <div style="background:#0c0c14;border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+      <div>
+        <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:5px">YOUR SERVICE / PRODUCT <span style="color:#34d399">*</span></label>
+        <input id="lfService" placeholder="e.g. SEO consulting, AI chatbot, resume writing" style="width:100%;background:#111122;border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-size:13px;box-sizing:border-box">
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:5px">TARGET CUSTOMER <span style="color:#34d399">*</span></label>
+        <input id="lfCustomer" placeholder="e.g. small business owners in India, SaaS founders" style="width:100%;background:#111122;border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-size:13px;box-sizing:border-box">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <select id="lfPlatform" style="background:#111122;border:1px solid var(--border);border-radius:7px;padding:8px 12px;color:var(--text);font-size:12px">
+        <option value="reddit">Reddit (auto-scan)</option>
+        <option value="all">All platforms</option>
+      </select>
+      <select id="lfTimeframe" style="background:#111122;border:1px solid var(--border);border-radius:7px;padding:8px 12px;color:var(--text);font-size:12px">
+        <option value="week">Past week</option>
+        <option value="month">Past month</option>
+        <option value="year">Past year</option>
+      </select>
+      <button onclick="lfSearch()" id="lfSearchBtn" class="btn btn-primary" style="background:linear-gradient(135deg,#059669,#0284c7)">🔍 Find Leads</button>
+      <span id="lfCount" style="font-size:12px;color:var(--muted)"></span>
+    </div>
+  </div>
+
+  <!-- Platform quick-open buttons -->
+  <div style="margin-bottom:20px">
+    <div style="font-size:11px;color:var(--muted);margin-bottom:8px">ALSO SEARCH MANUALLY ON:</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px" id="lfPlatformBtns"></div>
+  </div>
+
+  <!-- Results -->
+  <div id="lfResults"></div>
+
+  <!-- Saved Leads CRM -->
+  <div style="margin-top:36px;border-top:1px solid var(--border);padding-top:28px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div>
+        <div style="font-size:15px;font-weight:700;color:#fff">📋 Saved Leads</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">Track everyone you've found and contacted</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="lfExport()" style="background:#111122;border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:6px 12px;font-size:11px;cursor:pointer">⬇ Export CSV</button>
+        <button onclick="lfClearSaved()" style="background:#111122;border:1px solid var(--border);color:#f87171;border-radius:7px;padding:6px 12px;font-size:11px;cursor:pointer">Clear all</button>
+      </div>
+    </div>
+    <div id="lfSavedList"></div>
+  </div>
+
+</div>
+</div><!-- /page-leads -->
+
+<style>
+.lf-card { background:#0c0c14;border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;transition:border-color .2s; }
+.lf-card:hover { border-color:#34d399; }
+.lf-platform-tag { font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px; }
+.lf-platform-reddit { background:#2d1a0a;color:#ff6314; }
+.lf-platform-quora { background:#1a0a0a;color:#f87171; }
+.lf-platform-linkedin { background:#0a1020;color:#60a5fa; }
+.lf-platform-twitter { background:#0a1020;color:#94a3b8; }
+.lf-status-select { background:#111122;border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:11px;color:var(--muted);cursor:pointer; }
+.lf-outreach-box { background:#0a1a0a;border:1px solid #1a3a1a;border-radius:8px;padding:12px;font-size:12px;color:#e2e8f0;line-height:1.7;white-space:pre-wrap;margin-top:10px;display:none; }
+.lf-platform-btn { display:flex;align-items:center;gap:6px;background:#111122;border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:12px;color:var(--muted);cursor:pointer;text-decoration:none;transition:all .2s; }
+.lf-platform-btn:hover { border-color:#34d399;color:#fff; }
+</style>
 
 <!-- ═══════════════════════════════════════════ -->
 <!-- PAGE: CONTENT STUDIO                      -->
@@ -2803,6 +2884,343 @@ document.getElementById("onboardOverlay").addEventListener("click",e=>{if(e.targ
 if(!localStorage.getItem("fc_onboarded")) setTimeout(openOnboard, 600);
 
 // ─────────────────────────────────────────────
+// LEAD FINDER
+// ─────────────────────────────────────────────
+
+let lfLeads = [];
+let lfSaved = JSON.parse(localStorage.getItem("fc_leads")||"[]");
+
+const LF_PAIN_TERMS = [
+  "need help with","struggling with","how do I get","anyone know how to",
+  "looking for","recommend","is there a","can someone help","desperate for",
+  "my website","no traffic","no clients","can't find clients","how to find clients",
+  "not ranking","not getting visitors","not getting leads","cold outreach",
+  "SEO help","digital marketing help","grow my business","get more customers",
+  "start my business","launch my product","need customers","need users",
+  "anyone tried","what's the best way","how to grow","help me with"
+];
+
+// Build platform quick-search buttons
+function lfRenderPlatformBtns(){
+  const svc = document.getElementById("lfService")?.value.trim()||"digital marketing help";
+  const cust = document.getElementById("lfCustomer")?.value.trim()||"small business";
+  const q = encodeURIComponent(`${cust} "${svc}" OR "need help" OR "looking for"`);
+  const q2 = encodeURIComponent(`need ${svc}`);
+  const platforms = [
+    { label:"LinkedIn", icon:"💼", url:`https://www.linkedin.com/search/results/content/?keywords=${q}&datePosted=past-week`, color:"#2563eb" },
+    { label:"Twitter/X", icon:"🐦", url:`https://twitter.com/search?q=${q2}&f=live`, color:"#475569" },
+    { label:"Quora", icon:"❓", url:`https://www.quora.com/search?q=${encodeURIComponent(svc)}`, color:"#b91c1c" },
+    { label:"IndieHackers", icon:"🚀", url:`https://www.indiehackers.com/search?query=${encodeURIComponent(svc)}`, color:"#059669" },
+    { label:"Facebook Groups", icon:"👥", url:`https://www.facebook.com/search/groups/?q=${encodeURIComponent(svc+" India")}`, color:"#1d4ed8" },
+    { label:"Google Search", icon:"🔍", url:`https://www.google.com/search?q=${encodeURIComponent(`"looking for" OR "need help with" ${svc} site:reddit.com OR site:quora.com`)}`, color:"#9333ea" }
+  ];
+  const el = document.getElementById("lfPlatformBtns");
+  if(!el) return;
+  el.innerHTML = platforms.map(p=>`
+    <a href="${p.url}" target="_blank" class="lf-platform-btn">
+      <span>${p.icon}</span>
+      <span style="color:${p.color};font-weight:600">${p.label}</span>
+      <span style="font-size:10px;opacity:.5">↗</span>
+    </a>`).join("");
+}
+
+// Main search
+async function lfSearch(){
+  const svc = document.getElementById("lfService").value.trim();
+  const cust = document.getElementById("lfCustomer").value.trim();
+  if(!svc||!cust){ alert("Fill in your service and target customer first."); return; }
+
+  lfRenderPlatformBtns();
+
+  const btn = document.getElementById("lfSearchBtn");
+  btn.innerHTML=`<span class="cs-spinner"></span>Scanning…`; btn.disabled=true;
+  const out = document.getElementById("lfResults");
+  out.innerHTML=`<div class="loading"><div class="spinner"></div><div class="loading-msg">Searching Reddit for "${svc}" leads…</div></div>`;
+  document.getElementById("lfCount").textContent="";
+
+  // Generate smart search queries using AI if key available, else use defaults
+  let queries = lfDefaultQueries(svc, cust);
+  if(anthropicKey){
+    try{
+      const aiQ = await lfAIQueries(svc, cust);
+      if(aiQ.length) queries = aiQ;
+    }catch{}
+  }
+
+  const allResults = [];
+  const seen = new Set();
+
+  for(const q of queries.slice(0,4)){
+    const results = await lfRedditSearch(q);
+    for(const r of results){
+      if(!seen.has(r.url)){ seen.add(r.url); allResults.push(r); }
+    }
+    await sleep(400);
+  }
+
+  lfLeads = allResults;
+  btn.innerHTML="🔍 Find Leads"; btn.disabled=false;
+
+  if(!allResults.length){
+    out.innerHTML=`<div class="rt-empty" style="text-align:center;padding:30px">
+      <div style="font-size:32px;margin-bottom:10px">🔍</div>
+      <div style="color:var(--muted);font-size:13px">No Reddit leads found for this search. Try broader terms, or use the platform buttons above to search LinkedIn, Twitter, and Quora manually.</div>
+    </div>`;
+    return;
+  }
+
+  document.getElementById("lfCount").textContent = `${allResults.length} leads found`;
+  lfRenderResults(allResults, svc);
+}
+
+function lfDefaultQueries(svc, cust){
+  return [
+    `${cust} need help ${svc}`,
+    `${cust} looking for ${svc}`,
+    `${svc} small business`,
+    `how to find clients ${svc}`
+  ];
+}
+
+async function lfAIQueries(svc, cust){
+  const prompt=`Generate 4 Reddit search queries to find potential clients for someone who offers "${svc}" targeting "${cust}".
+The queries should find posts where people are expressing a NEED or PROBLEM that this service solves.
+Reply with ONLY 4 search queries, one per line, no numbering, no explanation.
+Make them natural Reddit-style search terms (2-5 words each).`;
+  const r = await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{"x-api-key":anthropicKey,"anthropic-version":"2023-06-01","content-type":"application/json","anthropic-dangerous-direct-browser-access":"true"},
+    body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:120,messages:[{role:"user",content:prompt}]})
+  });
+  if(!r.ok) return [];
+  const data=await r.json();
+  return (data.content?.[0]?.text||"").split("\n").map(s=>s.trim()).filter(s=>s.length>3).slice(0,4);
+}
+
+async function lfRedditSearch(query){
+  const t = document.getElementById("lfTimeframe")?.value||"month";
+  const base=`https://www.reddit.com/search.json?q=${enc(query)}&sort=new&limit=20&t=${t}`;
+  const proxies=[
+    `https://api.allorigins.win/raw?url=${enc(base)}`,
+    `https://corsproxy.io/?${enc(base)}`
+  ];
+  for(const proxy of proxies){
+    try{
+      const r=await fetch(proxy,{signal:AbortSignal.timeout(9000)});
+      const data=await r.json();
+      return (data?.data?.children||[]).map(p=>{
+        const d=p.data;
+        const age = lfAge(d.created_utc);
+        return{
+          id: d.id||Math.random().toString(36).slice(2),
+          platform:"Reddit",
+          title:d.title||"",
+          snippet:(d.selftext||"").slice(0,300),
+          url:`https://reddit.com${d.permalink}`,
+          author:d.author||"",
+          subreddit:d.subreddit||"",
+          score:d.score||0,
+          comments:d.num_comments||0,
+          age, created_utc:d.created_utc||0
+        };
+      }).filter(p=>p.title);
+    }catch{}
+  }
+  return[];
+}
+
+function lfAge(utc){
+  if(!utc) return "unknown";
+  const diff = (Date.now()/1000) - utc;
+  if(diff<3600) return Math.floor(diff/60)+"m ago";
+  if(diff<86400) return Math.floor(diff/3600)+"h ago";
+  return Math.floor(diff/86400)+"d ago";
+}
+
+function lfRenderResults(leads, svc){
+  const out = document.getElementById("lfResults");
+  out.innerHTML = `
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px">
+      Found <strong style="color:#34d399">${leads.length} potential leads</strong> on Reddit. Click <strong style="color:#fff">✍️ Write Outreach</strong> to get a personalised message for any lead.
+    </div>
+    ${leads.map((lead,i)=>`
+    <div class="lf-card" id="lfcard${i}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span class="lf-platform-tag lf-platform-reddit">r/${lead.subreddit||"reddit"}</span>
+          <span style="font-size:11px;color:#444">${lead.age}</span>
+          <span style="font-size:11px;color:#444">↑${lead.score} · ${lead.comments} comments</span>
+        </div>
+        <div style="display:flex;gap:6px">
+          <a href="${lead.url}" target="_blank" style="background:#111122;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:4px 10px;font-size:11px;text-decoration:none">View post ↗</a>
+          <button onclick="lfWriteOutreach(${i},'${svc.replace(/'/g,"\\'")}',this)" style="background:#064e3b;border:1px solid #065f46;color:#34d399;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-weight:600">✍️ Write Outreach</button>
+          <button onclick="lfSaveLead(${i})" style="background:#111122;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer" id="lfsave${i}">+ Save</button>
+        </div>
+      </div>
+      <div style="font-size:13px;font-weight:600;color:#fff;margin-bottom:6px;line-height:1.4">${lead.title}</div>
+      ${lead.snippet?`<div style="font-size:12px;color:var(--muted);line-height:1.6">${lead.snippet}${lead.snippet.length>=300?"…":""}</div>`:""}
+      <div id="lfoutreach${i}" class="lf-outreach-box"></div>
+    </div>`).join("")}`;
+}
+
+async function lfWriteOutreach(idx, svc, btn){
+  const lead = lfLeads[idx];
+  if(!lead) return;
+  const box = document.getElementById("lfoutreach"+idx);
+
+  if(!anthropicKey){
+    box.style.display="block";
+    box.innerHTML=`<span style="color:#f87171">⚠️ Add your Anthropic API key in ⚙️ Settings to generate outreach messages.</span>`;
+    return;
+  }
+
+  const orig=btn.innerHTML;
+  btn.innerHTML=`<span class="cs-spinner"></span>`; btn.disabled=true;
+  box.style.display="block";
+  box.textContent="Writing personalised outreach…";
+
+  const prompt=`Someone posted this on Reddit:
+
+Title: "${lead.title}"
+Content: "${lead.snippet}"
+Subreddit: r/${lead.subreddit}
+
+Write a SHORT, genuine Reddit reply (3-4 sentences max) from someone who offers "${svc}".
+
+Rules:
+- Sound like a real human, not a salesperson
+- Start by acknowledging their specific problem from their post
+- Offer ONE genuinely helpful tip or insight for free
+- Mention your service naturally at the end — don't lead with it
+- No emojis, no bullet points, conversational tone
+- End with a soft CTA like "happy to share more if helpful" or "DM me if you want to dig into this"
+
+Also write a separate LinkedIn DM version (2-3 sentences, professional tone).
+
+Format:
+REDDIT REPLY:
+[reply here]
+
+LINKEDIN DM:
+[DM here]`;
+
+  try{
+    const r=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"x-api-key":anthropicKey,"anthropic-version":"2023-06-01","content-type":"application/json","anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:400,messages:[{role:"user",content:prompt}]})
+    });
+    const data=await r.json();
+    const text=data.content?.[0]?.text||"Failed to generate.";
+
+    const redditMatch=text.match(/REDDIT REPLY:\n([\s\S]*?)(?:LINKEDIN DM:|$)/);
+    const linkedinMatch=text.match(/LINKEDIN DM:\n([\s\S]*?)$/);
+    const redditText=(redditMatch?.[1]||text).trim();
+    const linkedinText=(linkedinMatch?.[1]||"").trim();
+
+    box.innerHTML=`
+      <div style="margin-bottom:10px">
+        <div style="font-size:10px;color:#ff6314;font-weight:700;margin-bottom:5px">📮 REDDIT REPLY — paste as a comment on their post</div>
+        <div style="white-space:pre-wrap;color:#e2e8f0;font-size:12px;line-height:1.7" id="lfrt${idx}">${redditText}</div>
+        <button onclick="navigator.clipboard.writeText(document.getElementById('lfrt${idx}').innerText).then(()=>{this.textContent='✓ Copied!';setTimeout(()=>this.textContent='Copy Reddit reply',1800)})" class="cs-copy-btn" style="margin-top:6px">Copy Reddit reply</button>
+      </div>
+      ${linkedinText?`<div style="border-top:1px solid #1a3a1a;padding-top:10px;margin-top:4px">
+        <div style="font-size:10px;color:#60a5fa;font-weight:700;margin-bottom:5px">💼 LINKEDIN DM — find them on LinkedIn and send this</div>
+        <div style="white-space:pre-wrap;color:#e2e8f0;font-size:12px;line-height:1.7" id="lflk${idx}">${linkedinText}</div>
+        <button onclick="navigator.clipboard.writeText(document.getElementById('lflk${idx}').innerText).then(()=>{this.textContent='✓ Copied!';setTimeout(()=>this.textContent='Copy LinkedIn DM',1800)})" class="cs-copy-btn" style="margin-top:6px">Copy LinkedIn DM</button>
+      </div>`:""}`;
+
+    // Auto-save after generating outreach
+    lfSaveLead(idx, redditText);
+  }catch(e){
+    box.textContent="Failed: "+e.message;
+  }
+  btn.innerHTML=orig; btn.disabled=false;
+}
+
+function lfSaveLead(idx, outreachText){
+  const lead = lfLeads[idx];
+  if(!lead) return;
+  const already = lfSaved.find(s=>s.url===lead.url);
+  if(already){ alert("Already saved!"); return; }
+  lfSaved.unshift({
+    id:lead.id, url:lead.url, title:lead.title, platform:lead.platform,
+    subreddit:lead.subreddit, author:lead.author, age:lead.age,
+    outreach:outreachText||"", status:"New", savedAt:Date.now()
+  });
+  localStorage.setItem("fc_leads",JSON.stringify(lfSaved));
+  const btn=document.getElementById("lfsave"+idx);
+  if(btn){ btn.textContent="✓ Saved"; btn.style.color="#34d399"; btn.disabled=true; }
+  lfRenderSaved();
+}
+
+function lfUpdateStatus(idx, status){
+  lfSaved[idx].status=status;
+  localStorage.setItem("fc_leads",JSON.stringify(lfSaved));
+  lfRenderSaved();
+}
+
+function lfDeleteLead(idx){
+  lfSaved.splice(idx,1);
+  localStorage.setItem("fc_leads",JSON.stringify(lfSaved));
+  lfRenderSaved();
+}
+
+function lfClearSaved(){
+  if(!confirm("Clear all saved leads?")) return;
+  lfSaved=[];
+  localStorage.setItem("fc_leads","[]");
+  lfRenderSaved();
+}
+
+const LF_STATUS_COLORS={
+  "New":"#34d399","Contacted":"#fbbf24","Replied":"#60a5fa","Won ✓":"#22c55e","Not interested":"#f87171"
+};
+
+function lfRenderSaved(){
+  const el=document.getElementById("lfSavedList");
+  if(!el) return;
+  if(!lfSaved.length){
+    el.innerHTML=`<div style="text-align:center;padding:24px;color:var(--muted);font-size:13px">No saved leads yet. Search above and click "+ Save" on any lead.</div>`;
+    return;
+  }
+  el.innerHTML=lfSaved.map((lead,i)=>`
+    <div style="background:#0c0c14;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap">
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <span style="font-size:10px;background:#2d1a0a;color:#ff6314;border-radius:8px;padding:1px 7px;font-weight:700">${lead.platform}</span>
+            <span style="font-size:10px;background:${(LF_STATUS_COLORS[lead.status]||"#444")+"22"};color:${LF_STATUS_COLORS[lead.status]||"#888"};border-radius:8px;padding:1px 8px;font-weight:700">${lead.status}</span>
+            <span style="font-size:10px;color:#444">${lead.age||""}</span>
+          </div>
+          <a href="${lead.url}" target="_blank" style="font-size:12px;font-weight:600;color:#fff;text-decoration:none;line-height:1.4;display:block;margin-bottom:4px">${lead.title}</a>
+          ${lead.outreach?`<div style="font-size:11px;color:#444;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${lead.outreach.slice(0,80)}…</div>`:""}
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap">
+          <select onchange="lfUpdateStatus(${i},this.value)" class="lf-status-select">
+            ${["New","Contacted","Replied","Won ✓","Not interested"].map(s=>`<option${s===lead.status?" selected":""}>${s}</option>`).join("")}
+          </select>
+          <a href="${lead.url}" target="_blank" style="background:#111122;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:4px 8px;font-size:11px;text-decoration:none">View ↗</a>
+          <button onclick="lfDeleteLead(${i})" style="background:#111122;border:1px solid #3a1010;color:#f87171;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer">✕</button>
+        </div>
+      </div>
+    </div>`).join("");
+}
+
+function lfExport(){
+  if(!lfSaved.length){ alert("No saved leads to export."); return; }
+  const rows=[["Title","Platform","URL","Status","Age","Outreach"],...lfSaved.map(l=>[
+    `"${(l.title||"").replace(/"/g,"'")}"`,l.platform||"",l.url||"",l.status||"",l.age||"",
+    `"${(l.outreach||"").replace(/"/g,"'").replace(/\n/g," ")}"`
+  ])];
+  const csv=rows.map(r=>r.join(",")).join("\n");
+  const a=document.createElement("a");
+  a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(csv);
+  a.download="leads_"+new Date().toISOString().slice(0,10)+".csv";
+  a.click();
+}
+
+// ─────────────────────────────────────────────
 // CONTENT STUDIO
 // ─────────────────────────────────────────────
 
@@ -3177,6 +3595,10 @@ function switchPage(page){
     const scanBtn=document.getElementById("scanBtn");
     if(addBtn) addBtn.style.display=isSignal?"inline-flex":"none";
     if(scanBtn) scanBtn.style.display=(isSignal&&PRODUCTS.length>0)?"inline-flex":"none";
+    if(page==="leads"){
+      lfRenderSaved();
+      lfRenderPlatformBtns();
+    }
     if(page==="content"){
       csCheckKey();
       // Pre-fill keyword suggestions from tracker

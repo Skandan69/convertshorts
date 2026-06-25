@@ -2630,6 +2630,7 @@ async function runScan(){
 
   const total=Object.values(scanResults).reduce((s,r)=>s+r.signals.length,0);
   const hv=Object.values(scanResults).reduce((s,r)=>s+r.signals.filter(x=>x.relevance>=5).length,0);
+  logActivity("signal_hunted","signal",{total,highValue:hv,products:PRODUCTS.length});
   document.getElementById("stTotal").textContent=total;
   document.getElementById("stHV").textContent=hv;
   document.getElementById("stPosted").textContent=postedCount;
@@ -2861,6 +2862,8 @@ function markPosted(pid,idx,btn){
   btn.textContent="✓ Posted!"; btn.classList.add("done"); btn.disabled=true;
   postedCount++; localStorage.setItem("fc_posts",postedCount);
   document.getElementById("stPosted").textContent=postedCount;
+  const sig = scanResults[pid]?.signals?.[idx];
+  logActivity("signal_posted","signal",{platform:sig?.platform||"unknown",title:(sig?.title||"").slice(0,60)});
 }
 
 async function redraft(pid,idx,btn){
@@ -3521,7 +3524,7 @@ function profileAutoFill(page){
     if(adAudienceEl&&!adAudienceEl.value&&p.targetCustomer) adAudienceEl.value=p.targetCustomer;
   }
   if(page==="rank"){
-    const rtUrlEl=document.getElementById("rtScanUrl");
+    const rtUrlEl=document.getElementById("rtScanUrlInput");
     if(rtUrlEl&&!rtUrlEl.value&&p.website){
       rtUrlEl.value=p.website.startsWith("http")?p.website:"https://"+p.website;
     }
@@ -4267,6 +4270,7 @@ Reply with EXACTLY this format:
   }catch(e){
     out.innerHTML=`<div class="rt-empty">Failed: ${e.message}</div>`;
   }
+  logActivity("email_generated","content",{product,goal});
   btn.innerHTML="✨ Generate Email"; btn.disabled=false;
 }
 
@@ -4319,6 +4323,7 @@ Format your response with clear labels for each element. Write 2-3 variations fo
   }catch(e){
     out.innerHTML=`<div class="rt-empty">Failed: ${e.message}</div>`;
   }
+  logActivity("ad_generated","content",{product,platform,goal});
   btn.innerHTML="✨ Generate Ad Copy"; btn.disabled=false;
 }
 

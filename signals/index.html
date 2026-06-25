@@ -801,8 +801,8 @@ async function fetchPageContent(url){
     const html = await r.text();
     // Strip scripts, styles, tags
     const clean = html
-      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, " ")
-      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, " ")
+      .replace(/<scr\x69pt[^>]*>[\s\S]*?<\/scr\x69pt>/gi, " ")
+      .replace(/<sty\x6ce[^>]*>[\s\S]*?<\/sty\x6ce>/gi, " ")
       .replace(/<[^>]+>/g, " ")
       .replace(/\s+/g, " ")
       .trim()
@@ -1750,14 +1750,19 @@ document.getElementById("rtTipOverlay").addEventListener("click",e=>{if(e.target
 // PAGE SWITCHING
 // ─────────────────────────────────────────────
 function switchPage(page){
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  document.querySelectorAll(".top-nav-btn").forEach(b=>b.classList.remove("active"));
-  document.getElementById(`page-${page}`).classList.add("active");
-  document.getElementById(`nav-${page}`).classList.add("active");
-  // Show/hide header buttons relevant to signal hunter only
-  const isSignal = page==="signal";
-  document.getElementById("addProdBtn").style.display = isSignal?"inline-flex":"none";
-  document.getElementById("scanBtn").style.display = (isSignal && PRODUCTS.length>0)?"inline-flex":"none";
+  try{
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    document.querySelectorAll(".top-nav-btn").forEach(b=>b.classList.remove("active"));
+    const pg=document.getElementById("page-"+page);
+    const nb=document.getElementById("nav-"+page);
+    if(pg) pg.classList.add("active");
+    if(nb) nb.classList.add("active");
+    const isSignal=(page==="signal");
+    const addBtn=document.getElementById("addProdBtn");
+    const scanBtn=document.getElementById("scanBtn");
+    if(addBtn) addBtn.style.display=isSignal?"inline-flex":"none";
+    if(scanBtn) scanBtn.style.display=(isSignal&&PRODUCTS.length>0)?"inline-flex":"none";
+  }catch(e){ console.error("switchPage error:",e); }
 }
 
 // ─────────────────────────────────────────────
@@ -2056,7 +2061,7 @@ function scoreSEO(){
         </svg>
         <div class="seo-score-num" style="color:${color}">${score}</div>
       </div>
-      <div style="text-align:center;margin-bottom:16px;font-size:13px;color:${color};font-weight:700">${score>=80?"Excellent":"score>=60?"Good — room to improve":"Needs work"}</div>
+      <div style="text-align:center;margin-bottom:16px;font-size:13px;color:${color};font-weight:700">${score>=80?"Excellent":score>=60?"Good — room to improve":"Needs work"}</div>
       <div class="seo-checks">
         ${checks.map(c=>`
           <div class="seo-check ${c.pass?"seo-pass":"seo-fail"}">

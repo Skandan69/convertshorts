@@ -8,5 +8,17 @@
         { "key": "Cross-Origin-Resource-Policy", "value": "cross-origin" }
       ]
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/",
+      "has": [{"type": "host", "value": "firstcustomer.in"}],
+      "destination": "/landing/index.html"
+    },
+    {
+      "source": "/",
+      "has": [{"type": "host", "value": "www.firstcustomer.in"}],
+      "destination": "/landing/index.html"
+    }
   ]
 }

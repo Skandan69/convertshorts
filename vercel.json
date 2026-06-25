@@ -11,12 +11,12 @@
   ],
   "rewrites": [
     {
-      "source": "/",
+      "source": "/(.*)",
       "has": [{"type": "host", "value": "firstcustomer.in"}],
       "destination": "/landing/index.html"
     },
     {
-      "source": "/",
+      "source": "/(.*)",
       "has": [{"type": "host", "value": "www.firstcustomer.in"}],
       "destination": "/landing/index.html"
     }

@@ -755,6 +755,75 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <!-- ═══════════════════════════════════════════ -->
 <div class="page active" id="page-signal">
 
+<!-- ═══ SMART WORKSPACE DASHBOARD ═══ -->
+<div id="smartDash" style="max-width:900px;margin:0 auto;padding:18px 16px 0">
+
+  <!-- Profile setup banner (shown when profile incomplete) -->
+  <div id="profileSetupBanner" style="display:none;background:#0d0d1f;border:1px solid #818cf8;border-radius:12px;padding:18px;margin-bottom:16px">
+    <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px">⚡ Quick setup — takes 30 seconds</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Tell the tool about yourself once — every AI feature then writes specifically for your website, niche and customers. No more generic output.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
+      <div>
+        <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px">YOUR WEBSITE</label>
+        <input id="setupWebsite" placeholder="yoursite.com" style="width:100%;background:#111122;border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-size:12px;box-sizing:border-box">
+      </div>
+      <div>
+        <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px">YOUR NICHE</label>
+        <input id="setupNiche" placeholder="e.g. ayurvedic herbs India" style="width:100%;background:#111122;border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-size:12px;box-sizing:border-box">
+      </div>
+      <div>
+        <label style="font-size:10px;color:var(--muted);display:block;margin-bottom:4px">YOUR CUSTOMER</label>
+        <input id="setupCustomer" placeholder="e.g. small business owners India" style="width:100%;background:#111122;border:1px solid var(--border);border-radius:7px;padding:8px 10px;color:var(--text);font-size:12px;box-sizing:border-box">
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button onclick="saveProfile()" class="btn btn-primary" style="font-size:12px">Save & personalise tool →</button>
+      <button onclick="document.getElementById('profileSetupBanner').style.display='none'" style="background:none;border:none;color:#444;font-size:12px;cursor:pointer">skip for now</button>
+    </div>
+  </div>
+
+  <!-- Smart dashboard row (shown when profile exists) -->
+  <div id="smartDashRow" style="display:none;margin-bottom:16px">
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:10px">
+
+      <!-- What to do next -->
+      <div style="background:#0d0d1f;border:1px solid #2d2d5f;border-radius:10px;padding:14px">
+        <div style="font-size:10px;font-weight:800;color:#818cf8;letter-spacing:1px;margin-bottom:8px">🧠 WHAT TO DO NEXT</div>
+        <div id="smartNextAction" style="font-size:12px;color:#e2e8f0;line-height:1.6">Loading recommendations…</div>
+        <button id="smartNextBtn" onclick="" style="display:none;margin-top:8px;background:#1a0a2e;border:1px solid #3d1a5f;color:#818cf8;border-radius:6px;padding:5px 12px;font-size:11px;cursor:pointer;font-weight:600"></button>
+      </div>
+
+      <!-- Rank stats -->
+      <div style="background:#0a1a0a;border:1px solid #1a3a1a;border-radius:10px;padding:14px;cursor:pointer" onclick="switchPage('rank')">
+        <div style="font-size:10px;font-weight:800;color:#22c55e;letter-spacing:1px;margin-bottom:8px">📊 RANKINGS</div>
+        <div id="dashRankStat" style="font-size:22px;font-weight:800;color:#fff">—</div>
+        <div id="dashRankLabel" style="font-size:11px;color:var(--muted);margin-top:2px">keywords tracked</div>
+      </div>
+
+      <!-- Leads stats -->
+      <div style="background:#0a1a10;border:1px solid #1a3a28;border-radius:10px;padding:14px;cursor:pointer" onclick="switchPage('leads')">
+        <div style="font-size:10px;font-weight:800;color:#34d399;letter-spacing:1px;margin-bottom:8px">🎯 LEADS</div>
+        <div id="dashLeadStat" style="font-size:22px;font-weight:800;color:#fff">—</div>
+        <div id="dashLeadLabel" style="font-size:11px;color:var(--muted);margin-top:2px">saved leads</div>
+      </div>
+
+      <!-- Content stats -->
+      <div style="background:#1a0a1a;border:1px solid #3a1a3a;border-radius:10px;padding:14px;cursor:pointer" onclick="switchPage('content')">
+        <div style="font-size:10px;font-weight:800;color:#f472b6;letter-spacing:1px;margin-bottom:8px">✍️ CONTENT</div>
+        <div id="dashContentStat" style="font-size:22px;font-weight:800;color:#fff">—</div>
+        <div id="dashContentLabel" style="font-size:11px;color:var(--muted);margin-top:2px">pieces created</div>
+      </div>
+    </div>
+
+    <!-- Activity feed -->
+    <div id="dashActivity" style="margin-top:10px;background:#0c0c14;border:1px solid var(--border);border-radius:10px;padding:12px 16px">
+      <div style="font-size:10px;font-weight:800;color:#444;letter-spacing:1px;margin-bottom:8px">RECENT ACTIVITY</div>
+      <div id="dashActivityFeed" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+    </div>
+  </div>
+
+</div><!-- /smartDash -->
+
 <!-- STATS BAR -->
 <div class="sbar" id="sbar" style="display:none">
   <span><span class="sbar-n" id="stTotal">0</span> signals</span>
@@ -2954,6 +3023,7 @@ function rtAddSuggestion(kw, btn){
   rtData.push({query:kw, position:100, clicks:0, impressions:0, ctr:0});
   btn.textContent="✓ Added"; btn.style.background="#444"; btn.disabled=true;
   document.getElementById("rtKwCount").textContent=rtData.length;
+  logActivity("keyword_tracked","rank",{keyword:kw});
   rtRender();
 }
 
@@ -3140,6 +3210,7 @@ function rtSaveChecklist(keywords){
   keywords.forEach((kw,i)=>{
     const pos = parseInt(document.getElementById("rtck"+i)?.value)||100;
     rtData.push({query:kw, position:pos, clicks:0, impressions:0, ctr:0});
+    logActivity("keyword_tracked","rank",{keyword:kw,position:pos});
   });
   const filled = rtData.filter(r=>r.position<100);
   if(!filled.length && !confirm("No positions entered yet — save anyway as 'not ranking'?")) return;
@@ -3228,6 +3299,253 @@ document.getElementById("onboardOverlay").addEventListener("click",e=>{if(e.targ
 // Show onboarding for first-time visitors
 if(!localStorage.getItem("fc_onboarded")) setTimeout(openOnboard, 600);
 
+// Init smart dashboard on load
+setTimeout(initDashboard, 300);
+
+// ═══════════════════════════════════════════════
+// LEARNING SYSTEM — Profile, Memory, Context
+// ═══════════════════════════════════════════════
+
+// ── Profile CRUD ──
+function getProfile(){
+  return JSON.parse(localStorage.getItem("fc_profile")||"{}");
+}
+function updateProfile(updates){
+  const p=getProfile();
+  Object.assign(p,updates,{updatedAt:Date.now()});
+  localStorage.setItem("fc_profile",JSON.stringify(p));
+  renderDashboard();
+}
+function saveProfile(){
+  const website=(document.getElementById("setupWebsite")?.value||"").trim();
+  const niche=(document.getElementById("setupNiche")?.value||"").trim();
+  const customer=(document.getElementById("setupCustomer")?.value||"").trim();
+  if(!website&&!niche){ alert("Fill in at least your website or niche."); return; }
+  updateProfile({website,niche,targetCustomer:customer,setupAt:Date.now()});
+  document.getElementById("profileSetupBanner").style.display="none";
+  document.getElementById("smartDashRow").style.display="block";
+  renderDashboard();
+  logActivity("profile_setup","signal",{website,niche});
+}
+
+// ── Activity Log ──
+function logActivity(action,tab,data){
+  const acts=JSON.parse(localStorage.getItem("fc_activity")||"[]");
+  acts.unshift({action,tab,data:data||{},ts:Date.now()});
+  localStorage.setItem("fc_activity",JSON.stringify(acts.slice(0,200)));
+  renderDashboard();
+}
+function getActivity(){ return JSON.parse(localStorage.getItem("fc_activity")||"[]"); }
+
+// ── Win tracking ──
+function logWin(type,data){
+  const wins=JSON.parse(localStorage.getItem("fc_wins")||"[]");
+  wins.unshift({type,data,ts:Date.now()});
+  localStorage.setItem("fc_wins",JSON.stringify(wins.slice(0,50)));
+  updateProfile({lastWin:data,winCount:(getProfile().winCount||0)+1});
+}
+
+// ── AI Context builder — injected into EVERY AI call ──
+function getAIContext(){
+  const p=getProfile();
+  const acts=getActivity();
+  const wins=JSON.parse(localStorage.getItem("fc_wins")||"[]");
+  const trackedKws=rtData.map(r=>r.query).slice(0,10);
+  const topKws=rtData.filter(r=>r.position<=10).map(r=>r.query).slice(0,5);
+  const savedLeadCount=lfSaved.length;
+  const wonLeads=lfSaved.filter(l=>l.status==="Won ✓").map(l=>l.title).slice(0,3);
+
+  let ctx="";
+  if(p.website||p.niche||p.targetCustomer){
+    ctx+="\n\n[USER PROFILE — personalise all output based on this]\n";
+    if(p.website) ctx+=`Website: ${p.website}\n`;
+    if(p.niche) ctx+=`Niche/industry: ${p.niche}\n`;
+    if(p.targetCustomer) ctx+=`Target customer: ${p.targetCustomer}\n`;
+    if(p.preferredTone) ctx+=`Preferred writing tone: ${p.preferredTone}\n`;
+    if(p.language) ctx+=`Language: ${p.language}\n`;
+    if(trackedKws.length) ctx+=`Keywords they track on Google: ${trackedKws.join(", ")}\n`;
+    if(topKws.length) ctx+=`Keywords currently ranking top 10: ${topKws.join(", ")}\n`;
+    if(savedLeadCount) ctx+=`Active leads in pipeline: ${savedLeadCount}\n`;
+    if(wonLeads.length) ctx+=`Types of leads that converted: ${wonLeads.join("; ")}\n`;
+    if(wins.length){
+      const recentWins=wins.slice(0,3).map(w=>`${w.type}: ${JSON.stringify(w.data).slice(0,60)}`).join(" | ");
+      ctx+=`What has worked for this user: ${recentWins}\n`;
+    }
+
+    // Learning from activity patterns
+    const recentContent=acts.filter(a=>a.action==="article_generated").slice(0,3);
+    if(recentContent.length){
+      const kwList=recentContent.map(a=>a.data.keyword).filter(Boolean).join(", ");
+      ctx+=`Content they've recently created about: ${kwList}\n`;
+    }
+    const recentSignals=acts.filter(a=>a.action==="signal_posted").slice(0,3);
+    if(recentSignals.length) ctx+=`Platforms where they've engaged leads: ${[...new Set(recentSignals.map(a=>a.data.platform))].join(", ")}\n`;
+
+    ctx+="[END PROFILE — use all of the above to make output specific to this user, not generic]\n";
+  }
+  return ctx;
+}
+
+// ── Dashboard renderer ──
+function renderDashboard(){
+  const p=getProfile();
+  const acts=getActivity();
+  const profileComplete=p.website||p.niche;
+
+  // Show/hide panels
+  const setupBanner=document.getElementById("profileSetupBanner");
+  const dashRow=document.getElementById("smartDashRow");
+  if(!setupBanner||!dashRow) return;
+
+  if(profileComplete){
+    setupBanner.style.display="none";
+    dashRow.style.display="block";
+  } else {
+    setupBanner.style.display="block";
+    dashRow.style.display="none";
+    return;
+  }
+
+  // Stats
+  const rankEl=document.getElementById("dashRankStat");
+  const rankLbl=document.getElementById("dashRankLabel");
+  if(rankEl){ rankEl.textContent=rtData.length||"0"; }
+  if(rankLbl){
+    const pg1=rtData.filter(r=>r.position<=10).length;
+    rankLbl.textContent=pg1?`${pg1} on page 1`:"keywords tracked";
+  }
+
+  const leadEl=document.getElementById("dashLeadStat");
+  const leadLbl=document.getElementById("dashLeadLabel");
+  if(leadEl){ leadEl.textContent=lfSaved.length||"0"; }
+  if(leadLbl){
+    const won=lfSaved.filter(l=>l.status==="Won ✓").length;
+    leadLbl.textContent=won?`${won} won 🎉`:"saved leads";
+  }
+
+  const contentCount=acts.filter(a=>["article_generated","social_generated","email_generated","ad_generated"].includes(a.action)).length;
+  const contentEl=document.getElementById("dashContentStat");
+  if(contentEl){ contentEl.textContent=contentCount||"0"; }
+
+  // Activity feed
+  const feedEl=document.getElementById("dashActivityFeed");
+  if(feedEl){
+    if(!acts.length){
+      feedEl.innerHTML=`<span style="font-size:12px;color:#444">No activity yet — start by scanning your website in Rank Tracker or hunting signals.</span>`;
+    } else {
+      const ACT_LABELS={
+        article_generated:"📄 Article written",
+        social_generated:"📱 Social posts",
+        email_generated:"📧 Email created",
+        ad_generated:"🎯 Ad copy",
+        signal_hunted:"🎯 Signals hunted",
+        signal_posted:"✓ Signal replied",
+        lead_found:"🔍 Leads found",
+        lead_won:"🏆 Lead won",
+        keyword_tracked:"📊 Keyword tracked",
+        profile_setup:"⚙️ Profile set up",
+        outreach_written:"✍️ Outreach written"
+      };
+      feedEl.innerHTML=acts.slice(0,8).map(a=>{
+        const label=ACT_LABELS[a.action]||a.action;
+        const ago=lfAge(a.ts/1000);
+        return `<span style="background:#111122;border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--muted);white-space:nowrap">${label} <span style="color:#444">${ago}</span></span>`;
+      }).join("");
+    }
+  }
+
+  // What to do next
+  renderNextAction(p, acts);
+}
+
+function renderNextAction(p, acts){
+  const el=document.getElementById("smartNextAction");
+  const btn=document.getElementById("smartNextBtn");
+  if(!el) return;
+
+  const daysSinceSignal=(() => {
+    const last=acts.find(a=>a.action==="signal_hunted");
+    if(!last) return 999;
+    return (Date.now()-last.ts)/(1000*86400);
+  })();
+  const uncontacted=lfSaved.filter(l=>l.status==="New").length;
+  const noKeywords=rtData.length===0;
+  const buriedKws=rtData.filter(r=>r.position>=50).length;
+  const contentCount=acts.filter(a=>a.action==="article_generated").length;
+
+  // Priority logic — most impactful action first
+  if(noKeywords){
+    el.innerHTML=`<strong style="color:#22c55e">Start with Rank Tracker →</strong><br>You haven't tracked any keywords yet. Paste your website URL there to see where you rank on Google and what to improve first.`;
+    if(btn){ btn.style.display="block"; btn.textContent="Open Rank Tracker →"; btn.onclick=()=>switchPage("rank"); }
+  } else if(buriedKws>0&&contentCount===0){
+    el.innerHTML=`<strong style="color:#f472b6">Create your first SEO article →</strong><br>You have <strong style="color:#fff">${buriedKws} keywords buried</strong> at position 50+. Go to Content Studio → Article Writer → type one of those keywords → generate and publish the article on your site.`;
+    if(btn){ btn.style.display="block"; btn.textContent="Open Content Studio →"; btn.onclick=()=>switchPage("content"); }
+  } else if(uncontacted>0){
+    el.innerHTML=`<strong style="color:#34d399">${uncontacted} lead${uncontacted>1?"s":""} waiting →</strong><br>You have saved leads you haven't contacted yet. Go to Lead Finder → Saved Leads → click View post → send the outreach message → update status to Contacted.`;
+    if(btn){ btn.style.display="block"; btn.textContent="Open Lead Finder →"; btn.onclick=()=>switchPage("leads"); }
+  } else if(daysSinceSignal>2){
+    el.innerHTML=`<strong style="color:#c084fc">Hunt new signals →</strong><br>It's been ${daysSinceSignal>30?"a while":Math.floor(daysSinceSignal)+" days"} since your last signal hunt. People are posting problems that match your product right now. Run a scan to find them.`;
+    if(btn){ btn.style.display="block"; btn.textContent="Hunt Signals →"; btn.onclick=()=>{}; }
+  } else if(buriedKws>0){
+    el.innerHTML=`<strong style="color:#fbbf24">${buriedKws} keywords to improve →</strong><br>Click the <strong style="color:#fff">Tips 💡</strong> button on any buried keyword in Rank Tracker — it gives you exact steps to create a page that ranks.`;
+    if(btn){ btn.style.display="block"; btn.textContent="Open Rank Tracker →"; btn.onclick=()=>switchPage("rank"); }
+  } else {
+    el.innerHTML=`<strong style="color:#22c55e">You're doing great!</strong><br>Keep publishing content for your tracked keywords and checking positions weekly. Each new page you create compounds your SEO results over time.`;
+    if(btn){ btn.style.display="none"; }
+  }
+}
+
+// ── Cross-tab auto-fill from profile ──
+function profileAutoFill(page){
+  const p=getProfile();
+  if(!p.website&&!p.niche) return;
+
+  if(page==="leads"){
+    const svcEl=document.getElementById("lfService");
+    const custEl=document.getElementById("lfCustomer");
+    if(svcEl&&!svcEl.value&&p.niche) svcEl.value=p.niche;
+    if(custEl&&!custEl.value&&p.targetCustomer) custEl.value=p.targetCustomer;
+  }
+  if(page==="content"){
+    const siteEl=document.getElementById("cgSiteDesc");
+    if(siteEl&&!siteEl.value&&(p.website||p.niche)){
+      siteEl.value=[p.website,p.niche].filter(Boolean).join(" — ");
+    }
+    const spProductEl=document.getElementById("spProduct");
+    if(spProductEl&&!spProductEl.value&&p.website) spProductEl.value=p.website;
+    const emProductEl=document.getElementById("emProduct");
+    if(emProductEl&&!emProductEl.value&&p.niche) emProductEl.value=p.niche;
+    const adProductEl=document.getElementById("adProduct");
+    if(adProductEl&&!adProductEl.value&&p.niche) adProductEl.value=p.niche;
+    const adAudienceEl=document.getElementById("adAudience");
+    if(adAudienceEl&&!adAudienceEl.value&&p.targetCustomer) adAudienceEl.value=p.targetCustomer;
+  }
+  if(page==="rank"){
+    const rtUrlEl=document.getElementById("rtScanUrl");
+    if(rtUrlEl&&!rtUrlEl.value&&p.website){
+      rtUrlEl.value=p.website.startsWith("http")?p.website:"https://"+p.website;
+    }
+    const seedEl=document.getElementById("rtSuggestSeed");
+    if(seedEl&&!seedEl.value&&p.niche) seedEl.value=p.niche;
+  }
+}
+
+// ── Learn from tone preference ──
+function learnTone(tone){
+  updateProfile({preferredTone:tone});
+}
+
+// ── Intercept AI calls to inject context ──
+async function csCallAIWithContext(prompt, maxTokens=1800){
+  const ctx=getAIContext();
+  return csCallAI(ctx+"\n\n"+prompt, maxTokens);
+}
+
+// ── Init dashboard on load ──
+function initDashboard(){
+  renderDashboard();
+}
+
 // ─────────────────────────────────────────────
 // LEAD FINDER
 // ─────────────────────────────────────────────
@@ -3315,6 +3633,7 @@ async function lfSearch(){
   }
 
   document.getElementById("lfCount").textContent = `${allResults.length} leads found`;
+  logActivity("lead_found","leads",{service:svc,count:allResults.length});
   lfRenderResults(allResults, svc);
 }
 
@@ -3424,7 +3743,9 @@ async function lfWriteOutreach(idx, svc, btn){
   box.style.display="block";
   box.textContent="Writing personalised outreach…";
 
-  const prompt=`Someone posted this on Reddit:
+  const prompt=`${getAIContext()}
+
+Someone posted this on Reddit:
 
 Title: "${lead.title}"
 Content: "${lead.snippet}"
@@ -3502,7 +3823,10 @@ function lfSaveLead(idx, outreachText){
 function lfUpdateStatus(idx, status){
   lfSaved[idx].status=status;
   localStorage.setItem("fc_leads",JSON.stringify(lfSaved));
+  if(status==="Won ✓") logWin("lead_won",{title:lfSaved[idx].title,platform:lfSaved[idx].platform});
+  if(status==="Contacted") logActivity("lead_contacted","leads",{title:lfSaved[idx].title});
   lfRenderSaved();
+  renderDashboard();
 }
 
 function lfDeleteLead(idx){
@@ -3623,6 +3947,7 @@ async function cgGenerate(){
 
   const toneMap={friendly:"friendly and helpful",professional:"professional and authoritative",simple:"very simple and easy for beginners",authoritative:"expert and authoritative"};
   const prompt=`You are an expert SEO content writer. Generate complete website content for this keyword.
+${getAIContext()}
 
 Keyword: "${kw}"
 Website/Business: ${site||"a small business website"}
@@ -3709,6 +4034,8 @@ URL Slug: /${kw.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
   }catch(e){
     alert("Generation failed: "+e.message);
   }
+  logActivity("article_generated","content",{keyword:kw,tone,length});
+  learnTone(tone);
   btn.innerHTML="✨ Generate Everything"; btn.disabled=false;
 }
 
@@ -3786,6 +4113,7 @@ Keep each post focused on the topic. Make them feel authentic, not robotic. Incl
   }catch(e){
     out.innerHTML=`<div class="rt-empty">Failed: ${e.message}</div>`;
   }
+  logActivity("social_generated","content",{topic,platforms});
   btn.innerHTML="✨ Generate Posts"; btn.disabled=false;
 }
 
@@ -3940,12 +4268,16 @@ function switchPage(page){
     const scanBtn=document.getElementById("scanBtn");
     if(addBtn) addBtn.style.display=isSignal?"inline-flex":"none";
     if(scanBtn) scanBtn.style.display=(isSignal&&PRODUCTS.length>0)?"inline-flex":"none";
+    if(page==="signal") renderDashboard();
+    if(page==="rank") profileAutoFill("rank");
     if(page==="leads"){
       lfRenderSaved();
       lfRenderPlatformBtns();
+      profileAutoFill("leads");
     }
     if(page==="content"){
       csCheckKey();
+      profileAutoFill("content");
       // Pre-fill keyword suggestions from tracker
       if(rtData.length){
         const pills=rtData.slice(0,8).map(r=>`<button onclick="document.getElementById('cgKeyword').value='${r.query.replace(/'/g,"\\'")}'" style="background:#111122;border:1px solid var(--border);border-radius:12px;padding:3px 10px;font-size:11px;color:var(--muted);cursor:pointer;margin:2px">${r.query}</button>`).join("");

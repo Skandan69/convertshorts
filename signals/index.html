@@ -531,11 +531,43 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="rt-hero">
     <div style="font-size:42px;margin-bottom:10px">📊</div>
     <h2>Keyword Rank Tracker</h2>
-    <p>Export your Google Search Console Performance report as CSV and upload it here. No data leaves your browser.</p>
-    <div class="upload-zone" id="rtDropZone" onclick="document.getElementById('rtCsvInput').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="rtHandleDrop(event)">
-      <input type="file" id="rtCsvInput" accept=".csv" onchange="rtLoadFile(this.files[0])">
-      <div class="upload-icon">📁</div>
-      <div class="upload-label">Drop your <strong>Search Console CSV</strong> here or click to browse<br><span style="font-size:11px;color:#444">Search Console → Performance → Export → Download CSV</span></div>
+    <p>Track keyword rankings — import from Google Search Console or enter manually.</p>
+
+    <!-- Tab switcher -->
+    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:18px;flex-wrap:wrap">
+      <button id="rtTabFile" onclick="rtShowTab('file')" style="background:var(--purple);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer">📁 Upload CSV</button>
+      <button id="rtTabPaste" onclick="rtShowTab('paste')" style="background:var(--bg3);color:var(--muted);border:1px solid var(--border);border-radius:7px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer">📋 Paste text</button>
+      <button id="rtTabManual" onclick="rtShowTab('manual')" style="background:var(--bg3);color:var(--muted);border:1px solid var(--border);border-radius:7px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer">✏️ Enter manually</button>
+    </div>
+
+    <!-- File upload -->
+    <div id="rtModeFile">
+      <div class="upload-zone" id="rtDropZone" onclick="document.getElementById('rtCsvInput').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="rtHandleDrop(event)">
+        <input type="file" id="rtCsvInput" accept=".csv,.tsv,.txt" onchange="rtLoadFile(this.files[0])">
+        <div class="upload-icon">📁</div>
+        <div class="upload-label">Drop CSV here or click to browse<br>
+          <span style="font-size:11px;color:#444">Search Console → Performance → Export → Download CSV → unzip → upload <strong style="color:#666">Queries.csv</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paste option -->
+    <div id="rtModePaste" style="display:none">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px;text-align:left">
+        Open <strong style="color:#ccc">Queries.csv</strong> in Notepad/TextEdit → Select All → Copy → paste below:
+      </div>
+      <textarea id="rtPasteArea" style="width:100%;background:#0c0c14;border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:11px;font-family:monospace;resize:vertical;min-height:120px;display:block" placeholder="Query,Clicks,Impressions,CTR,Position
+resume builder,42,1200,3.5%,8.3
+free resume template,18,890,2.0%,14.1"></textarea>
+      <button onclick="rtParsePasted()" class="btn btn-primary" style="margin-top:10px;width:100%">Parse →</button>
+    </div>
+
+    <!-- Manual entry -->
+    <div id="rtModeManual" style="display:none">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px;text-align:left">Add keywords you want to track. You can get positions from Google Search Console, Ahrefs, or just estimate them.</div>
+      <div id="rtManualRows" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>
+      <button onclick="rtAddManualRow()" style="background:var(--bg3);border:1px dashed var(--border);color:var(--muted);border-radius:7px;padding:7px 14px;font-size:12px;cursor:pointer;width:100%">+ Add keyword</button>
+      <button onclick="rtSaveManual()" class="btn btn-primary" style="margin-top:10px;width:100%">Save & Track →</button>
     </div>
   </div>
 
@@ -544,7 +576,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div style="font-size:12px;color:var(--muted)"><span id="rtKwCount" style="color:#fff;font-weight:700">0</span> keywords tracked</div>
       <div style="font-size:12px;color:var(--muted)">Avg position: <span id="rtAvgPos" style="color:#fff;font-weight:700">–</span></div>
       <div style="font-size:12px;color:var(--muted)">Total clicks: <span id="rtTotalClicks" style="color:#fff;font-weight:700">–</span></div>
-      <button class="btn btn-ghost" style="margin-left:auto;font-size:11px" onclick="document.getElementById('rtCsvInput').click()">↻ Upload new CSV</button>
+      <button class="btn btn-ghost" style="margin-left:auto;font-size:11px" onclick="rtData=[];document.getElementById('rtDash').style.display='none';rtShowTab('file');document.querySelectorAll('#rtModeFile,#rtModePaste,#rtModeManual,#rtDropZone').forEach(e=>{if(e)e.style.display='block'})">↻ Re-import</button>
     </div>
     <div class="rt-filters">
       <button class="rt-filter-pill active" data-rtf="all" onclick="rtFilter('all',this)">All</button>
@@ -1785,60 +1817,137 @@ function rtLoadFile(file){
   reader.readAsText(file);
 }
 
+function rtShowTab(tab){
+  ["file","paste","manual"].forEach(t=>{
+    const mode = document.getElementById("rtMode"+t.charAt(0).toUpperCase()+t.slice(1));
+    const btn  = document.getElementById("rtTab"+t.charAt(0).toUpperCase()+t.slice(1));
+    if(!mode||!btn) return;
+    const active = t===tab;
+    mode.style.display = active?"block":"none";
+    btn.style.background = active?"var(--purple)":"var(--bg3)";
+    btn.style.color = active?"#fff":"var(--muted)";
+    btn.style.border = active?"none":"1px solid var(--border)";
+  });
+  if(tab==="manual" && document.getElementById("rtManualRows").children.length===0) rtAddManualRow();
+}
+
+let rtManualRowCount = 0;
+function rtAddManualRow(){
+  const id = ++rtManualRowCount;
+  const div = document.createElement("div");
+  div.id = "rtManRow"+id;
+  div.style.cssText = "display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:6px;align-items:center";
+  div.innerHTML = `
+    <input placeholder="Keyword" style="background:#0c0c14;border:1px solid var(--border);border-radius:6px;padding:6px 9px;color:var(--text);font-size:12px" id="rtMrQ${id}">
+    <input placeholder="Position" type="number" min="1" max="200" style="background:#0c0c14;border:1px solid var(--border);border-radius:6px;padding:6px 9px;color:var(--text);font-size:12px" id="rtMrPos${id}">
+    <input placeholder="Clicks" type="number" min="0" style="background:#0c0c14;border:1px solid var(--border);border-radius:6px;padding:6px 9px;color:var(--text);font-size:12px" id="rtMrCl${id}">
+    <input placeholder="Impressions" type="number" min="0" style="background:#0c0c14;border:1px solid var(--border);border-radius:6px;padding:6px 9px;color:var(--text);font-size:12px" id="rtMrIm${id}">
+    <button onclick="document.getElementById('rtManRow${id}').remove()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px">✕</button>`;
+  document.getElementById("rtManualRows").appendChild(div);
+}
+
+function rtSaveManual(){
+  const rows = document.getElementById("rtManualRows").querySelectorAll("[id^='rtManRow']");
+  const data = [];
+  rows.forEach(row=>{
+    const id = row.id.replace("rtManRow","");
+    const q   = (document.getElementById("rtMrQ"+id)||{}).value||"";
+    const pos = parseFloat((document.getElementById("rtMrPos"+id)||{}).value)||0;
+    const cl  = parseInt((document.getElementById("rtMrCl"+id)||{}).value)||0;
+    const im  = parseInt((document.getElementById("rtMrIm"+id)||{}).value)||0;
+    if(q && pos>0) data.push({query:q,position:pos,clicks:cl,impressions:im,ctr:im?+(cl/im*100).toFixed(2):0});
+  });
+  if(!data.length){ alert("Add at least one keyword with a position number."); return; }
+  rtData = data.sort((a,b)=>a.position-b.position);
+  const total=rtData.length, avgPos=(rtData.reduce((s,r)=>s+r.position,0)/total).toFixed(1);
+  const totalClicks=rtData.reduce((s,r)=>s+r.clicks,0);
+  document.getElementById("rtKwCount").textContent=total;
+  document.getElementById("rtAvgPos").textContent=avgPos;
+  document.getElementById("rtTotalClicks").textContent=totalClicks.toLocaleString();
+  ["rtModeFile","rtModePaste","rtModeManual"].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display="none";});
+  document.getElementById("rtDash").style.display="block";
+  rtRender();
+}
+
+function rtParsePasted(){
+  const text = document.getElementById("rtPasteArea").value.trim();
+  if(!text){ alert("Paste some CSV text first."); return; }
+  rtParseCSV(text);
+}
+
 function rtParseCSV(text){
-  // GSC exports can be a ZIP — catch binary content early
+  // ZIP detection
   if(text.charCodeAt(0)===80&&text.charCodeAt(1)===75){
-    alert("That looks like a ZIP file. Unzip it first, then upload the \"Queries.csv\" file inside.");
+    alert("That's a ZIP file. Unzip it first, then upload Queries.csv from inside — or use the 'Paste CSV text' option.");
     return;
   }
   const lines = text.trim().split(/\r?\n/);
-  if(lines.length < 2){ alert("CSV appears empty or invalid."); return; }
+  if(lines.length < 2){ alert("Looks empty — nothing to parse."); return; }
 
-  // GSC exports have metadata rows before the real header (e.g. "Top queries", date ranges).
-  // Scan all lines to find the one containing both "query" and "position" (or "clicks").
-  let hdrIdx = -1;
-  let cols = [];
-  for(let i=0;i<Math.min(lines.length,20);i++){
+  // Auto-detect separator: tab or comma
+  const sep = lines.slice(0,5).some(l=>l.includes("\t")) ? "\t" : ",";
+
+  // Find the header row — scan up to 30 lines for one containing "query"
+  let hdrIdx = -1, cols = [];
+  for(let i=0;i<Math.min(lines.length,30);i++){
     const low = lines[i].toLowerCase();
-    if((low.includes("query")||low.includes("top query"))&&(low.includes("position")||low.includes("click"))){
-      // This is the header row — split on comma, handling quoted fields
-      cols = lines[i].split(",").map(c=>c.trim().replace(/^"|"$/g,"").toLowerCase());
+    const parts = lines[i].split(sep).map(c=>c.trim().replace(/^"|"$/g,"").toLowerCase());
+    // Accept any row that has a cell containing "query" with at least 3 columns
+    if(parts.length>=3 && parts.some(p=>p==="query"||p==="top queries"||p==="queries")){
+      cols = parts;
       hdrIdx = i;
       break;
     }
   }
+
+  // Fallback: if no exact "query" match, look for any row with 4+ numeric-looking neighbours
   if(hdrIdx<0){
-    alert("Couldn't find columns. Make sure it's a Google Search Console Performance export.\n\nExpected columns: Query, Clicks, Impressions, CTR, Position");
+    for(let i=0;i<Math.min(lines.length,30);i++){
+      const parts = lines[i].split(sep).map(c=>c.trim().replace(/^"|"$/g,"").toLowerCase());
+      if(parts.length>=4 && parts.some(p=>p.includes("click")||p.includes("impression")||p.includes("position"))){
+        cols = parts;
+        hdrIdx = i;
+        break;
+      }
+    }
+  }
+
+  if(hdrIdx<0){
+    alert("Couldn't find the data columns.\n\nTry the 'Paste CSV text' option: open Queries.csv in Notepad, select all, copy, then paste into the text box.");
     return;
   }
 
-  const qi   = cols.findIndex(c=>c.includes("query"));
+  // Find column indices
+  const qi   = cols.findIndex(c=>c.includes("quer"));
   const cli  = cols.findIndex(c=>c.includes("click"));
-  const impi = cols.findIndex(c=>c.includes("impression"));
+  const impi = cols.findIndex(c=>c.includes("impress"));
   const ctri = cols.findIndex(c=>c.includes("ctr"));
-  const posi = cols.findIndex(c=>c.includes("position"));
-  if(qi<0||posi<0){ alert("Couldn't find Query or Position columns in this file."); return; }
+  const posi = cols.findIndex(c=>c.includes("pos"));
+
+  if(qi<0){ alert("Can't find a 'Query' column. Make sure you're using the Queries export, not Pages or Countries."); return; }
 
   rtData = [];
   for(let i=hdrIdx+1;i<lines.length;i++){
     const line = lines[i].trim();
     if(!line) continue;
-    // Handle quoted CSV values
-    const row = line.match(/(".*?"|[^,]+)(?=,|$)/g)||line.split(",");
-    const cleaned = row.map(c=>(c||"").trim().replace(/^"|"$/g,""));
-    const q = cleaned[qi]||"";
-    if(!q||q.toLowerCase()==="query") continue; // skip repeated headers
-    const pos = parseFloat(cleaned[posi])||0;
-    if(!pos) continue;
+    const row = line.split(sep).map(c=>(c||"").trim().replace(/^"|"$/g,""));
+    if(row.length < 2) continue;
+    const q = row[qi]||"";
+    if(!q || q.toLowerCase().includes("quer")) continue; // skip repeated header
+    const pos = posi>=0 ? parseFloat(row[posi])||0 : 0;
+    // If no position column found, use index order
     rtData.push({
       query: q,
-      clicks: parseInt(cleaned[cli])||0,
-      impressions: parseInt(cleaned[impi])||0,
-      ctr: ctri>=0?parseFloat((cleaned[ctri]||"0").replace("%",""))||0:0,
-      position: pos
+      clicks: cli>=0 ? parseInt(row[cli])||0 : 0,
+      impressions: impi>=0 ? parseInt(row[impi])||0 : 0,
+      ctr: ctri>=0 ? parseFloat((row[ctri]||"0").replace("%",""))||0 : 0,
+      position: pos||999
     });
   }
-  if(!rtData.length){ alert("No keyword data found in this file. Make sure you're uploading the Queries report, not Pages or Countries."); return; }
+
+  if(!rtData.length){ alert("Found the header but no data rows. Make sure the file has keyword data, not just summary rows."); return; }
+  rtData = rtData.filter(r=>r.position>0&&r.position<1000);
+  if(!rtData.length){ alert("No valid position data found. Check that your Position column has numbers."); return; }
   rtData.sort((a,b)=>a.position-b.position);
   const total = rtData.length;
   const avgPos = (rtData.reduce((s,r)=>s+r.position,0)/total).toFixed(1);
@@ -1847,6 +1956,8 @@ function rtParseCSV(text){
   document.getElementById("rtAvgPos").textContent = avgPos;
   document.getElementById("rtTotalClicks").textContent = totalClicks.toLocaleString();
   document.getElementById("rtDropZone").style.display="none";
+  document.getElementById("rtModeFile").style.display="none";
+  document.getElementById("rtModePaste").style.display="none";
   document.getElementById("rtDash").style.display="block";
   rtRender();
 }

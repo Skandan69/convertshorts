@@ -1856,38 +1856,85 @@ function closeOnboard(){ document.getElementById("onboardOverlay").classList.rem
 // ─────────────────────────────────────────────
 const RT_STOPWORDS = new Set(["the","a","an","and","or","but","in","on","at","to","for","of","with","by","from","is","are","was","were","be","been","being","have","has","had","do","does","did","will","would","could","should","may","might","shall","can","this","that","these","those","it","its","we","our","your","my","their","you","i","he","she","they","who","what","which","how","when","where","why","get","got","make","made","use","used","need","want","help","all","more","than","so","if","as","up","out","about","just","into","over","also","new","now","free","best","top","good"]);
 
-function rtExtractKeywords(html){
+function rtExtractKeywords(html, domain){
   try{
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
-    const title = doc.querySelector("title")?.textContent||"";
+
+    // Pull from the richest SEO sources
+    const title    = doc.querySelector("title")?.textContent||"";
     const metaDesc = doc.querySelector('meta[name="description"]')?.getAttribute("content")||"";
-    const metaKw = doc.querySelector('meta[name="keywords"]')?.getAttribute("content")||"";
-    const h1 = [...doc.querySelectorAll("h1")].map(h=>h.textContent).join(" ");
-    const h2 = [...doc.querySelectorAll("h2")].map(h=>h.textContent).join(" ");
-    const ogTitle = doc.querySelector('meta[property="og:title"]')?.getAttribute("content")||"";
-    const ogDesc = doc.querySelector('meta[property="og:description"]')?.getAttribute("content")||"";
+    const metaKw   = doc.querySelector('meta[name="keywords"]')?.getAttribute("content")||"";
+    const ogTitle  = doc.querySelector('meta[property="og:title"]')?.getAttribute("content")||"";
+    const ogDesc   = doc.querySelector('meta[property="og:description"]')?.getAttribute("content")||"";
+    const h1s = [...doc.querySelectorAll("h1")].map(h=>h.textContent.trim()).join(" ");
+    const h2s = [...doc.querySelectorAll("h2")].map(h=>h.textContent.trim()).slice(0,5).join(" ");
+    const h3s = [...doc.querySelectorAll("h3")].map(h=>h.textContent.trim()).slice(0,4).join(" ");
+    const btnTxt = [...doc.querySelectorAll("button,a.cta,.cta,a.btn,.btn")].map(b=>b.textContent.trim()).slice(0,6).join(" ");
 
-    // Combine all text, weight title/h1 more heavily
-    const allText = [title,title,ogTitle,metaDesc,ogDesc,metaKw,h1,h1,h2].join(" ");
-    const cleaned = allText.toLowerCase().replace(/[^a-z0-9\s\-]/g," ").replace(/\s+/g," ").trim();
-    const words = cleaned.split(" ").filter(w=>w.length>2 && !RT_STOPWORDS.has(w));
+    // Build a word-frequency map (more frequent = more important)
+    const sources = [
+      {text: title, weight: 4},
+      {text: ogTitle, weight: 3},
+      {text: h1s, weight: 4},
+      {text: metaDesc, weight: 3},
+      {text: ogDesc, weight: 3},
+      {text: metaKw, weight: 5},
+      {text: h2s, weight: 2},
+      {text: h3s, weight: 1},
+      {text: btnTxt, weight: 2}
+    ];
 
-    const phrases = new Set();
-    // 1-word important terms
-    words.forEach(w=>{ if(w.length>4) phrases.add(w); });
-    // 2-word phrases
-    for(let i=0;i<words.length-1;i++){
-      if(!RT_STOPWORDS.has(words[i])&&!RT_STOPWORDS.has(words[i+1])) phrases.add(words[i]+" "+words[i+1]);
+    // Build domain word blocklist (don't use brand/product name words)
+    const domainWords = new Set(
+      (domain||"").replace(/\.(com|io|co|net|org|in|ai|app)/g,"").split(/[\.\-_]/).filter(Boolean).map(w=>w.toLowerCase())
+    );
+
+    const freq = {};
+    for(const {text, weight} of sources){
+      const clean = text.toLowerCase().replace(/[^a-z0-9\s]/g," ");
+      const words = clean.split(/\s+/).filter(w=>w.length>2&&!RT_STOPWORDS.has(w)&&!domainWords.has(w));
+      words.forEach(w=>{ freq[w]=(freq[w]||0)+weight; });
     }
-    // 3-word phrases
-    for(let i=0;i<words.length-2;i++){
-      if(!RT_STOPWORDS.has(words[i])&&!RT_STOPWORDS.has(words[i+2])) phrases.add(words[i]+" "+words[i+1]+" "+words[i+2]);
+
+    // Sort words by frequency, take top meaningful ones
+    const topWords = Object.entries(freq).filter(([w])=>w.length>3).sort((a,b)=>b[1]-a[1]).slice(0,20).map(([w])=>w);
+
+    // Generate natural 2 and 3-word phrases from high-frequency words appearing together in source text
+    const naturalPhrases = new Set();
+    const combined = sources.map(s=>s.text).join(" ").toLowerCase().replace(/[^a-z0-9\s]/g," ");
+    const combinedWords = combined.split(/\s+/);
+
+    for(let i=0;i<combinedWords.length-2;i++){
+      const w1=combinedWords[i], w2=combinedWords[i+1], w3=combinedWords[i+2];
+      if(w1.length<2||w2.length<2) continue;
+      if(RT_STOPWORDS.has(w1)||domainWords.has(w1)) continue;
+
+      // 2-word phrase
+      if(!RT_STOPWORDS.has(w2)&&!domainWords.has(w2)&&topWords.includes(w1)){
+        naturalPhrases.add(w1+" "+w2);
+      }
+      // 3-word phrase
+      if(!RT_STOPWORDS.has(w2)&&!RT_STOPWORDS.has(w3)&&!domainWords.has(w3)&&w3.length>2&&topWords.includes(w1)){
+        naturalPhrases.add(w1+" "+w2+" "+w3);
+      }
     }
-    // Remove duplicates that are substrings of longer phrases
-    const sorted = [...phrases].sort((a,b)=>b.split(" ").length-a.split(" ").length);
-    const filtered = sorted.filter((p,i)=>!sorted.slice(0,i).some(longer=>longer.includes(p)));
-    return filtered.slice(0,10);
+
+    // Score phrases: prefer longer, prefer phrases with 2+ high-freq words
+    const scored = [...naturalPhrases].map(p=>{
+      const words = p.split(" ");
+      const score = words.reduce((s,w)=>s+(freq[w]||0),0) + words.length*2;
+      return {p, score};
+    }).sort((a,b)=>b.score-a.score);
+
+    // Deduplicate — remove phrases fully contained in higher-scored ones
+    const final = [];
+    for(const {p} of scored){
+      if(!final.some(f=>f.includes(p)&&f!==p)) final.push(p);
+      if(final.length>=10) break;
+    }
+
+    return final.length ? final : topWords.slice(0,8).map(w=>w); // fallback to top words
   }catch(e){ return []; }
 }
 
@@ -1937,19 +1984,33 @@ async function rtScanWebsite(){
 
   try{
     // Fetch via CORS proxy
-    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-    const r = await fetch(proxyUrl,{signal:AbortSignal.timeout(18000)});
-    const json = await r.json();
-    const html = json.contents||"";
-    if(!html){ prog.innerHTML=`<div class="rt-empty">Could not fetch that page. Try the manual entry option instead.</div>`; return; }
+    // Try allorigins first, fall back to corsproxy.io
+    let html = "";
+    for(const proxyUrl of [
+      `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+      `https://corsproxy.io/?${encodeURIComponent(url)}`
+    ]){
+      try{
+        const r = await fetch(proxyUrl,{signal:AbortSignal.timeout(22000)});
+        const ct = r.headers.get("content-type")||"";
+        if(ct.includes("json")){
+          const json = await r.json();
+          html = json.contents||json.body||"";
+        } else {
+          html = await r.text();
+        }
+        if(html.length>500) break;
+      }catch{}
+    }
+    if(!html||html.length<200){ prog.innerHTML=`<div class="rt-empty">Could not fetch that page — it may block bots. Try the manual entry option instead.</div>`; return; }
 
-    const keywords = rtExtractKeywords(html);
+    const keywords = rtExtractKeywords(html, domain);
     if(!keywords.length){ prog.innerHTML=`<div class="rt-empty">Couldn't extract keywords from that page. Try the manual entry option.</div>`; return; }
 
     if(!canCheckRank){
-      // No rank-check CX — just pre-fill keywords for manual entry
+      // No rank-check CX — pre-fill keywords for manual entry
       noKey.style.display = "block";
-      prog.innerHTML = `<div style="font-size:12px;color:var(--muted)">Found <strong style="color:#fff">${keywords.length} keywords</strong> from your page. Switching to manual entry — add your positions:</div>`;
+      prog.innerHTML = `<div style="font-size:12px;color:#22c55e">✅ Found <strong style="color:#fff">${keywords.length} keywords</strong> from your page! Add position numbers below to start tracking — or add a Rank-Check CX key to let the tool check positions automatically.</div>`;
       rtShowTab("manual");
       document.getElementById("rtManualRows").innerHTML="";
       rtManualRowCount=0;

@@ -2561,31 +2561,63 @@ async function ytCompetitors(){
   }
 }
 
+// Category ID → search term mapping (for search-based fallback)
+const YT_CAT_TERMS = {
+  "27":"education tutorial learn","28":"science technology tech","24":"entertainment","22":"vlog lifestyle",
+  "20":"gaming gameplay","19":"travel vlog","17":"sports highlights","10":"music song","26":"howto style tips","0":""
+};
+
 // Trending Videos
 async function ytTrending(){
   const el = document.getElementById("ytTrendResults");
   if(!googleKey){ ytNoKey(el); return; }
   const cat = document.getElementById("ytTrendCat").value;
+  const catLabel = document.getElementById("ytTrendCat").selectedOptions[0]?.text||"All";
   const region = document.getElementById("ytTrendRegion").value;
-  el.innerHTML=`<div class="loading"><div class="spinner" style="border-top-color:#ff0000"></div><div class="loading-msg">Loading trending videos…</div></div>`;
+  el.innerHTML=`<div class="loading"><div class="spinner" style="border-top-color:#ff0000"></div><div class="loading-msg">Loading trending ${catLabel} videos…</div></div>`;
   try{
-    // Try with category first; if it 404s, fall back to all categories
-    let url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&chart=mostPopular&regionCode=${region}&maxResults=15${cat!=="0"?`&videoCategoryId=${cat}`:""}&key=${googleKey}`;
-    let r = await fetch(url,{signal:AbortSignal.timeout(10000)});
-    let data = await r.json();
-    let usedFallback = false;
-    // If category-specific call fails, retry without category filter
-    if(data.error && cat!=="0"){
-      url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&chart=mostPopular&regionCode=${region}&maxResults=15&key=${googleKey}`;
-      r = await fetch(url,{signal:AbortSignal.timeout(10000)});
-      data = await r.json();
-      usedFallback = true;
+    // Try chart=mostPopular with category first
+    let items = [];
+    let usedSearch = false;
+    if(cat!=="0"){
+      const url=`https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&chart=mostPopular&regionCode=${region}&maxResults=15&videoCategoryId=${cat}&key=${googleKey}`;
+      const r=await fetch(url,{signal:AbortSignal.timeout(10000)});
+      const data=await r.json();
+      if(!data.error) items=data.items||[];
     }
-    if(data.error){ el.innerHTML=`<div class="rt-empty">API error: ${data.error.message}<br><small style="color:#555">Make sure your Google API key has YouTube Data API v3 enabled.</small></div>`; return; }
-    const items = data.items||[];
-    if(usedFallback) el.insertAdjacentHTML("beforeend",`<div style="font-size:11px;color:#f59e0b;margin-bottom:8px">⚠️ No trending data for that category in this region — showing all trending instead.</div>`);
+
+    // If chart returned nothing useful for this category+region, use Search API instead
+    if(!items.length && cat!=="0"){
+      usedSearch=true;
+      const term = YT_CAT_TERMS[cat]||catLabel;
+      const sevenDaysAgo=new Date(Date.now()-7*864e5).toISOString();
+      const searchUrl=`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${enc(term)}&type=video&order=viewCount&regionCode=${region}&maxResults=15&publishedAfter=${sevenDaysAgo}&key=${googleKey}`;
+      const sr=await fetch(searchUrl,{signal:AbortSignal.timeout(10000)});
+      const sd=await sr.json();
+      if(sd.error){ el.innerHTML=`<div class="rt-empty">API error: ${sd.error.message}</div>`; return; }
+      const ids=(sd.items||[]).map(v=>v.id?.videoId).filter(Boolean).join(",");
+      if(ids){
+        const vr=await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${ids}&key=${googleKey}`,{signal:AbortSignal.timeout(8000)});
+        const vd=await vr.json();
+        items=vd.items||[];
+      }
+    }
+
+    // If cat=0, just load all trending
+    if(cat==="0"){
+      const url=`https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&chart=mostPopular&regionCode=${region}&maxResults=15&key=${googleKey}`;
+      const r=await fetch(url,{signal:AbortSignal.timeout(10000)});
+      const data=await r.json();
+      if(data.error){ el.innerHTML=`<div class="rt-empty">API error: ${data.error.message}</div>`; return; }
+      items=data.items||[];
+    }
+
+    if(!items.length){ el.innerHTML=`<div class="rt-empty">No videos found for this category and region.</div>`; return; }
     el.innerHTML = `
-      <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Trending in <strong style="color:#fff">${region}</strong> right now</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:12px">
+        ${usedSearch ? `🔍 Top <strong style="color:#fff">${catLabel}</strong> videos in <strong style="color:#fff">${region}</strong> this week (by views)` : `🔥 Trending <strong style="color:#fff">${catLabel==="All categories"?"":catLabel}</strong> in <strong style="color:#fff">${region}</strong> right now`}
+        ${usedSearch?`<span style="margin-left:8px;background:#1a1a00;border:1px solid #3a3a00;border-radius:10px;padding:2px 8px;font-size:10px;color:#fbbf24">YouTube doesn't publish an Education trending chart for India — showing most-viewed education videos instead</span>`:""}
+      </div>
       ${items.map((v,i)=>{
         const s = v.snippet;
         const st = v.statistics;

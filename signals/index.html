@@ -207,6 +207,95 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   .main{padding:16px 12px}
   .l-grid{grid-template-columns:1fr}
 }
+
+/* ── TOP NAV ── */
+.top-nav{background:#12121e;border-bottom:1px solid var(--border);display:flex;gap:0;padding:0 32px;overflow-x:auto}
+.top-nav-btn{background:transparent;border:none;border-bottom:2px solid transparent;padding:12px 20px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;transition:all .15s}
+.top-nav-btn:hover{color:var(--text)}
+.top-nav-btn.active{color:#fff;border-bottom-color:var(--purple)}
+
+/* ── PAGE CONTAINERS ── */
+.page{display:none}.page.active{display:block}
+
+/* ── RANK TRACKER ── */
+.rt-wrap{max-width:900px;margin:0 auto;padding:24px 20px}
+.rt-hero{text-align:center;padding:36px 20px 24px}
+.rt-hero h2{font-size:22px;color:#fff;margin-bottom:8px}
+.rt-hero p{color:var(--muted);font-size:13px;max-width:480px;margin:0 auto 20px}
+.upload-zone{border:2px dashed #2a2a3a;border-radius:12px;padding:28px;text-align:center;cursor:pointer;transition:all .2s;background:#0c0c12}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--purple);background:rgba(108,99,255,.05)}
+.upload-zone input{display:none}
+.upload-icon{font-size:32px;margin-bottom:8px}
+.upload-label{color:#888;font-size:13px;line-height:1.6}
+.upload-label strong{color:var(--purple2);cursor:pointer}
+.rt-filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
+.rt-filter-pill{background:var(--bg3);border:1px solid var(--border);border-radius:16px;padding:5px 14px;font-size:11px;color:var(--muted);cursor:pointer;transition:all .15s;font-weight:500}
+.rt-filter-pill:hover{border-color:var(--purple);color:var(--purple2)}
+.rt-filter-pill.active{background:var(--purple);border-color:var(--purple);color:#fff;font-weight:700}
+.rt-sort{margin-left:auto;display:flex;gap:6px;align-items:center;font-size:11px;color:var(--muted)}
+.rt-sort select{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-size:11px;cursor:pointer}
+.kw-table{width:100%;border-collapse:collapse}
+.kw-table th{text-align:left;font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:8px 10px;border-bottom:1px solid var(--border)}
+.kw-table td{padding:10px 10px;border-bottom:1px solid #141420;font-size:12px;vertical-align:middle}
+.kw-table tr:hover td{background:#0f0f18}
+.pos-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:8px;white-space:nowrap}
+.pos-top3{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+.pos-top10{background:rgba(59,73,223,.15);color:#6979f8;border:1px solid rgba(59,73,223,.3)}
+.pos-opp{background:rgba(251,191,36,.1);color:var(--amber);border:1px solid rgba(251,191,36,.25)}
+.pos-buried{background:rgba(239,68,68,.08);color:#f87171;border:1px solid rgba(239,68,68,.2)}
+.kw-name{color:var(--purple2);font-weight:500;max-width:280px}
+.kw-tip-btn{background:transparent;border:1px solid #252535;border-radius:5px;padding:2px 8px;font-size:10px;color:#555;cursor:pointer;transition:all .15s}
+.kw-tip-btn:hover{border-color:var(--purple);color:var(--purple2)}
+.rt-tip-modal{max-width:540px}
+.tip-list{margin-top:14px}
+.tip-item{background:#0c0c14;border:1px solid var(--border);border-radius:8px;padding:10px 13px;margin-bottom:8px;font-size:12px;color:#bbb;line-height:1.6}
+.tip-item strong{color:var(--purple2)}
+.rt-empty{text-align:center;padding:48px 20px;color:var(--dim);font-size:13px}
+
+/* ── YOUTUBE STUDIO ── */
+.yt-wrap{max-width:960px;margin:0 auto;padding:24px 20px}
+.yt-tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:24px}
+.yt-tool-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;transition:all .15s;text-align:center}
+.yt-tool-card:hover{border-color:var(--purple);background:rgba(108,99,255,.06)}
+.yt-tool-card.active{border-color:var(--purple);background:rgba(108,99,255,.1)}
+.yt-tool-icon{font-size:28px;margin-bottom:6px}
+.yt-tool-name{font-size:13px;font-weight:600;color:#fff;margin-bottom:3px}
+.yt-tool-desc{font-size:11px;color:var(--muted);line-height:1.5}
+.yt-panel{display:none}.yt-panel.active{display:block}
+.yt-search-row{display:flex;gap:8px;margin-bottom:20px}
+.yt-search-row input{flex:1;background:#0c0c14;border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-size:13px}
+.yt-search-row input:focus{outline:none;border-color:var(--purple)}
+.yt-result{background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:13px 15px;margin-bottom:10px}
+.yt-result-top{display:flex;align-items:flex-start;gap:12px}
+.yt-thumb{width:88px;height:52px;border-radius:5px;object-fit:cover;background:#1a1a2e;flex-shrink:0}
+.yt-result-info{flex:1;min-width:0}
+.yt-vid-title{color:var(--purple2);font-size:13px;font-weight:600;line-height:1.4;margin-bottom:4px;text-decoration:none;display:block}
+.yt-vid-title:hover{color:#c4b5fd;text-decoration:underline}
+.yt-vid-meta{font-size:11px;color:#555;line-height:1.5}
+.yt-vid-kws{margin-top:6px;display:flex;gap:4px;flex-wrap:wrap}
+.kw-chip{background:#111;border:1px solid #222;border-radius:4px;padding:2px 7px;font-size:10px;color:#888}
+.kw-vol{font-size:10px;padding:2px 7px;border-radius:8px;font-weight:600}
+.vol-high{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.25)}
+.vol-med{background:rgba(251,191,36,.1);color:var(--amber);border:1px solid rgba(251,191,36,.2)}
+.vol-low{background:rgba(239,68,68,.08);color:#f87171;border:1px solid rgba(239,68,68,.2)}
+.yt-score-meter{height:6px;background:#1a1a2e;border-radius:3px;overflow:hidden;margin:6px 0}
+.yt-score-fill{height:100%;background:linear-gradient(90deg,var(--red),var(--amber),var(--green));border-radius:3px;transition:width .4s}
+.yt-optimizer{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:8px}
+.yt-opt-title{font-size:15px;font-weight:700;color:#fff;margin-bottom:14px}
+.yt-opt-out{background:#0c0c14;border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:12px;color:#bbb;line-height:1.7;white-space:pre-wrap;min-height:80px;margin-bottom:8px}
+.yt-spinner{width:24px;height:24px;border:2px solid var(--border);border-top-color:#ff0000;border-radius:50%;animation:spin .8s linear infinite;margin:16px auto}
+.seo-score-ring{width:80px;height:80px;position:relative;margin:0 auto 12px}
+.seo-score-ring svg{transform:rotate(-90deg)}
+.seo-score-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff}
+.seo-checks{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.seo-check{font-size:11px;padding:7px 10px;border-radius:7px;display:flex;align-items:center;gap:6px}
+.seo-pass{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);color:#bbb}
+.seo-fail{background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.15);color:#888}
+@media(max-width:580px){
+  .top-nav{padding:0 12px}
+  .yt-tools{grid-template-columns:1fr 1fr}
+  .seo-checks{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
@@ -361,17 +450,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div class="hdr">
   <div class="hdr-brand">
     <div>
-      <h1>🎯 <em>First</em>Customer <span style="font-size:10px;color:#333;font-weight:400">v4</span></h1>
-      <div class="hdr-sub">Signal hunter · 6 sources · top 3 per platform · learns from feedback</div>
+      <h1>🎯 <em>First</em>Customer <span style="font-size:10px;color:#333;font-weight:400">v5</span></h1>
+      <div class="hdr-sub">Signal hunter · 7 sources · rank tracker · YouTube studio</div>
     </div>
   </div>
   <div class="hdr-right">
     <div class="learn-pill" onclick="openLearn()">📚 Learned: <strong id="learnCount">0</strong></div>
     <button class="btn btn-ghost" onclick="openSettings()">⚙️ Keys</button>
-    <button class="btn-add" onclick="openAdd()">＋ Add Product</button>
+    <button class="btn-add" id="addProdBtn" onclick="openAdd()">＋ Add Product</button>
     <button class="btn btn-primary" id="scanBtn" onclick="runScan()" style="display:none">▶ Scan</button>
   </div>
 </div>
+
+<!-- TOP NAV -->
+<nav class="top-nav">
+  <button class="top-nav-btn active" id="nav-signal" onclick="switchPage('signal')">🎯 Signal Hunter</button>
+  <button class="top-nav-btn" id="nav-rank" onclick="switchPage('rank')">📊 Rank Tracker</button>
+  <button class="top-nav-btn" id="nav-yt" onclick="switchPage('yt')">📺 YouTube Studio</button>
+</nav>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PAGE: SIGNAL HUNTER                       -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="page active" id="page-signal">
 
 <!-- STATS BAR -->
 <div class="sbar" id="sbar" style="display:none">
@@ -419,6 +520,199 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 <div class="ftr">Review every response before posting · Helpful first, product second · Works with any product worldwide</div>
+
+</div><!-- /page-signal -->
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PAGE: RANK TRACKER                         -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="page" id="page-rank">
+<div class="rt-wrap">
+  <div class="rt-hero">
+    <div style="font-size:42px;margin-bottom:10px">📊</div>
+    <h2>Keyword Rank Tracker</h2>
+    <p>Export your Google Search Console Performance report as CSV and upload it here. No data leaves your browser.</p>
+    <div class="upload-zone" id="rtDropZone" onclick="document.getElementById('rtCsvInput').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="rtHandleDrop(event)">
+      <input type="file" id="rtCsvInput" accept=".csv" onchange="rtLoadFile(this.files[0])">
+      <div class="upload-icon">📁</div>
+      <div class="upload-label">Drop your <strong>Search Console CSV</strong> here or click to browse<br><span style="font-size:11px;color:#444">Search Console → Performance → Export → Download CSV</span></div>
+    </div>
+  </div>
+
+  <div id="rtDash" style="display:none">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+      <div style="font-size:12px;color:var(--muted)"><span id="rtKwCount" style="color:#fff;font-weight:700">0</span> keywords tracked</div>
+      <div style="font-size:12px;color:var(--muted)">Avg position: <span id="rtAvgPos" style="color:#fff;font-weight:700">–</span></div>
+      <div style="font-size:12px;color:var(--muted)">Total clicks: <span id="rtTotalClicks" style="color:#fff;font-weight:700">–</span></div>
+      <button class="btn btn-ghost" style="margin-left:auto;font-size:11px" onclick="document.getElementById('rtCsvInput').click()">↻ Upload new CSV</button>
+    </div>
+    <div class="rt-filters">
+      <button class="rt-filter-pill active" data-rtf="all" onclick="rtFilter('all',this)">All</button>
+      <button class="rt-filter-pill" data-rtf="top3" onclick="rtFilter('top3',this)">🏆 Top 3</button>
+      <button class="rt-filter-pill" data-rtf="top10" onclick="rtFilter('top10',this)">✅ Top 10</button>
+      <button class="rt-filter-pill" data-rtf="opp" onclick="rtFilter('opp',this)">💡 Opportunity (11–20)</button>
+      <button class="rt-filter-pill" data-rtf="buried" onclick="rtFilter('buried',this)">📦 Buried (20+)</button>
+      <div class="rt-sort">
+        Sort:
+        <select id="rtSortSel" onchange="rtRender()">
+          <option value="pos">Position</option>
+          <option value="clicks">Clicks</option>
+          <option value="impressions">Impressions</option>
+        </select>
+      </div>
+    </div>
+    <table class="kw-table">
+      <thead><tr>
+        <th>Keyword</th>
+        <th>Position</th>
+        <th>Clicks</th>
+        <th>Impressions</th>
+        <th>CTR</th>
+        <th>Tips</th>
+      </tr></thead>
+      <tbody id="rtTbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Tip Modal -->
+<div class="overlay" id="rtTipOverlay">
+  <div class="modal rt-tip-modal">
+    <h2 id="rtTipTitle">Improvement Tips</h2>
+    <div class="modal-desc" id="rtTipMeta"></div>
+    <div class="tip-list" id="rtTipList"></div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="document.getElementById('rtTipOverlay').classList.remove('open')">Close</button></div>
+  </div>
+</div>
+</div><!-- /page-rank -->
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PAGE: YOUTUBE STUDIO                        -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="page" id="page-yt">
+<div class="yt-wrap">
+  <div style="margin-bottom:20px">
+    <h2 style="font-size:20px;color:#fff;margin-bottom:4px">📺 YouTube Studio</h2>
+    <div style="font-size:12px;color:var(--muted)">Keyword research · competitor tracking · Video SEO scorer · AI content optimizer</div>
+  </div>
+
+  <!-- Tool selector -->
+  <div class="yt-tools" id="ytTools">
+    <div class="yt-tool-card active" onclick="ytSwitch('research',this)">
+      <div class="yt-tool-icon">🔍</div>
+      <div class="yt-tool-name">Keyword Research</div>
+      <div class="yt-tool-desc">Find high-volume keywords for your niche</div>
+    </div>
+    <div class="yt-tool-card" onclick="ytSwitch('competitors',this)">
+      <div class="yt-tool-icon">🕵️</div>
+      <div class="yt-tool-name">Competitor Channels</div>
+      <div class="yt-tool-desc">Spy on what your competitors are posting</div>
+    </div>
+    <div class="yt-tool-card" onclick="ytSwitch('trending',this)">
+      <div class="yt-tool-icon">🔥</div>
+      <div class="yt-tool-name">Trending Videos</div>
+      <div class="yt-tool-desc">Trending videos in your category</div>
+    </div>
+    <div class="yt-tool-card" onclick="ytSwitch('seo',this)">
+      <div class="yt-tool-icon">📈</div>
+      <div class="yt-tool-name">Video SEO Scorer</div>
+      <div class="yt-tool-desc">Score a video's title, description &amp; tags</div>
+    </div>
+  </div>
+
+  <!-- ── Keyword Research Panel ── -->
+  <div class="yt-panel active" id="ytpanel-research">
+    <div class="yt-search-row">
+      <input type="text" id="ytKwInput" placeholder='e.g. "resume builder for freshers"' onkeydown="if(event.key==='Enter')ytResearch()">
+      <button class="btn btn-primary" onclick="ytResearch()">🔍 Search</button>
+    </div>
+    <div id="ytKwResults"></div>
+  </div>
+
+  <!-- ── Competitor Channels Panel ── -->
+  <div class="yt-panel" id="ytpanel-competitors">
+    <div class="yt-search-row">
+      <input type="text" id="ytCompInput" placeholder='e.g. "AI resume builder" or a channel name' onkeydown="if(event.key==='Enter')ytCompetitors()">
+      <button class="btn btn-primary" onclick="ytCompetitors()">🕵️ Find Channels</button>
+    </div>
+    <div id="ytCompResults"></div>
+  </div>
+
+  <!-- ── Trending Panel ── -->
+  <div class="yt-panel" id="ytpanel-trending">
+    <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;align-items:center">
+      <select id="ytTrendCat" style="background:#0c0c14;border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:12px;flex:1">
+        <option value="0">All categories</option>
+        <option value="28">Science &amp; Technology</option>
+        <option value="27">Education</option>
+        <option value="24">Entertainment</option>
+        <option value="22">People &amp; Blogs</option>
+        <option value="20">Gaming</option>
+        <option value="19">Travel &amp; Events</option>
+        <option value="17">Sports</option>
+        <option value="10">Music</option>
+        <option value="26">Howto &amp; Style</option>
+      </select>
+      <select id="ytTrendRegion" style="background:#0c0c14;border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:12px">
+        <option value="US">United States</option>
+        <option value="IN">India</option>
+        <option value="GB">United Kingdom</option>
+        <option value="AU">Australia</option>
+        <option value="CA">Canada</option>
+      </select>
+      <button class="btn btn-primary" onclick="ytTrending()">🔥 Load Trending</button>
+    </div>
+    <div id="ytTrendResults"></div>
+  </div>
+
+  <!-- ── SEO Scorer Panel ── -->
+  <div class="yt-panel" id="ytpanel-seo">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div class="field" style="margin:0">
+        <label>Video Title</label>
+        <input type="text" id="seoTitle" placeholder="How I built an AI resume builder in 30 days" autocomplete="off">
+      </div>
+      <div class="field" style="margin:0">
+        <label>Target Keyword</label>
+        <input type="text" id="seoKeyword" placeholder="AI resume builder" autocomplete="off">
+      </div>
+    </div>
+    <div class="field">
+      <label>Description (paste first 300 chars)</label>
+      <textarea id="seoDesc" rows="3" placeholder="In this video I show you how to..."></textarea>
+    </div>
+    <div class="field">
+      <label>Tags (comma separated)</label>
+      <input type="text" id="seoTags" placeholder="resume builder, AI resume, ATS resume, job search" autocomplete="off">
+    </div>
+    <button class="btn btn-primary" onclick="scoreSEO()">📊 Score This Video</button>
+    <div id="seoResults" style="margin-top:20px"></div>
+  </div>
+
+  <!-- ── AI Video Optimizer (always visible at bottom) ── -->
+  <div class="yt-optimizer" style="margin-top:20px">
+    <div class="yt-opt-title">✨ AI Video Optimizer</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+      <div class="field" style="margin:0">
+        <label>Your Video Topic</label>
+        <input type="text" id="aiVidTopic" placeholder="How I got 1000 subscribers in 30 days" autocomplete="off">
+      </div>
+      <div class="field" style="margin:0">
+        <label>Target Audience</label>
+        <input type="text" id="aiVidAudience" placeholder="Beginner YouTubers, indie hackers" autocomplete="off">
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer"><input type="checkbox" id="aiOptTitle" checked> Title</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer"><input type="checkbox" id="aiOptDesc" checked> Description</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer"><input type="checkbox" id="aiOptTags" checked> Tags</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer"><input type="checkbox" id="aiOptHook" checked> Hook Script</label>
+    </div>
+    <button class="btn btn-primary" onclick="aiOptimize()" id="aiOptBtn">✨ Generate with AI</button>
+    <div id="aiOptResults" style="margin-top:16px"></div>
+  </div>
+</div>
+</div><!-- /page-yt -->
 
 <script>
 // ─────────────────────────────────────────────
@@ -1450,6 +1744,411 @@ if(PRODUCTS.length > 0) showTab(PRODUCTS[0].id);
 document.getElementById("settingsOverlay").addEventListener("click",e=>{if(e.target===e.currentTarget)closeSettings();});
 document.getElementById("learnOverlay").addEventListener("click",e=>{if(e.target===e.currentTarget)closeLearn();});
 document.getElementById("addOverlay").addEventListener("click",e=>{if(e.target===e.currentTarget)closeAdd();});
+document.getElementById("rtTipOverlay").addEventListener("click",e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove("open");});
+
+// ─────────────────────────────────────────────
+// PAGE SWITCHING
+// ─────────────────────────────────────────────
+function switchPage(page){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".top-nav-btn").forEach(b=>b.classList.remove("active"));
+  document.getElementById(`page-${page}`).classList.add("active");
+  document.getElementById(`nav-${page}`).classList.add("active");
+  // Show/hide header buttons relevant to signal hunter only
+  const isSignal = page==="signal";
+  document.getElementById("addProdBtn").style.display = isSignal?"inline-flex":"none";
+  document.getElementById("scanBtn").style.display = (isSignal && PRODUCTS.length>0)?"inline-flex":"none";
+}
+
+// ─────────────────────────────────────────────
+// RANK TRACKER
+// ─────────────────────────────────────────────
+let rtData = [];
+let rtActiveFilter = "all";
+
+function rtHandleDrop(e){
+  e.preventDefault();
+  document.getElementById("rtDropZone").classList.remove("drag");
+  const f = e.dataTransfer.files[0];
+  if(f) rtLoadFile(f);
+}
+
+function rtLoadFile(file){
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => rtParseCSV(e.target.result);
+  reader.readAsText(file);
+}
+
+function rtParseCSV(text){
+  const lines = text.trim().split("\n");
+  if(lines.length < 2){ alert("CSV appears empty or invalid."); return; }
+  // Detect header row — Search Console exports vary slightly
+  const hdr = lines[0].toLowerCase();
+  const cols = hdr.split(",").map(c=>c.trim().replace(/"/g,""));
+  const qi = cols.findIndex(c=>c.includes("query")||c.includes("top queries"));
+  const cli = cols.findIndex(c=>c.includes("click"));
+  const impi = cols.findIndex(c=>c.includes("impression"));
+  const ctri = cols.findIndex(c=>c.includes("ctr"));
+  const posi = cols.findIndex(c=>c.includes("position"));
+  if(qi<0||posi<0){ alert("Couldn't parse this CSV. Make sure it's a Search Console Performance export with Query and Position columns."); return; }
+
+  rtData = [];
+  for(let i=1;i<lines.length;i++){
+    const row = lines[i].split(",").map(c=>c.trim().replace(/"/g,""));
+    if(!row[qi]) continue;
+    const pos = parseFloat(row[posi])||999;
+    rtData.push({
+      query: row[qi],
+      clicks: parseInt(row[cli])||0,
+      impressions: parseInt(row[impi])||0,
+      ctr: row[ctri]?parseFloat(row[ctri].replace("%",""))||0:0,
+      position: pos
+    });
+  }
+  rtData.sort((a,b)=>a.position-b.position);
+  // Stats
+  const total = rtData.length;
+  const avgPos = total ? (rtData.reduce((s,r)=>s+r.position,0)/total).toFixed(1) : "–";
+  const totalClicks = rtData.reduce((s,r)=>s+r.clicks,0);
+  document.getElementById("rtKwCount").textContent = total;
+  document.getElementById("rtAvgPos").textContent = avgPos;
+  document.getElementById("rtTotalClicks").textContent = totalClicks.toLocaleString();
+  document.getElementById("rtDropZone").style.display="none";
+  document.getElementById("rtDash").style.display="block";
+  rtRender();
+}
+
+function rtFilter(f, btn){
+  rtActiveFilter = f;
+  document.querySelectorAll(".rt-filter-pill").forEach(p=>p.classList.remove("active"));
+  btn.classList.add("active");
+  rtRender();
+}
+
+function rtPosCls(pos){
+  if(pos<=3) return "pos-top3";
+  if(pos<=10) return "pos-top10";
+  if(pos<=20) return "pos-opp";
+  return "pos-buried";
+}
+function rtPosLabel(pos){
+  if(pos<=3) return "🏆 Top 3";
+  if(pos<=10) return "✅ Top 10";
+  if(pos<=20) return "💡 Opportunity";
+  return "📦 Buried";
+}
+function rtFilterMatch(row, f){
+  const p=row.position;
+  if(f==="all") return true;
+  if(f==="top3") return p<=3;
+  if(f==="top10") return p>3&&p<=10;
+  if(f==="opp") return p>10&&p<=20;
+  if(f==="buried") return p>20;
+  return true;
+}
+
+function rtRender(){
+  const sort = document.getElementById("rtSortSel").value;
+  let rows = rtData.filter(r=>rtFilterMatch(r,rtActiveFilter));
+  rows.sort((a,b)=>sort==="clicks"?b.clicks-a.clicks:sort==="impressions"?b.impressions-a.impressions:a.position-b.position);
+  const tbody = document.getElementById("rtTbody");
+  if(!rows.length){ tbody.innerHTML=`<tr><td colspan="6" class="rt-empty">No keywords in this category.</td></tr>`; return; }
+  tbody.innerHTML = rows.map((r,i)=>`
+    <tr>
+      <td class="kw-name">${r.query.replace(/</g,"&lt;")}</td>
+      <td><span class="pos-badge ${rtPosCls(r.position)}">${rtPosLabel(r.position)} · #${r.position.toFixed(1)}</span></td>
+      <td>${r.clicks.toLocaleString()}</td>
+      <td>${r.impressions.toLocaleString()}</td>
+      <td>${r.ctr.toFixed(1)}%</td>
+      <td><button class="kw-tip-btn" onclick="rtShowTips(${rtData.indexOf(r)})">💡 Tips</button></td>
+    </tr>`).join("");
+}
+
+function rtShowTips(idx){
+  const r = rtData[idx];
+  const pos = r.position;
+  document.getElementById("rtTipTitle").textContent = `Tips: "${r.query}"`;
+  document.getElementById("rtTipMeta").textContent = `Position #${pos.toFixed(1)} · ${r.clicks} clicks · ${r.impressions} impressions · ${r.ctr.toFixed(1)}% CTR`;
+  const tips = [];
+  if(pos<=3){
+    tips.push({ t:"Protect your ranking", d:"You're in top 3 — build internal links to this page and keep content fresh. Monitor weekly for drops." });
+    tips.push({ t:"Improve CTR", d:`At ${r.ctr.toFixed(1)}% CTR, test a more compelling meta title or add a number/year. Top-3 pages with weak CTR leave traffic on the table.` });
+    tips.push({ t:"Schema markup", d:"Add FAQ or HowTo schema to earn rich snippets and increase SERP real estate for this keyword." });
+  } else if(pos<=10){
+    tips.push({ t:"Push to top 3", d:"You're on page 1 — increase internal links pointing to this page from high-authority pages. Add more depth or a comparison table." });
+    tips.push({ t:"Improve click-through", d:`CTR of ${r.ctr.toFixed(1)}% means many searchers aren't clicking. Rewrite the meta title to include the keyword near the start and add a power word.` });
+    tips.push({ t:"Content freshness", d:"Refresh the page with an updated date, new stats, and expanded FAQ section to signal freshness to Google." });
+  } else if(pos<=20){
+    tips.push({ t:"Opportunity keyword!", d:"Positions 11–20 are the biggest opportunity — you're just off page 1. Add 500+ words of supporting content targeting this keyword specifically." });
+    tips.push({ t:"Build backlinks", d:"Get 2–3 quality backlinks from relevant sites pointing specifically to this page. Even one good link can push a position-11 result to page 1." });
+    tips.push({ t:"Check intent match", d:"Make sure your page truly answers what searchers for this query want. If they want a tool and you show a blog post, intent mismatch kills rankings." });
+    tips.push({ t:"Internal linking", d:"Find 3–5 other pages on your site that are topically related and add anchor-text links pointing to this page." });
+  } else {
+    tips.push({ t:"Create dedicated content", d:"Position 20+ means this keyword may not be well-covered on your site. Create a dedicated landing page or blog post targeting it as the primary keyword." });
+    tips.push({ t:"Long-tail first", d:"Target a longer-tail version of this keyword first (e.g. 'best X for Y in 2025') — easier to rank and builds topical authority." });
+    tips.push({ t:"Check if worth targeting", d:`${r.impressions} impressions suggests ${r.impressions<100?"low search volume — consider higher-volume variants":"decent volume — worth a focused content push"}.` });
+  }
+  document.getElementById("rtTipList").innerHTML = tips.map(t=>`<div class="tip-item"><strong>${t.t}:</strong> ${t.d}</div>`).join("");
+  document.getElementById("rtTipOverlay").classList.add("open");
+}
+
+// ─────────────────────────────────────────────
+// YOUTUBE STUDIO
+// ─────────────────────────────────────────────
+function ytSwitch(tool, card){
+  document.querySelectorAll(".yt-tool-card").forEach(c=>c.classList.remove("active"));
+  document.querySelectorAll(".yt-panel").forEach(p=>p.classList.remove("active"));
+  card.classList.add("active");
+  document.getElementById(`ytpanel-${tool}`).classList.add("active");
+}
+
+function ytNoKey(el){
+  el.innerHTML=`<div class="rt-empty">⚙️ Add your <strong style="color:var(--purple2)">Google API Key</strong> in Keys to use YouTube features.<br><br><button class="btn btn-primary" onclick="openSettings()">⚙️ Add Key</button></div>`;
+}
+
+// Keyword Research
+async function ytResearch(){
+  const q = document.getElementById("ytKwInput").value.trim();
+  if(!q) return;
+  const el = document.getElementById("ytKwResults");
+  if(!googleKey){ ytNoKey(el); return; }
+  el.innerHTML=`<div class="loading"><div class="spinner" style="border-top-color:#ff0000"></div><div class="loading-msg">Searching YouTube for "${q}"…</div></div>`;
+  try{
+    const r = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${enc(q)}&type=video&maxResults=10&order=viewCount&key=${googleKey}`,{signal:AbortSignal.timeout(10000)});
+    const data = await r.json();
+    if(data.error){ el.innerHTML=`<div class="rt-empty">API error: ${data.error.message}</div>`; return; }
+    const items = data.items||[];
+    if(!items.length){ el.innerHTML=`<div class="rt-empty">No results found for "${q}"</div>`; return; }
+    // Also fetch related searches (we simulate volume tiers based on view counts)
+    el.innerHTML = `
+      <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Top videos for <strong style="color:#fff">"${q}"</strong> — sorted by views</div>
+      ${items.map(v=>{
+        const vid = v.id?.videoId;
+        const s = v.snippet;
+        const thumb = s?.thumbnails?.medium?.url||"";
+        return `<div class="yt-result">
+          <div class="yt-result-top">
+            ${thumb?`<img class="yt-thumb" src="${thumb}" loading="lazy" onerror="this.style.display='none'">`:""}
+            <div class="yt-result-info">
+              <a href="https://youtube.com/watch?v=${vid}" target="_blank" class="yt-vid-title">${(s?.title||"").replace(/</g,"&lt;")}</a>
+              <div class="yt-vid-meta">📺 ${(s?.channelTitle||"").replace(/</g,"&lt;")} &nbsp;·&nbsp; 📅 ${(s?.publishedAt||"").slice(0,10)}</div>
+              <div class="yt-vid-meta" style="margin-top:3px;color:#666">${(s?.description||"").slice(0,120).replace(/</g,"&lt;")}…</div>
+            </div>
+          </div>
+        </div>`;
+      }).join("")}
+      <div style="font-size:11px;color:#333;margin-top:8px;text-align:center">💡 Use these as inspiration — see what titles/hooks perform well for your topic</div>`;
+  }catch(e){
+    el.innerHTML=`<div class="rt-empty">Request failed — check your API key or try again.</div>`;
+  }
+}
+
+// Competitor Channels
+async function ytCompetitors(){
+  const q = document.getElementById("ytCompInput").value.trim();
+  if(!q) return;
+  const el = document.getElementById("ytCompResults");
+  if(!googleKey){ ytNoKey(el); return; }
+  el.innerHTML=`<div class="loading"><div class="spinner" style="border-top-color:#ff0000"></div><div class="loading-msg">Finding channels for "${q}"…</div></div>`;
+  try{
+    const r = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&q=${enc(q)}&type=channel&maxResults=10&key=${googleKey}`,{signal:AbortSignal.timeout(10000)});
+    const data = await r.json();
+    if(data.error){ el.innerHTML=`<div class="rt-empty">API error: ${data.error.message}</div>`; return; }
+    const items = data.items||[];
+    if(!items.length){ el.innerHTML=`<div class="rt-empty">No channels found.</div>`; return; }
+    el.innerHTML = `
+      <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Channels matching <strong style="color:#fff">"${q}"</strong></div>
+      ${items.map(c=>{
+        const cid = c.id?.channelId;
+        const s = c.snippet;
+        const thumb = s?.thumbnails?.medium?.url||"";
+        return `<div class="yt-result">
+          <div class="yt-result-top">
+            ${thumb?`<img class="yt-thumb" src="${thumb}" loading="lazy" style="border-radius:50%;width:52px;height:52px" onerror="this.style.display='none'">`:""}
+            <div class="yt-result-info">
+              <a href="https://youtube.com/channel/${cid}" target="_blank" class="yt-vid-title">${(s?.channelTitle||"").replace(/</g,"&lt;")}</a>
+              <div class="yt-vid-meta">${(s?.description||"No description").slice(0,150).replace(/</g,"&lt;")}…</div>
+              <div style="margin-top:6px"><a href="https://youtube.com/channel/${cid}/videos" target="_blank" class="kw-tip-btn" style="text-decoration:none;display:inline-block;padding:3px 10px">View Videos →</a></div>
+            </div>
+          </div>
+        </div>`;
+      }).join("")}`;
+  }catch(e){
+    el.innerHTML=`<div class="rt-empty">Request failed — check your API key or try again.</div>`;
+  }
+}
+
+// Trending Videos
+async function ytTrending(){
+  const el = document.getElementById("ytTrendResults");
+  if(!googleKey){ ytNoKey(el); return; }
+  const cat = document.getElementById("ytTrendCat").value;
+  const region = document.getElementById("ytTrendRegion").value;
+  el.innerHTML=`<div class="loading"><div class="spinner" style="border-top-color:#ff0000"></div><div class="loading-msg">Loading trending videos…</div></div>`;
+  try{
+    const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&chart=mostPopular&regionCode=${region}&maxResults=15${cat!=="0"?`&videoCategoryId=${cat}`:""}&key=${googleKey}`;
+    const r = await fetch(url,{signal:AbortSignal.timeout(10000)});
+    const data = await r.json();
+    if(data.error){ el.innerHTML=`<div class="rt-empty">API error: ${data.error.message}</div>`; return; }
+    const items = data.items||[];
+    el.innerHTML = `
+      <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Trending in <strong style="color:#fff">${region}</strong> right now</div>
+      ${items.map((v,i)=>{
+        const s = v.snippet;
+        const st = v.statistics;
+        const thumb = s?.thumbnails?.medium?.url||"";
+        const views = parseInt(st?.viewCount||0).toLocaleString();
+        const likes = parseInt(st?.likeCount||0).toLocaleString();
+        return `<div class="yt-result">
+          <div class="yt-result-top">
+            ${thumb?`<img class="yt-thumb" src="${thumb}" loading="lazy" onerror="this.style.display='none'">`:""}
+            <div class="yt-result-info">
+              <a href="https://youtube.com/watch?v=${v.id}" target="_blank" class="yt-vid-title">#${i+1} ${(s?.title||"").replace(/</g,"&lt;")}</a>
+              <div class="yt-vid-meta">📺 ${(s?.channelTitle||"").replace(/</g,"&lt;")} &nbsp;·&nbsp; 👁 ${views} views &nbsp;·&nbsp; 👍 ${likes}</div>
+            </div>
+          </div>
+        </div>`;
+      }).join("")}`;
+  }catch(e){
+    el.innerHTML=`<div class="rt-empty">Request failed — check your API key or try again.</div>`;
+  }
+}
+
+// Video SEO Scorer
+function scoreSEO(){
+  const title = document.getElementById("seoTitle").value.trim();
+  const keyword = document.getElementById("seoKeyword").value.trim();
+  const desc = document.getElementById("seoDesc").value.trim();
+  const tags = document.getElementById("seoTags").value.trim();
+  if(!title){ alert("Please enter a video title."); return; }
+  const el = document.getElementById("seoResults");
+  const kw = keyword.toLowerCase();
+  const titleLow = title.toLowerCase();
+  const descLow = desc.toLowerCase();
+  const tagArr = tags.split(",").map(t=>t.trim().toLowerCase()).filter(Boolean);
+
+  const checks = [
+    { label:"Keyword in title", pass: kw && titleLow.includes(kw), tip:"Put your target keyword in the title, ideally near the start." },
+    { label:"Title length (40-70 chars)", pass: title.length>=40&&title.length<=70, tip:`Current: ${title.length} chars. Aim for 40–70 for best display.` },
+    { label:"Number or power word in title", pass: /\d|\bhow\b|\bbest\b|\btop\b|\bfree\b|\bsecret\b|\bproven\b|\bultimate\b|\bfast\b/i.test(title), tip:"Add a number (e.g. '5 ways') or power word to boost CTR." },
+    { label:"Keyword in description", pass: kw && descLow.includes(kw), tip:"Mention your keyword naturally in the first 2 sentences of the description." },
+    { label:"Description length (150+ chars)", pass: desc.length>=150, tip:`Current: ${desc.length} chars. Longer descriptions help with search — aim for 150+.` },
+    { label:"Tags include keyword", pass: kw && tagArr.some(t=>t.includes(kw)||kw.includes(t)), tip:"Include your exact keyword as one of the tags." },
+    { label:"5+ tags added", pass: tagArr.length>=5, tip:`You have ${tagArr.length} tags. Add at least 5 — mix broad and specific.` },
+    { label:"Question or curiosity hook", pass: /\?|how|why|what|when|secret|reveal|never|surprising/i.test(title), tip:"Titles with questions or curiosity gaps get more clicks." },
+  ];
+
+  const passCount = checks.filter(c=>c.pass).length;
+  const score = Math.round((passCount/checks.length)*100);
+  const color = score>=80?"#22c55e":score>=60?"#fbbf24":"#ef4444";
+  const circumference = 2*Math.PI*34;
+  const dashOffset = circumference*(1-score/100);
+
+  el.innerHTML = `
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:20px">
+      <div class="seo-score-ring">
+        <svg viewBox="0 0 80 80" width="80" height="80">
+          <circle cx="40" cy="40" r="34" fill="none" stroke="#1e1e2a" stroke-width="8"/>
+          <circle cx="40" cy="40" r="34" fill="none" stroke="${color}" stroke-width="8"
+            stroke-dasharray="${circumference}" stroke-dashoffset="${dashOffset}"
+            stroke-linecap="round" style="transition:stroke-dashoffset .6s"/>
+        </svg>
+        <div class="seo-score-num" style="color:${color}">${score}</div>
+      </div>
+      <div style="text-align:center;margin-bottom:16px;font-size:13px;color:${color};font-weight:700">${score>=80?"Excellent":"score>=60?"Good — room to improve":"Needs work"}</div>
+      <div class="seo-checks">
+        ${checks.map(c=>`
+          <div class="seo-check ${c.pass?"seo-pass":"seo-fail"}">
+            <span>${c.pass?"✅":"❌"}</span>
+            <div>
+              <div style="font-weight:600;margin-bottom:2px">${c.label}</div>
+              ${!c.pass?`<div style="font-size:10px;color:#666">${c.tip}</div>`:""}
+            </div>
+          </div>`).join("")}
+      </div>
+      ${!anthropicKey?`<div style="margin-top:14px;text-align:center;font-size:11px;color:#444">Add an Anthropic key → <button class="kw-tip-btn" onclick="openSettings()" style="margin-left:4px">⚙️ Keys</button> to get AI fix suggestions</div>`:`<button class="btn btn-primary" style="margin-top:14px;width:100%" onclick="aiFixSEO()">✨ AI: Fix all issues</button>`}
+    </div>`;
+}
+
+async function aiFixSEO(){
+  const title = document.getElementById("seoTitle").value.trim();
+  const keyword = document.getElementById("seoKeyword").value.trim();
+  const desc = document.getElementById("seoDesc").value.trim();
+  const tags = document.getElementById("seoTags").value.trim();
+  if(!anthropicKey){openSettings();return;}
+  const el = document.getElementById("seoResults");
+  const existing = el.innerHTML;
+  el.innerHTML += `<div id="aiFixOut" style="margin-top:12px;background:#0c0c14;border:1px solid var(--border);border-radius:8px;padding:14px;font-size:12px;color:#bbb;line-height:1.7"><div class="yt-spinner"></div></div>`;
+  const prompt = `You are a YouTube SEO expert. A creator has this video:
+Title: "${title}"
+Keyword: "${keyword}"
+Description: "${desc}"
+Tags: "${tags}"
+
+Give them:
+1. An improved title (60 chars max, keyword near start, curiosity/power word)
+2. Improved first 2 sentences of description (keyword in first sentence, 150+ chars total)
+3. 10 optimised tags (mix broad and specific, comma separated)
+
+Format your response as:
+TITLE: [improved title]
+DESCRIPTION: [improved description]
+TAGS: [tag1, tag2, tag3...]`;
+  try{
+    const r = await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"x-api-key":anthropicKey,"anthropic-version":"2023-06-01","content-type":"application/json","anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:600,messages:[{role:"user",content:prompt}]})
+    });
+    const data = await r.json();
+    const text = data.content?.[0]?.text||"No response.";
+    document.getElementById("aiFixOut").innerHTML = `<div style="font-size:10px;color:var(--purple);font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px">✨ AI Suggestions</div><div style="white-space:pre-wrap">${text.replace(/</g,"&lt;")}</div>`;
+  }catch(e){
+    document.getElementById("aiFixOut").innerHTML = "Request failed. Check your API key.";
+  }
+}
+
+// AI Video Optimizer
+async function aiOptimize(){
+  const topic = document.getElementById("aiVidTopic").value.trim();
+  const audience = document.getElementById("aiVidAudience").value.trim();
+  if(!topic){ alert("Enter your video topic."); return; }
+  if(!anthropicKey){ openSettings(); return; }
+  const el = document.getElementById("aiOptResults");
+  const btn = document.getElementById("aiOptBtn");
+  btn.textContent = "Generating…"; btn.disabled = true;
+  el.innerHTML = `<div class="yt-spinner"></div>`;
+  const wants = [];
+  if(document.getElementById("aiOptTitle").checked) wants.push("compelling YouTube title (max 70 chars, curiosity hook + keyword)");
+  if(document.getElementById("aiOptDesc").checked) wants.push("YouTube description (first 2 sentences with keyword, then 3 bullet points of value, then CTA, 200+ words total)");
+  if(document.getElementById("aiOptTags").checked) wants.push("15 optimised YouTube tags (mix of broad, specific, long-tail — comma separated)");
+  if(document.getElementById("aiOptHook").checked) wants.push("30-second hook script (first words spoken in the video that stop the scroll)");
+  if(!wants.length){ btn.textContent="✨ Generate with AI"; btn.disabled=false; el.innerHTML=""; return; }
+  const prompt = `You are a top YouTube content strategist. Create ${wants.join(", ")} for a video about:
+Topic: "${topic}"
+Target audience: "${audience||"general audience"}"
+
+Be specific, punchy, and optimised for YouTube search and click-through rate.
+Format each section clearly with a header like TITLE:, DESCRIPTION:, TAGS:, HOOK:.`;
+  try{
+    const r = await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"x-api-key":anthropicKey,"anthropic-version":"2023-06-01","content-type":"application/json","anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:900,messages:[{role:"user",content:prompt}]})
+    });
+    const data = await r.json();
+    const text = data.content?.[0]?.text||"No response.";
+    el.innerHTML = `<div style="background:#0c0c14;border:1px solid var(--border);border-radius:8px;padding:14px">
+      <div style="font-size:10px;color:var(--purple);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px">✨ AI Generated Content</div>
+      <div style="font-size:12px;color:#bbb;line-height:1.8;white-space:pre-wrap">${text.replace(/</g,"&lt;")}</div>
+      <button class="copy-btn" style="margin-top:12px" onclick="navigator.clipboard.writeText(document.querySelector('#aiOptResults pre, #aiOptResults div div div').innerText||'').then(()=>{this.textContent='✓ Copied!';setTimeout(()=>this.textContent='📋 Copy All',2000)})">📋 Copy All</button>
+    </div>`;
+  }catch(e){
+    el.innerHTML=`<div style="color:#f87171;font-size:12px;padding:10px">Request failed. Check your Anthropic API key.</div>`;
+  }
+  btn.textContent="✨ Generate with AI"; btn.disabled=false;
+}
 </script>
 </body>
 </html>

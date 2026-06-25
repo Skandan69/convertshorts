@@ -687,13 +687,13 @@ free resume template,18,890,2.0%,14.1"></textarea>
     <div style="margin-top:28px;border-top:1px solid var(--border);padding-top:22px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
         <div>
-          <div style="font-size:14px;font-weight:700;color:#fff">💡 Keyword Suggestions</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:2px">Real searches people type into Google — create a page on your site for each one to start ranking</div>
+          <div style="font-size:14px;font-weight:700;color:#fff">💡 Find Top Keywords to Rank For</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">Discover what people search on Google in your niche → add the best ones to your site → climb rankings</div>
         </div>
-        <button onclick="rtGetSuggestions()" class="btn btn-primary" style="font-size:11px">Find Keywords People Search For →</button>
+        <button onclick="rtGetSuggestions()" class="btn btn-primary" style="font-size:11px">Find Keywords →</button>
       </div>
       <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
-        <input id="rtSuggestSeed" placeholder="Type your niche (e.g. ayurvedic herbs, resume builder, AI chatbot)" style="flex:1;min-width:200px;background:#0c0c14;border:1px solid var(--border);border-radius:7px;padding:8px 11px;color:var(--text);font-size:12px">
+        <input id="rtSuggestSeed" placeholder="Type your topic — e.g. 'ayurvedic herbs' or 'UPSC chatbot India'" style="flex:1;min-width:200px;background:#0c0c14;border:1px solid var(--border);border-radius:7px;padding:8px 11px;color:var(--text);font-size:12px" onkeydown="if(event.key==='Enter')rtGetSuggestions()">
       </div>
       <div id="rtSuggestResults" style="display:none"></div>
     </div>
@@ -1940,7 +1940,7 @@ async function rtGetSuggestions(){
       }catch{}
     }
 
-    const suggestions=[...allSuggestions].filter(s=>s.length>5&&s.length<60).slice(0,20);
+    const suggestions=[...allSuggestions].filter(s=>s.length>5&&s.length<60).slice(0,24);
 
     if(!suggestions.length){
       el.innerHTML=`<div class="rt-empty">Couldn't load suggestions. Check your connection and try again.</div>`;
@@ -1950,20 +1950,55 @@ async function rtGetSuggestions(){
     // Already tracked keywords
     const tracked=new Set(rtData.map(r=>r.query.toLowerCase()));
 
+    // Score each keyword for priority
+    function kwDifficulty(kw){
+      const words=kw.trim().split(/\s+/);
+      const len=words.length;
+      // Longer = more specific = easier to rank
+      if(len>=4) return {label:"Easy to rank",color:"#22c55e",bg:"#0a1a0a",border:"#1a3a1a",score:3};
+      if(len===3) return {label:"Medium",color:"#fbbf24",bg:"#1a1200",border:"#3a2800",score:2};
+      return {label:"Competitive",color:"#f87171",bg:"#1a0a0a",border:"#3a1010",score:1};
+    }
+
+    // Sort: easy first, then untracked first
+    const scored = suggestions.map(s=>({kw:s, d:kwDifficulty(s), isNew:!tracked.has(s.toLowerCase())}));
+    scored.sort((a,b)=>{
+      if(a.isNew!==b.isNew) return a.isNew?-1:1;
+      return b.d.score-a.d.score;
+    });
+
     el.innerHTML=`
-      <div style="font-size:11px;color:var(--muted);margin-bottom:10px">These are real searches from Google. <strong style="color:#fff">Green = not tracked yet.</strong> Add the ones that match what your site is about — then create a page on your site for each one.</div>
-      <div style="display:flex;flex-wrap:wrap;gap:8px">
-        ${suggestions.map((s,i)=>{
-          const isNew=!tracked.has(s.toLowerCase());
-          return `<div style="display:flex;align-items:center;gap:6px;background:${isNew?"#0a1a0a":"#111122"};border:1px solid ${isNew?"#1a3a1a":"var(--border)"};border-radius:20px;padding:5px 12px;font-size:12px">
-            <span style="color:${isNew?"#22c55e":"var(--muted)"}">${s}</span>
-            ${isNew?`<button onclick="rtAddSuggestion('${s.replace(/'/g,"\\'")}',this)" style="background:#22c55e;border:none;color:#000;border-radius:10px;padding:2px 8px;font-size:10px;font-weight:700;cursor:pointer">+ Track</button>`:`<span style="font-size:10px;color:#444">tracked</span>`}
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">
+        Real searches from Google for "<strong style="color:#fff">${seed}</strong>" — sorted by easiest to rank first.
+        <span style="display:inline-flex;align-items:center;gap:10px;margin-left:6px">
+          <span style="font-size:11px;background:#0a1a0a;border:1px solid #1a3a1a;color:#22c55e;border-radius:10px;padding:1px 7px">Easy to rank</span>
+          <span style="font-size:11px;background:#1a1200;border:1px solid #3a2800;color:#fbbf24;border-radius:10px;padding:1px 7px">Medium</span>
+          <span style="font-size:11px;background:#1a0a0a;border:1px solid #3a1010;color:#f87171;border-radius:10px;padding:1px 7px">Competitive</span>
+        </span>
+      </div>
+      <div style="display:grid;gap:8px">
+        ${scored.map(({kw,d,isNew})=>{
+          const esc=kw.replace(/'/g,"\\'").replace(/"/g,"&quot;");
+          return `<div style="display:flex;align-items:center;justify-content:space-between;background:${d.bg};border:1px solid ${d.border};border-radius:8px;padding:8px 12px;gap:10px">
+            <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:0">
+              <span style="font-size:11px;background:${d.bg};border:1px solid ${d.border};color:${d.color};border-radius:10px;padding:1px 8px;white-space:nowrap;flex-shrink:0">${d.label}</span>
+              <span style="font-size:12px;color:${isNew?"#e2e8f0":"#666"};white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc}">${kw}</span>
+            </div>
+            <div style="display:flex;gap:6px;flex-shrink:0">
+              <button onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(kw)}','_blank')" style="background:#1e293b;border:1px solid #334155;color:#94a3b8;border-radius:6px;padding:3px 8px;font-size:10px;cursor:pointer" title="See who's ranking">🔍 See</button>
+              ${isNew?`<button onclick="rtAddSuggestion('${esc}',this)" style="background:#16a34a;border:none;color:#fff;border-radius:6px;padding:3px 10px;font-size:10px;font-weight:700;cursor:pointer">+ Track</button>`:`<span style="font-size:10px;color:#444;padding:3px 8px">✓ tracked</span>`}
+            </div>
           </div>`;
         }).join("")}
       </div>
-      <div style="margin-top:14px;padding:12px;background:#111122;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--muted);line-height:1.7">
-        💡 <strong style="color:#fff">What to do with these:</strong><br>
-        Pick 2–3 keywords that match what your site is about → click <strong style="color:#fff">+ Track</strong> → then go to your website and <strong style="color:#fff">create one new page for each keyword</strong> (a blog post, product page, or info page titled exactly that keyword). Google will find it and start ranking you. Check back in 3–4 weeks to see your position improve.
+      <div style="margin-top:16px;padding:14px;background:#0d0d1f;border:1px solid #2d2d5f;border-radius:8px;font-size:12px;color:var(--muted);line-height:1.8">
+        <strong style="color:#818cf8;font-size:13px">📌 How to use these keywords to rank on Google:</strong><br><br>
+        <strong style="color:#fff">1. Pick 2–3 "Easy to rank" keywords</strong> that match what your site does.<br>
+        <strong style="color:#fff">2. Click "+ Track"</strong> to add them to your rank tracker.<br>
+        <strong style="color:#fff">3. Go to your website</strong> → create a new page (blog post or info page) titled <em>exactly</em> that keyword.<br>
+        <strong style="color:#fff">4. Write 400–600 words</strong> about that topic on the page — use the keyword naturally 3–4 times.<br>
+        <strong style="color:#fff">5. Come back in 3–4 weeks</strong> and run the auto-check — you'll see your position improve.<br><br>
+        💡 <em>Start with "Easy to rank" (4+ word) keywords — they have less competition so new sites rank faster.</em>
       </div>`;
   }catch(e){
     el.innerHTML=`<div class="rt-empty">Failed to load suggestions: ${e.message}</div>`;
@@ -2450,28 +2485,68 @@ function rtRender(){
 function rtShowTips(idx){
   const r = rtData[idx];
   const pos = r.position;
-  document.getElementById("rtTipTitle").textContent = `Tips: "${r.query}"`;
-  document.getElementById("rtTipMeta").textContent = `Position #${pos.toFixed(1)} · ${r.clicks} clicks · ${r.impressions} impressions · ${r.ctr.toFixed(1)}% CTR`;
+  const kw = r.query;
+  document.getElementById("rtTipTitle").textContent = `"${kw}" — What to do`;
+  document.getElementById("rtTipMeta").innerHTML = `
+    <span style="background:${pos<=3?"#14532d":pos<=10?"#1e3a5f":pos<=20?"#3a2500":"#3a0000"};color:${pos<=3?"#22c55e":pos<=10?"#60a5fa":pos<=20?"#fbbf24":"#ef4444"};padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700">
+      ${pos<=3?"🏆 Top 3":pos<=10?"✅ Page 1":pos<=20?"💡 Almost page 1":"📦 Not ranking yet"}
+    </span>
+    <span style="margin-left:8px;font-size:12px;color:var(--muted)">Position #${pos>=100?"100+":pos.toFixed(0)}</span>`;
+
   const tips = [];
-  if(pos<=3){
-    tips.push({ t:"Protect your ranking", d:"You're in top 3 — build internal links to this page and keep content fresh. Monitor weekly for drops." });
-    tips.push({ t:"Improve CTR", d:`At ${r.ctr.toFixed(1)}% CTR, test a more compelling meta title or add a number/year. Top-3 pages with weak CTR leave traffic on the table.` });
-    tips.push({ t:"Schema markup", d:"Add FAQ or HowTo schema to earn rich snippets and increase SERP real estate for this keyword." });
-  } else if(pos<=10){
-    tips.push({ t:"Push to top 3", d:"You're on page 1 — increase internal links pointing to this page from high-authority pages. Add more depth or a comparison table." });
-    tips.push({ t:"Improve click-through", d:`CTR of ${r.ctr.toFixed(1)}% means many searchers aren't clicking. Rewrite the meta title to include the keyword near the start and add a power word.` });
-    tips.push({ t:"Content freshness", d:"Refresh the page with an updated date, new stats, and expanded FAQ section to signal freshness to Google." });
+
+  if(pos>=100){
+    // Not ranking at all — most common case
+    tips.push({
+      icon:"📄", t:"Step 1 — Create a dedicated page",
+      d:`Your site has no page specifically about "<strong>${kw}</strong>". Go to your website builder (WordPress/Wix/Squarespace etc.) → Add new page or blog post → Set the title to exactly: <strong style="color:#fff">"${kw.charAt(0).toUpperCase()+kw.slice(1)}"</strong> → Write 400–600 words about this topic. This is the single most important step.`
+    });
+    tips.push({
+      icon:"✍️", t:"Step 2 — What to write on that page",
+      d:`Open ChatGPT or any AI tool and paste this prompt: <em style="color:#a78bfa">"Write a 500-word article for my website about '${kw}'. My website is [your website]. Make it helpful, include facts, and naturally use the phrase '${kw}' 3–4 times throughout."</em> Copy the output → paste it on your new page → publish.`
+    });
+    tips.push({
+      icon:"🔗", t:"Step 3 — Link to it from your homepage",
+      d:`Once the page is live, add a link to it from your homepage or menu. This tells Google the page is important. Even a "Read more about ${kw} →" link at the bottom of your homepage helps.`
+    });
+    tips.push({
+      icon:"⏳", t:"How long will it take?",
+      d:"Google takes 2–6 weeks to discover and rank a new page. After publishing, come back here and check your position. If you're at 40–80, the page is indexed. Keep improving the content to push it to page 1."
+    });
   } else if(pos<=20){
-    tips.push({ t:"Opportunity keyword!", d:"Positions 11–20 are the biggest opportunity — you're just off page 1. Add 500+ words of supporting content targeting this keyword specifically." });
-    tips.push({ t:"Build backlinks", d:"Get 2–3 quality backlinks from relevant sites pointing specifically to this page. Even one good link can push a position-11 result to page 1." });
-    tips.push({ t:"Check intent match", d:"Make sure your page truly answers what searchers for this query want. If they want a tool and you show a blog post, intent mismatch kills rankings." });
-    tips.push({ t:"Internal linking", d:"Find 3–5 other pages on your site that are topically related and add anchor-text links pointing to this page." });
+    tips.push({
+      icon:"🚀", t:"You're close to page 1!",
+      d:`Position ${pos.toFixed(0)} means you're almost there. The page about "<strong>${kw}</strong>" exists and Google likes it — now push it over the line.`
+    });
+    tips.push({
+      icon:"📝", t:"Add more content to that page",
+      d:`Open the page on your site that covers "${kw}" → add 300+ more words below what's already there → include FAQs people ask about this topic. More helpful content = higher rank.`
+    });
+    tips.push({
+      icon:"🔗", t:"Get one external link",
+      d:`Find a forum, blog, or community about your topic → write a helpful comment or post → naturally mention your page: "I wrote about ${kw} here: [your link]". One good external link can push you from position ${pos.toFixed(0)} to top 10.`
+    });
+  } else if(pos<=10){
+    tips.push({
+      icon:"✅", t:"You're on page 1 — now improve CTR",
+      d:`Rewrite your page's meta title to start with the keyword: <strong style="color:#fff">"${kw.charAt(0).toUpperCase()+kw.slice(1)} — [benefit or number]"</strong>. Example: "${kw.charAt(0).toUpperCase()+kw.slice(1)} — Complete Guide 2025". This makes more people click your result.`
+    });
+    tips.push({
+      icon:"📈", t:"Push to top 3",
+      d:"Add a comparison table, step-by-step list, or FAQ section to your page. Longer, more structured content ranks higher. Aim for 800+ words total."
+    });
   } else {
-    tips.push({ t:"Create dedicated content", d:"Position 20+ means this keyword may not be well-covered on your site. Create a dedicated landing page or blog post targeting it as the primary keyword." });
-    tips.push({ t:"Long-tail first", d:"Target a longer-tail version of this keyword first (e.g. 'best X for Y in 2025') — easier to rank and builds topical authority." });
-    tips.push({ t:"Check if worth targeting", d:`${r.impressions} impressions suggests ${r.impressions<100?"low search volume — consider higher-volume variants":"decent volume — worth a focused content push"}.` });
+    tips.push({
+      icon:"🏆", t:"Protect your top 3 position",
+      d:`You're ranking #${pos.toFixed(0)} for "${kw}" — great! Update this page every 3 months with fresh info so Google keeps it ranked. Add the current year to the title.`
+    });
   }
-  document.getElementById("rtTipList").innerHTML = tips.map(t=>`<div class="tip-item"><strong>${t.t}:</strong> ${t.d}</div>`).join("");
+
+  document.getElementById("rtTipList").innerHTML = tips.map(t=>`
+    <div class="tip-item" style="margin-bottom:14px;padding:14px;background:#0c0c14;border-radius:8px;border:1px solid var(--border)">
+      <div style="font-size:14px;margin-bottom:4px">${t.icon} <strong style="color:#fff">${t.t}</strong></div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7">${t.d}</div>
+    </div>`).join("");
   document.getElementById("rtTipOverlay").classList.add("open");
 }
 

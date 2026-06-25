@@ -1786,35 +1786,62 @@ function rtLoadFile(file){
 }
 
 function rtParseCSV(text){
-  const lines = text.trim().split("\n");
+  // GSC exports can be a ZIP — catch binary content early
+  if(text.charCodeAt(0)===80&&text.charCodeAt(1)===75){
+    alert("That looks like a ZIP file. Unzip it first, then upload the \"Queries.csv\" file inside.");
+    return;
+  }
+  const lines = text.trim().split(/\r?\n/);
   if(lines.length < 2){ alert("CSV appears empty or invalid."); return; }
-  // Detect header row — Search Console exports vary slightly
-  const hdr = lines[0].toLowerCase();
-  const cols = hdr.split(",").map(c=>c.trim().replace(/"/g,""));
-  const qi = cols.findIndex(c=>c.includes("query")||c.includes("top queries"));
-  const cli = cols.findIndex(c=>c.includes("click"));
+
+  // GSC exports have metadata rows before the real header (e.g. "Top queries", date ranges).
+  // Scan all lines to find the one containing both "query" and "position" (or "clicks").
+  let hdrIdx = -1;
+  let cols = [];
+  for(let i=0;i<Math.min(lines.length,20);i++){
+    const low = lines[i].toLowerCase();
+    if((low.includes("query")||low.includes("top query"))&&(low.includes("position")||low.includes("click"))){
+      // This is the header row — split on comma, handling quoted fields
+      cols = lines[i].split(",").map(c=>c.trim().replace(/^"|"$/g,"").toLowerCase());
+      hdrIdx = i;
+      break;
+    }
+  }
+  if(hdrIdx<0){
+    alert("Couldn't find columns. Make sure it's a Google Search Console Performance export.\n\nExpected columns: Query, Clicks, Impressions, CTR, Position");
+    return;
+  }
+
+  const qi   = cols.findIndex(c=>c.includes("query"));
+  const cli  = cols.findIndex(c=>c.includes("click"));
   const impi = cols.findIndex(c=>c.includes("impression"));
   const ctri = cols.findIndex(c=>c.includes("ctr"));
   const posi = cols.findIndex(c=>c.includes("position"));
-  if(qi<0||posi<0){ alert("Couldn't parse this CSV. Make sure it's a Search Console Performance export with Query and Position columns."); return; }
+  if(qi<0||posi<0){ alert("Couldn't find Query or Position columns in this file."); return; }
 
   rtData = [];
-  for(let i=1;i<lines.length;i++){
-    const row = lines[i].split(",").map(c=>c.trim().replace(/"/g,""));
-    if(!row[qi]) continue;
-    const pos = parseFloat(row[posi])||999;
+  for(let i=hdrIdx+1;i<lines.length;i++){
+    const line = lines[i].trim();
+    if(!line) continue;
+    // Handle quoted CSV values
+    const row = line.match(/(".*?"|[^,]+)(?=,|$)/g)||line.split(",");
+    const cleaned = row.map(c=>(c||"").trim().replace(/^"|"$/g,""));
+    const q = cleaned[qi]||"";
+    if(!q||q.toLowerCase()==="query") continue; // skip repeated headers
+    const pos = parseFloat(cleaned[posi])||0;
+    if(!pos) continue;
     rtData.push({
-      query: row[qi],
-      clicks: parseInt(row[cli])||0,
-      impressions: parseInt(row[impi])||0,
-      ctr: row[ctri]?parseFloat(row[ctri].replace("%",""))||0:0,
+      query: q,
+      clicks: parseInt(cleaned[cli])||0,
+      impressions: parseInt(cleaned[impi])||0,
+      ctr: ctri>=0?parseFloat((cleaned[ctri]||"0").replace("%",""))||0:0,
       position: pos
     });
   }
+  if(!rtData.length){ alert("No keyword data found in this file. Make sure you're uploading the Queries report, not Pages or Countries."); return; }
   rtData.sort((a,b)=>a.position-b.position);
-  // Stats
   const total = rtData.length;
-  const avgPos = total ? (rtData.reduce((s,r)=>s+r.position,0)/total).toFixed(1) : "–";
+  const avgPos = (rtData.reduce((s,r)=>s+r.position,0)/total).toFixed(1);
   const totalClicks = rtData.reduce((s,r)=>s+r.clicks,0);
   document.getElementById("rtKwCount").textContent = total;
   document.getElementById("rtAvgPos").textContent = avgPos;

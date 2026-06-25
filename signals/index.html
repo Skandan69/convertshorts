@@ -323,12 +323,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div id="googleCXStatus"></div>
       <div class="field-note">→ <a href="https://programmablesearchengine.google.com/" target="_blank">programmablesearchengine.google.com</a> · Create engine → "Search entire web" → copy the ID (cx=...)</div>
     </div>
-    <div class="field">
-      <label>Rank-Check CX ID <span style="color:#444">(for checking your Google rankings — separate CX)</span></label>
-      <input type="text" id="googleWebCX" placeholder="Paste CX ID here" autocomplete="off">
-      <div id="googleWebCXStatus"></div>
-      <div class="field-note">→ Same site as above · Create a <strong>second</strong> engine set to "Search entire web" · Used by Rank Tracker to check where your site appears in Google results</div>
-    </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeSettings()">Cancel</button>
       <button class="btn btn-primary" onclick="saveSettings()">Save</button>
@@ -358,7 +352,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:6px">📊 Rank Tracker</div>
         <div style="font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:10px">Shows where your website appears in Google search results for specific keywords. Helps you see which keywords need work and which are almost on page 1.</div>
         <div style="font-size:11px;font-weight:700;color:var(--purple2);margin-bottom:6px">YOUR ROLE:</div>
-        <div style="font-size:12px;color:#ccc;line-height:1.6">1. Enter your website URL → click <strong>Scan &amp; Check Rankings</strong> (needs Rank-Check CX key)<br>&nbsp;&nbsp;&nbsp;<em style="color:#666">OR</em> click <strong>✏️ Enter manually</strong> → type keywords you want to rank for + their current positions<br>2. Check the dashboard — orange = opportunity (positions 11–20), red = buried (20+)<br>3. Use the tips in each keyword row to improve your page for that keyword</div>
+        <div style="font-size:12px;color:#ccc;line-height:1.6">1. Paste your website URL → click <strong>Scan &amp; Check Rankings</strong><br>2. It finds keywords from your page → shows each one with a <strong>🔍 Check</strong> button<br>3. Click Check → Google opens → find your site → count what position it's at → type the number<br>4. Click <strong>Save &amp; Track</strong> → dashboard shows your rankings, opportunities, and what to fix</div>
       </div>
 
       <div style="background:#111122;border:1px solid var(--border);border-radius:10px;padding:16px">
@@ -373,7 +367,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div style="font-size:12px;color:#ccc;line-height:1.7">Click the <strong style="color:#fff">⚙️ Keys</strong> button (top right) to add:<br>
         • <strong>Anthropic key</strong> → enables AI reply drafting &amp; YouTube optimizer<br>
         • <strong>Google API key</strong> → enables YouTube features &amp; Google Search signals<br>
-        • <strong>Google CX IDs</strong> → enables Google signals + rank checking<br><br>
+        • <strong>Google CX ID</strong> → enables Google signals (Reddit/Quora/Medium)<br><br>
         <span style="color:#666">Keys are stored only in your browser. Nothing is sent to us.</span></div>
       </div>
     </div>
@@ -598,10 +592,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <button onclick="rtScanWebsite()" class="btn btn-primary" style="white-space:nowrap">🔍 Scan &amp; Check Rankings</button>
       </div>
       <div id="rtScanProgress" style="display:none;margin-top:10px;font-size:12px;color:var(--muted)"></div>
-      <div id="rtScanNoKey" style="display:none;margin-top:10px;font-size:11px;background:#1a1000;border:1px solid #3a2500;border-radius:7px;padding:10px;color:#fbbf24">
-        ⚠️ To auto-check rankings you need a <strong>Rank-Check CX ID</strong> in your Keys. <button onclick="closeOnboard&&closeOnboard();openSettings()" style="background:none;border:none;color:var(--purple2);cursor:pointer;font-size:11px;padding:0;text-decoration:underline">Add it now →</button><br>
-        <span style="color:#666;font-size:10px;margin-top:4px;display:block">It's free: go to programmablesearchengine.google.com → New → Search entire web → copy CX ID → paste in Keys</span>
-      </div>
+      <!-- keyword checklist shown after scan -->
+      <div id="rtScanChecklist" style="display:none;margin-top:12px"></div>
     </div>
 
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
@@ -1938,31 +1930,26 @@ function rtExtractKeywords(html, domain){
   }catch(e){ return []; }
 }
 
-async function rtCheckGoogleRank(keyword, domain){
-  if(!googleKey||!googleWebCX) return 999;
-  try{
-    await sleep(300); // rate limiting
-    const r = await fetch(`https://www.googleapis.com/customsearch/v1?key=${googleKey}&cx=${googleWebCX}&q=${enc(keyword)}&num=10`,{signal:AbortSignal.timeout(8000)});
-    const data = await r.json();
-    if(data.error) return 999;
-    const items = data.items||[];
-    for(let i=0;i<items.length;i++){
-      const link=(items[i].link||"")+(items[i].displayLink||"");
-      if(link.includes(domain)) return i+1;
-    }
-    // Check positions 11–20
-    await sleep(300);
-    const r2 = await fetch(`https://www.googleapis.com/customsearch/v1?key=${googleKey}&cx=${googleWebCX}&q=${enc(keyword)}&num=10&start=11`,{signal:AbortSignal.timeout(8000)});
-    const data2 = await r2.json();
-    if(!data2.error){
-      const items2 = data2.items||[];
-      for(let i=0;i<items2.length;i++){
-        const link=(items2[i].link||"")+(items2[i].displayLink||"");
-        if(link.includes(domain)) return i+11;
-      }
-    }
-    return 100; // Not found in top 20 → show as 100
-  }catch{ return 999; }
+function rtSaveChecklist(keywords){
+  rtData = [];
+  keywords.forEach((kw,i)=>{
+    const pos = parseInt(document.getElementById("rtck"+i)?.value)||100;
+    rtData.push({query:kw, position:pos, clicks:0, impressions:0, ctr:0});
+  });
+  const filled = rtData.filter(r=>r.position<100);
+  if(!filled.length && !confirm("No positions entered yet — save anyway as 'not ranking'?")) return;
+  rtData.sort((a,b)=>a.position-b.position);
+  const total=rtData.length;
+  const ranked=rtData.filter(r=>r.position<100).length;
+  const avgPos=ranked>0?(filled.reduce((s,r)=>s+r.position,0)/ranked).toFixed(1):"–";
+  document.getElementById("rtKwCount").textContent=total;
+  document.getElementById("rtAvgPos").textContent=avgPos;
+  document.getElementById("rtTotalClicks").textContent="–";
+  document.getElementById("rtScanProgress").style.display="none";
+  document.getElementById("rtScanChecklist").style.display="none";
+  ["rtModeFile","rtModePaste","rtModeManual"].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display="none";});
+  document.getElementById("rtDash").style.display="block";
+  rtRender();
 }
 
 async function rtScanWebsite(){
@@ -1973,12 +1960,7 @@ async function rtScanWebsite(){
   try{ domain = new URL(url).hostname; }catch{ alert("That doesn't look like a valid URL."); return; }
 
   const prog = document.getElementById("rtScanProgress");
-  const noKey = document.getElementById("rtScanNoKey");
-  noKey.style.display = "none";
-
-  // If no rank-check CX, still extract keywords but skip rank checking
-  const canCheckRank = !!(googleKey && googleWebCX);
-
+  document.getElementById("rtScanChecklist").style.display="none";
   prog.style.display = "block";
   prog.innerHTML = `<div class="loading"><div class="spinner"></div><div class="loading-msg">Fetching ${domain}…</div></div>`;
 
@@ -2007,43 +1989,25 @@ async function rtScanWebsite(){
     const keywords = rtExtractKeywords(html, domain);
     if(!keywords.length){ prog.innerHTML=`<div class="rt-empty">Couldn't extract keywords from that page. Try the manual entry option.</div>`; return; }
 
-    if(!canCheckRank){
-      // No rank-check CX — pre-fill keywords for manual entry
-      noKey.style.display = "block";
-      prog.innerHTML = `<div style="font-size:12px;color:#22c55e">✅ Found <strong style="color:#fff">${keywords.length} keywords</strong> from your page! Add position numbers below to start tracking — or add a Rank-Check CX key to let the tool check positions automatically.</div>`;
-      rtShowTab("manual");
-      document.getElementById("rtManualRows").innerHTML="";
-      rtManualRowCount=0;
-      keywords.forEach(kw=>{ rtAddManualRow(); const id=rtManualRowCount; document.getElementById("rtMrQ"+id).value=kw; });
-      return;
-    }
+    // Show "Check on Google" checklist — no API needed
+    prog.innerHTML = `<div style="font-size:12px;color:#22c55e;margin-bottom:10px">✅ Found <strong style="color:#fff">${keywords.length} keywords</strong> from your page!</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Click <strong style="color:#fff">🔍 Check</strong> next to each keyword — Google opens in a new tab. Find your site in the results, count which position it's at (1st result = 1, 10th = 10, not on page 1 = type 50), then type the number in the box.</div>`;
 
-    // Check ranks for each keyword
-    rtData = [];
-    prog.innerHTML = `<div style="font-size:12px;color:var(--muted)">Found ${keywords.length} keywords · Checking Google rankings… <span id="rtScanCount">0/${keywords.length}</span></div><div style="height:6px;background:var(--bg3);border-radius:3px;margin-top:8px;overflow:hidden"><div id="rtScanBar" style="height:100%;background:var(--purple);border-radius:3px;width:0%;transition:width .3s"></div></div>`;
+    const checklist = document.getElementById("rtScanChecklist");
+    checklist.style.display = "block";
+    checklist.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:6px" id="rtCheckRows">
+        ${keywords.map((kw,i)=>`
+          <div style="display:grid;grid-template-columns:1fr auto 80px;gap:8px;align-items:center;background:#0c0c14;border:1px solid var(--border);border-radius:7px;padding:8px 10px">
+            <span style="font-size:12px;color:#ccc">${kw}</span>
+            <button onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(kw)}','_blank')" style="background:#1a1a2e;border:1px solid var(--border);color:var(--purple2);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;white-space:nowrap">🔍 Check</button>
+            <input id="rtck${i}" type="number" min="1" max="200" placeholder="Pos." style="background:#0c0c14;border:1px solid var(--border);border-radius:6px;padding:5px 8px;color:var(--text);font-size:12px;width:100%">
+          </div>`).join("")}
+      </div>
+      <button onclick="rtSaveChecklist(${JSON.stringify(keywords).replace(/"/g,'&quot;')})" class="btn btn-primary" style="margin-top:12px;width:100%">Save & Track all →</button>`;
 
-    for(let i=0;i<keywords.length;i++){
-      const kw=keywords[i];
-      const pos = await rtCheckGoogleRank(kw, domain);
-      rtData.push({query:kw, position:pos===999?100:pos, clicks:0, impressions:0, ctr:0});
-      const pct=Math.round((i+1)/keywords.length*100);
-      const countEl=document.getElementById("rtScanCount"); if(countEl) countEl.textContent=`${i+1}/${keywords.length}`;
-      const barEl=document.getElementById("rtScanBar"); if(barEl) barEl.style.width=pct+"%";
-    }
-
-    if(!rtData.length){ prog.innerHTML=`<div class="rt-empty">No results found. Check your Rank-Check CX key in Settings.</div>`; return; }
-    rtData.sort((a,b)=>a.position-b.position);
-
-    const total=rtData.length;
-    const ranked=rtData.filter(r=>r.position<100).length;
-    const avgPos=ranked>0?(rtData.filter(r=>r.position<100).reduce((s,r)=>s+r.position,0)/ranked).toFixed(1):"–";
-    document.getElementById("rtKwCount").textContent=total;
-    document.getElementById("rtAvgPos").textContent=avgPos;
-    document.getElementById("rtTotalClicks").textContent="–";
-    prog.style.display="none";
-    ["rtModeFile","rtModePaste","rtModeManual"].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display="none";});
-    document.getElementById("rtDash").style.display="block";
-    rtRender();
+    // Store domain for use in save
+    checklist.dataset.domain = domain;
 
   }catch(e){
     prog.innerHTML=`<div class="rt-empty">Scan failed: ${e.message}. Try the manual entry option instead.</div>`;

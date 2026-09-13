@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex,follow">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Infinite Canvas</title>
+  <script type="module" crossorigin src="/canvas/assets/main-x9JfIRw0.js"></script>
+  <link rel="modulepreload" crossorigin href="/canvas/assets/config-pBieaFJY.js">
+  <link rel="stylesheet" crossorigin href="/canvas/assets/main-CN8OY8sN.css">
+</head>
+<body>
+<div id="viewport">
+  <div id="world">
+    <svg class="layer" id="linkLayer"></svg>
+    <div id="els"></div>
+    <svg class="layer" id="inkLayer"></svg>
+  </div>
+</div>
+<svg id="overlay"></svg>
+
+<div class="panel" id="topbar">
+  <button class="tb" data-act="sidebar" title="Your canvases">☰</button>
+  <span class="ttl">◆ Canvas</span>
+  <button class="tb" data-act="undo" title="Undo (Ctrl+Z)">↶</button>
+  <button class="tb" data-act="redo" title="Redo (Ctrl+Shift+Z)">↷</button>
+  <span class="sep"></span>
+  <button class="tb" data-act="save" title="Export board as .json">⤓</button>
+  <button class="tb" data-act="open" title="Import board .json">⤒</button>
+  <button class="tb" data-act="png" title="Export view as PNG">🖼</button>
+  <span class="sep"></span>
+  <button class="tb" data-act="gen" title="Build a mindmap from pasted notes (Ctrl+G)">▤<small>Build</small></button>
+  <button class="tb" data-act="tour" title="Show me around">🧭</button>
+  <button class="tb" data-act="map" title="Map of your board — see where you are, click to jump (M)">🗺</button>
+  <button class="tb" data-act="play" id="playbtn" title="Play the animations on this board (Space bar stops it)">▶</button>
+  <span class="sep"></span>
+  <button class="tb" data-act="clear" title="New / clear board">✕</button>
+  <button class="tb" data-act="help" title="Shortcuts (?)">?</button>
+</div>
+
+<div class="panel" id="zoombar">
+  <button class="tb" data-act="zoomout">−</button>
+  <span class="z" id="zlabel">100%</span>
+  <button class="tb" data-act="zoomin">+</button>
+  <button class="tb" data-act="scrollmode" id="smbtn" title="Scroll behaviour">⇅</button>
+  <button class="tb" data-act="fit" title="Zoom to fit (Shift+1)">⤢</button>
+  <button class="tb" data-act="home" title="Reset view (Shift+0)">⌂</button>
+</div>
+
+<div class="panel" id="sidebar">
+  <div class="sbhead"><b>Canvases</b><button class="mini" data-act="newboard">+ New</button></div>
+  <div id="boardlist"></div>
+</div>
+
+<div class="panel" id="ctx"></div>
+
+<div class="panel" id="inspector">
+  <div class="row"><span class="lbl">Colour</span><span id="swatches"></span></div>
+  <div class="row"><span class="lbl">Text</span>
+    <button class="mini" data-act="fs-">A−</button>
+    <button class="mini" data-act="fs+">A+</button>
+    <button class="mini" data-act="bold"><b>B</b></button>
+  </div>
+  <div class="row"><span class="lbl">Arrange</span>
+    <button class="mini" data-act="front">Front</button>
+    <button class="mini" data-act="back">Back</button>
+    <button class="mini" data-act="dup">Duplicate</button>
+  </div>
+  <div class="row" id="motionrow" style="display:none">
+    <span class="lbl">Animation</span>
+    <select id="mMove" style="width:100%"></select>
+    <select id="mFx" style="width:100%;margin-top:6px"></select>
+    <div style="display:flex;gap:6px;align-items:center;width:100%;margin-top:6px">
+      <span class="tiny" style="color:var(--dim)">Strength</span>
+      <input type="range" id="mAmp" min="0" max="250" value="100" style="flex:1">
+    </div>
+    <div style="display:flex;gap:6px;width:100%;margin-top:6px">
+      <button class="mini" id="mTarget" style="flex:1">Set finish point</button>
+      <button class="mini" id="mClear">Clear</button>
+    </div>
+  </div>
+  <div class="row" id="genrow" style="display:none">
+    <button class="mini" data-act="gennote" style="width:100%">▤ Turn this note into a mindmap</button></div>
+  <div class="row" id="embedrow" style="display:none">
+    <button class="mini" data-act="embed" style="width:100%">▶ Turn link into a player</button></div>
+  <div class="row" id="linkrow" style="display:none"><span class="lbl">Connector</span>
+    <button class="mini" data-act="l-arrow">Arrow</button>
+    <button class="mini" data-act="l-plain">Plain</button>
+    <button class="mini" data-act="l-dash">Dashed</button>
+    <button class="mini" data-act="l-label">Label…</button>
+  </div>
+  <div class="row"><button class="mini danger" data-act="del" style="width:100%">Delete selection ⌫</button></div>
+</div>
+
+<div class="panel" id="toolbar">
+  <button class="tb" data-tool="select" title="Select and move (V) — drag empty space to box-select">➤</button>
+  <button class="tb" data-tool="hand" title="Pan the canvas (H) — or hold Space with any tool">✋</button>
+  <span class="sep"></span>
+  <button class="tb" data-tool="note" title="Sticky note (N)">▢</button>
+  <button class="tb" data-tool="text" title="Text (T)">T</button>
+  <button class="tb" data-tool="mind" title="Mindmap node (M) — Tab adds a child">◉</button>
+  <button class="tb" data-tool="rect" title="Rectangle (R)">▭</button>
+  <button class="tb" data-tool="ellipse" title="Ellipse (O)">◯</button>
+  <button class="tb" data-tool="code" title="Runnable code block (C) — write code, watch it run">&lt;/&gt;</button>
+  <button class="tb" data-tool="pen" title="Draw (P)">✎</button>
+  <button class="tb" data-tool="fill" title="Fill a shape or colouring page with the current colour (F)">🪣</button>
+  <button class="tb" data-tool="eraser" title="Erase ink (E)">◔</button>
+  <button class="tb" data-tool="arrow" title="Connector (A) — or drag an element's dot">↗</button>
+  <span class="sep"></span>
+  <button class="tb" data-act="file" title="Add image / video / audio file (or just drag one in)">📎</button>
+  <button class="tb" data-act="url" title="Embed a link — YouTube, Vimeo, Loom… (Ctrl+K)">🔗</button>
+  <button class="tb" data-act="studio" title="Art Studio — draw, colour in, animate, make a game">🎨</button>
+  <button class="tb" data-act="colouring" title="Drop in a colouring page to fill with colour">🖼</button>
+  <button class="tb" data-act="apps" title="Drop one of your own web apps onto the canvas">🧩</button>
+  <span class="sep"></span>
+  <button class="tb" data-act="tidy" title="Tidy mindmap layout">⌗</button>
+</div>
+
+<div class="panel" id="brushbar">
+  <span class="lab">Brush</span>
+  <span class="bchips" id="bchips"></span>
+  <span class="lab">Size</span>
+  <input type="range" class="bsz" id="bsize" min="1" max="60" value="6">
+  <span id="bpal" style="display:flex;gap:5px"></span>
+</div>
+
+<div class="panel" id="genbox">
+  <h4>Build a canvas from your notes</h4>
+  <div class="hint">Paste an outline. Indentation (or <code>#</code> headings) becomes the branches —
+    bullets, numbers and dashes are all understood.</div>
+  <textarea id="gentext" spellcheck="false" placeholder="Product launch
+  Marketing
+    Blog post
+    Email list
+  Engineering
+    API
+    Dashboard
+  Timeline
+    March: beta
+    April: launch"></textarea>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0">
+    <button class="mini gmode on" data-mode="mind">Mindmap</button>
+    <button class="mini gmode" data-mode="notes">Sticky notes</button>
+    <button class="mini gmode" data-mode="flow">Flow / steps</button>
+  </div>
+  <label class="hint" style="display:flex;gap:7px;align-items:center;cursor:pointer">
+    <input type="checkbox" id="gennew"> Put it on a brand-new canvas</label>
+  <div style="display:flex;gap:8px;margin-top:14px">
+    <button class="mini" id="gengo" style="flex:1;background:var(--acc);color:#fff;font-weight:600;padding:9px">Generate</button>
+    <button class="mini" id="gencancel" style="padding:9px 14px">Cancel</button>
+  </div>
+</div>
+
+<div class="panel" id="urlbox">
+  <div style="font-weight:600">Embed a link</div>
+  <input id="urlinput" placeholder="https://youtube.com/watch?v=… or any URL / image / mp4" autocomplete="off">
+  <div class="hint">YouTube, Vimeo, Loom, .mp4/.webm and images play right here on the canvas.</div>
+</div>
+
+<div id="empty">
+  <b>Double-click anywhere to start writing</b>
+  <span>drag an image, video or audio file straight onto the page · <b>📎</b> to browse your computer<br><b>Ctrl+K</b> to embed a link · right-click for a menu · <b>☰</b> for your other canvases · <b>?</b> for everything else</span>
+</div>
+<div id="dropzone"><div class="dzc">Drop it anywhere<small>images · video · audio</small></div></div>
+<div id="tourring"></div>
+<div id="tourtip">
+  <h5 id="tourtitle"></h5>
+  <p id="tourbody"></p>
+  <div class="trow"><span class="tcount" id="tourcount"></span>
+    <button id="tourskip">Skip</button><button id="tournext">Next</button></div>
+</div>
+
+<div class="panel" id="mapbox">
+  <canvas id="minimap" width="360" height="240"></canvas>
+  <div id="coords"><span>x <b id="cx">0</b></span><span>y <b id="cy">0</b></span><span id="cz">100%</span></div>
+</div>
+
+<div id="lostbar">
+  <b>Nothing on screen here</b>
+  <span>Your work is safe — you've just wandered off the edge of it.</span>
+  <button data-act="fit">⤢ Take me back to it</button>
+</div>
+
+<div id="toast"></div>
+<div id="status">Loading…</div>
+<input type="file" id="filepick" multiple hidden accept="image/*">
+<input type="file" id="jsonpick" hidden accept="application/json,.json">
+
+<div id="help"><div class="card">
+  <h2>Infinite canvas — how it works</h2>
+  <p>Everything lives on one endless surface. Click a tool, then click the canvas. Press <kbd>?</kbd> any time.</p>
+  <div class="cols">
+    <div class="sec">Moving around</div>
+    <div class="k"><span>Move around</span><kbd>✋ tool</kbd> <kbd>H</kbd></div>
+    <div class="k"><span>Zoom</span><kbd>scroll</kbd></div>
+    <div class="k"><span>Move left / right</span><kbd>Shift + scroll</kbd></div>
+    <div class="k"><span>Move any direction</span><kbd>Ctrl + scroll</kbd> <kbd>arrow keys</kbd></div>
+    <div class="k"><span>Move around</span><kbd>Space + drag</kbd> <kbd>middle-drag</kbd></div>
+    <div class="k"><span>Swap what scrolling does</span><kbd>🔍 button, top right</kbd></div>
+    <div class="k"><span>Zoom to fit</span><kbd>Shift + 1</kbd></div>
+    <div class="k"><span>Reset view</span><kbd>Shift + 0</kbd></div>
+    <div class="k"><span>Box-select several items</span><kbd>drag empty space</kbd></div>
+    <div class="k"><span>Select tool</span><kbd>V</kbd></div>
+    <div class="sec">Adding &amp; removing</div>
+    <div class="k"><span>New note, fastest way</span><kbd>double-click empty canvas</kbd></div>
+    <div class="k"><span>Delete one item</span><kbd>hover it, click ×</kbd></div>
+    <div class="k"><span>Delete everything selected</span><kbd>Delete</kbd></div>
+    <div class="sec">Creating</div>
+    <div class="k"><span>Sticky note</span><kbd>N</kbd></div>
+    <div class="k"><span>Text</span><kbd>T</kbd></div>
+    <div class="k"><span>Mindmap node</span><kbd>M</kbd></div>
+    <div class="k"><span>Rectangle / ellipse</span><kbd>R</kbd> <kbd>O</kbd></div>
+    <div class="k"><span>Pen / eraser</span><kbd>P</kbd> <kbd>E</kbd></div>
+    <div class="sec">Code that runs</div>
+    <div class="k"><span>New code block</span><kbd>C</kbd> <kbd>&lt;/&gt; button</kbd></div>
+    <div class="k"><span>Run it</span><kbd>▶ Run</kbd> <kbd>Ctrl + Enter</kbd></div>
+    <div class="k"><span>Re-run as you type</span><kbd>tick “auto”</kbd></div>
+    <div class="k"><span>Ready-made examples</span><kbd>Examples</kbd></div>
+    <div class="k"><span>Move the block</span><kbd>drag its top bar</kbd></div>
+    <div class="sec">Your canvases</div>
+    <div class="k"><span>Open the canvas list</span><kbd>☰ top-left</kbd></div>
+    <div class="k"><span>Start a fresh canvas</span><kbd>+ New</kbd></div>
+    <div class="k"><span>Pin / rename / delete one</span><kbd>hover a row</kbd></div>
+    <div class="k"><span>Connector</span><kbd>A</kbd></div>
+    <div class="k"><span>Embed a link</span><kbd>Ctrl + K</kbd></div>
+    <div class="k"><span>Add image / video / audio</span><kbd>drag &amp; drop</kbd> <kbd>📎 button</kbd></div>
+    <div class="k"><span>Paste a picture</span><kbd>Ctrl + V</kbd></div>
+    <div class="sec">Mindmap</div>
+    <div class="k"><span>Add child of selected node</span><kbd>Tab</kbd></div>
+    <div class="k"><span>Add sibling</span><kbd>Enter</kbd></div>
+    <div class="k"><span>Re-tidy the tree</span><kbd>⌗ button</kbd></div>
+    <div class="sec">Editing</div>
+    <div class="k"><span>Edit text</span><kbd>double-click</kbd></div>
+    <div class="k"><span>Play / interact with media</span><kbd>double-click</kbd></div>
+    <div class="k"><span>Paste a link on its own</span><kbd>becomes a player</kbd></div>
+    <div class="k"><span>Link two things</span><kbd>drag the blue dot</kbd></div>
+    <div class="k"><span>Multi-select</span><kbd>Shift + click</kbd></div>
+    <div class="k"><span>Menu of everything for an item</span><kbd>right-click it</kbd></div>
+    <div class="k"><span>Copy / paste / duplicate</span><kbd>Ctrl+C</kbd> <kbd>Ctrl+V</kbd> <kbd>Ctrl+D</kbd></div>
+    <div class="k"><span>Delete</span><kbd>Delete</kbd></div>
+    <div class="k"><span>Undo / redo</span><kbd>Ctrl+Z</kbd> <kbd>Ctrl+Shift+Z</kbd></div>
+    <div class="k"><span>Select all</span><kbd>Ctrl+A</kbd></div>
+  </div>
+  <h3 class="servefix" style="margin:24px 0 6px;font-size:14px">🎙 YouTube embeds and the microphone</h3>
+  <p style="margin:0 0 10px">Two things need this page to be served by a web address rather than opened from your hard drive: <b>YouTube/Vimeo playback</b> (they check where the page came from, and a file has no address — that’s the “Error 153”) and the <b>microphone</b>. Your own video and audio files, images, drawing and everything else work either way. To unlock both, run the <code>start-canvas.bat</code> file that sits next to this one — or do it by hand:</p>
+  <ol style="margin:0 0 14px;padding-left:20px;color:var(--dim);font-size:13px;line-height:1.8">
+    <li>Export your board first with <b>⤓</b> — the next step is treated as a different site, so it starts empty.</li>
+    <li>Open a terminal in the folder holding this file and run <code>python -m http.server 8000</code></li>
+    <li>Visit <code>http://localhost:8000/infinite-canvas.html</code> and load your board back with <b>⤒</b></li>
+  </ol>
+  <p style="margin:22px 0 0">Your board — videos and all — saves itself in this browser as you work.
+  Use <b>⤓</b> to export one portable <code>.json</code> file with the media packed inside, and <b>⤒</b> to load it back.</p>
+</div></div>
+</body>
+</html>

@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex,follow">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Classroom — ask, answer, time it</title>
+<style>
+:root{
+  --bg:#f4f6fb; --card:#fff; --line:#e2e6ef; --txt:#1b1f27; --dim:#6b7280;
+  --acc:#2f6df6; --ok:#12a150; --bad:#e0483d; --warn:#f5a524; --shadow:0 10px 30px #0f172a1a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--txt);
+  font:16px/1.55 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+input,textarea,select{font:inherit;color:var(--txt);background:#fff;border:1px solid var(--line);
+  border-radius:10px;padding:10px 12px;outline:none;width:100%}
+input:focus,textarea:focus{border-color:var(--acc)}
+.wrap{max-width:1040px;margin:0 auto;padding:22px 18px 60px}
+.view{display:none}.view.on{display:block}
+h1{font-size:28px;margin:0 0 4px;letter-spacing:-.4px}
+.sub{color:var(--dim);margin:0 0 22px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;
+  margin-bottom:14px;box-shadow:var(--shadow)}
+.btn{background:var(--acc);color:#fff;font-weight:650;border-radius:11px;padding:11px 18px;display:inline-block}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:#0f172a0d;color:var(--txt);font-weight:500}
+.btn.ghost:hover{background:#0f172a17}
+.btn.wide{width:100%;text-align:center;padding:15px;font-size:17px}
+.btn.ok{background:var(--ok)} .btn.bad{background:var(--bad)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.spread{justify-content:space-between}
+.lbl{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--dim);margin:0 0 6px}
+.tiny{font-size:12.5px;color:var(--dim)}
+.del{color:var(--dim);padding:4px 9px;border-radius:7px}
+.del:hover{background:var(--bad);color:#fff}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:700px){.grid2{grid-template-columns:1fr}}
+.chip{background:#0f172a0d;border-radius:99px;padding:6px 13px;font-size:13.5px;display:inline-flex;gap:7px;align-items:center}
+.chip b{font-variant-numeric:tabular-nums}
+
+/* asking */
+#qbig{font-size:clamp(24px,3.6vw,40px);font-weight:750;line-height:1.25;margin:6px 0 4px}
+#answer{font-size:clamp(19px,2.4vw,26px);line-height:1.5;min-height:190px;padding:16px 18px;
+  border-radius:14px;border:2px solid var(--line);resize:vertical}
+#answer:focus{border-color:var(--acc)}
+#clock{font-variant-numeric:tabular-nums;font-weight:800;font-size:30px;letter-spacing:-1px}
+#clock.warn{color:var(--warn)} #clock.out{color:var(--bad)}
+#who{font-weight:700;font-size:19px}
+.meter{height:8px;border-radius:99px;background:#0f172a12;overflow:hidden;margin-top:10px}
+.meter i{display:block;height:100%;background:var(--ok);width:100%;transition:width .25s linear}
+.queue{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.qn{padding:5px 11px;border-radius:99px;font-size:13px;background:#0f172a0d}
+.qn.done{background:#12a15022;color:#0b6b38}
+.qn.now{background:var(--acc);color:#fff;font-weight:650}
+
+/* results */
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--dim)}
+td.ans{white-space:pre-wrap;max-width:420px}
+td.t{font-variant-numeric:tabular-nums;white-space:nowrap}
+.mark{padding:2px 8px;border-radius:99px;font-size:12px;font-weight:650}
+.mark.y{background:#12a15022;color:#0b6b38} .mark.n{background:#e0483d22;color:#a32b22}
+.stat{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ================= SETUP ================= -->
+<section class="view on" id="setup">
+  <h1>Classroom</h1>
+  <p class="sub">Put a question on the board, hand over the keyboard, and the clock runs while they answer.
+     Everyone watches the same screen — no logins, no internet, nothing to set up.</p>
+
+  <div class="card">
+    <div class="row spread" style="margin-bottom:10px">
+      <b>Questions</b>
+      <span class="row" style="gap:6px">
+        <button class="btn ghost" id="bulk">Paste a list</button>
+        <button class="btn" id="addQ">+ Add</button>
+      </span>
+    </div>
+    <div id="qs"></div>
+    <div id="bulkBox" style="display:none;margin-top:12px">
+      <div class="lbl">One question per line. Add an answer after a <b>|</b> to mark it automatically.</div>
+      <textarea id="bulkText" rows="7" placeholder="What is the capital of Japan? | Tokyo
+Name two states of matter | solid|liquid|gas
+Explain photosynthesis in your own words"></textarea>
+      <div class="row" style="margin-top:9px">
+        <button class="btn" id="bulkAdd">Add them</button>
+        <button class="btn ghost" id="bulkCancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row spread" style="margin-bottom:10px">
+      <b>Who's in the room</b><button class="btn ghost" id="addS">+ Add student</button>
+    </div>
+    <div id="students"></div>
+    <div class="lbl" style="margin-top:12px">Or paste a class list, one name per line</div>
+    <textarea id="nameBulk" rows="3" placeholder="Aditi&#10;Ravi&#10;Meera"></textarea>
+    <button class="btn ghost" id="nameAdd" style="margin-top:8px">Add these names</button>
+  </div>
+
+  <div class="card">
+    <div class="grid2">
+      <div>
+        <div class="lbl">Time limit per answer</div>
+        <select id="limit">
+          <option value="0">No limit — just record how long they take</option>
+          <option value="30">30 seconds</option>
+          <option value="60" selected>1 minute</option>
+          <option value="120">2 minutes</option>
+          <option value="300">5 minutes</option>
+        </select>
+      </div>
+      <div>
+        <div class="lbl">Order</div>
+        <select id="order">
+          <option value="rota">Take turns — next student each question</option>
+          <option value="pick">I'll choose who answers each time</option>
+          <option value="all">Everyone answers every question</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn wide" id="begin" style="margin-top:16px">Start the session</button>
+  </div>
+</section>
+
+<!-- ================= ASKING ================= -->
+<section class="view" id="ask">
+  <div class="row spread">
+    <span class="chip">Question <b id="qnum"></b></span>
+    <div class="row">
+      <span id="who"></span>
+      <span id="clock">0:00</span>
+      <button class="btn ghost" id="stop">End session</button>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <div id="qbig"></div>
+    <div class="meter" id="meterWrap"><i id="meter"></i></div>
+    <div class="queue" id="queue"></div>
+  </div>
+
+  <div class="card">
+    <div class="row spread" style="margin-bottom:8px">
+      <span class="lbl" style="margin:0">Answer</span>
+      <span class="tiny" id="counter">0 words</span>
+    </div>
+    <textarea id="answer" placeholder="Type the answer here…" spellcheck="false"></textarea>
+    <div class="row" style="margin-top:12px">
+      <button class="btn" id="submit" style="flex:1;padding:14px;font-size:17px">Submit answer ⏎</button>
+      <button class="btn ghost" id="skip" style="padding:14px">Skip</button>
+    </div>
+    <p class="tiny" style="margin:9px 0 0">Ctrl+Enter submits. The clock starts the moment the question appears.</p>
+  </div>
+
+  <div class="card" id="pickWrap" style="display:none">
+    <div class="lbl">Who's answering this one?</div>
+    <div class="row" id="pickList"></div>
+  </div>
+</section>
+
+<!-- ================= RESULTS ================= -->
+<section class="view" id="results">
+  <div class="row spread">
+    <h1 style="font-size:24px">How it went</h1>
+    <span class="row">
+      <button class="btn ghost" id="csv">Export CSV</button>
+      <button class="btn ghost" id="again">New session</button>
+    </span>
+  </div>
+  <div class="stat" id="stats"></div>
+  <div class="card" style="overflow:auto">
+    <table id="table"></table>
+  </div>
+</section>
+</div>
+
+<script>
+"use strict";
+const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+const fmt=s=>Math.floor(s/60)+":"+String(Math.floor(s%60)).padStart(2,"0");
+
+/* ---------- data ---------- */
+let questions=[{q:"",a:""}], students=[{name:"Student 1"},{name:"Student 2"}], answers=[];
+try{
+  const raw=localStorage.getItem("classroom");
+  if(raw){ const d=JSON.parse(raw);
+    if(d.questions&&d.questions.length)questions=d.questions;
+    if(d.students&&d.students.length)students=d.students; }
+}catch(e){}
+const save=()=>{ try{ localStorage.setItem("classroom",JSON.stringify({questions,students})); }catch(e){} };
+function view(id){ $$(".view").forEach(v=>v.classList.toggle("on",v.id===id)); scrollTo(0,0); }
+
+/* ---------- setup ---------- */
+function drawQs(){
+  $("#qs").innerHTML=questions.map((q,i)=>`
+    <div style="border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px">
+      <div class="row spread" style="margin-bottom:7px">
+        <span class="tiny">Question ${i+1}</span>
+        <button class="del" data-rq="${i}">✕</button>
+      </div>
+      <textarea data-q="${i}" rows="2" placeholder="What would you like to ask?">${esc(q.q)}</textarea>
+      <div class="lbl" style="margin:9px 0 5px">Accepted answer — optional, use | between alternatives</div>
+      <input data-a="${i}" value="${esc(q.a)}" placeholder="leave blank to mark by hand">
+    </div>`).join("");
+}
+$("#qs").addEventListener("input",e=>{
+  const d=e.target.dataset;
+  if(d.q!==undefined)questions[+d.q].q=e.target.value;
+  if(d.a!==undefined)questions[+d.a].a=e.target.value;
+  save();
+});
+$("#qs").addEventListener("click",e=>{
+  if(e.target.dataset.rq!==undefined){ questions.splice(+e.target.dataset.rq,1);
+    if(!questions.length)questions=[{q:"",a:""}]; save(); drawQs(); }
+});
+$("#addQ").onclick=()=>{ questions.push({q:"",a:""}); save(); drawQs(); };
+$("#bulk").onclick=()=>$("#bulkBox").style.display="";
+$("#bulkCancel").onclick=()=>$("#bulkBox").style.display="none";
+$("#bulkAdd").onclick=()=>{
+  const rows=$("#bulkText").value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+  let n=0;
+  rows.forEach(r=>{
+    const i=r.indexOf("|");
+    questions.push(i<0?{q:r,a:""}:{q:r.slice(0,i).trim(),a:r.slice(i+1).trim()});
+    n++;
+  });
+  questions=questions.filter(q=>q.q.trim());
+  $("#bulkText").value=""; $("#bulkBox").style.display="none";
+  save(); drawQs();
+};
+function drawStudents(){
+  $("#students").innerHTML=students.map((s,i)=>`
+    <div class="row" style="margin-bottom:7px">
+      <input value="${esc(s.name)}" data-s="${i}" style="flex:1">
+      ${students.length>1?`<button class="del" data-rs="${i}">✕</button>`:""}
+    </div>`).join("");
+}
+$("#students").addEventListener("input",e=>{ if(e.target.dataset.s!==undefined){ students[+e.target.dataset.s].name=e.target.value; save(); } });
+$("#students").addEventListener("click",e=>{ if(e.target.dataset.rs!==undefined){ students.splice(+e.target.dataset.rs,1); save(); drawStudents(); } });
+$("#addS").onclick=()=>{ students.push({name:"Student "+(students.length+1)}); save(); drawStudents(); };
+$("#nameAdd").onclick=()=>{
+  const names=$("#nameBulk").value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+  if(!names.length)return;
+  if(students.length&&students.every(s=>/^Student \d+$/.test(s.name))) students=[];
+  names.forEach(n=>students.push({name:n}));
+  $("#nameBulk").value=""; save(); drawStudents();
+};
+
+/* ---------- running ---------- */
+let qi=0, si=0, plan=[], step=0, limit=60, order="rota", t0=0, ticker=null, waitingPick=false;
+
+$("#begin").onclick=()=>{
+  const qs=questions.filter(q=>q.q.trim());
+  if(!qs.length)return alert("Write at least one question first.");
+  if(!students.filter(s=>s.name.trim()).length)return alert("Add at least one name.");
+  limit=+$("#limit").value; order=$("#order").value;
+  answers=[]; plan=[];
+  const names=students.filter(s=>s.name.trim());
+  qs.forEach((q,i)=>{
+    if(order==="all") names.forEach((s,j)=>plan.push({q,qi:i,who:s.name}));
+    else if(order==="rota") plan.push({q,qi:i,who:names[i%names.length].name});
+    else plan.push({q,qi:i,who:null});
+  });
+  step=0; view("ask"); nextStep();
+};
+$("#stop").onclick=()=>{ clearInterval(ticker); finish(); };
+
+function nextStep(){
+  clearInterval(ticker);
+  if(step>=plan.length) return finish();
+  const cur=plan[step];
+  $("#qnum").textContent=(cur.qi+1)+" of "+questions.filter(q=>q.q.trim()).length;
+  $("#qbig").textContent=cur.q.q;
+  $("#answer").value=""; $("#counter").textContent="0 words";
+  $("#queue").innerHTML=plan.map((p,i)=>
+    `<span class="qn ${i<step?"done":(i===step?"now":"")}">${esc(p.who||"?")}</span>`).join("");
+  if(cur.who===null){
+    waitingPick=true;
+    $("#pickWrap").style.display="";
+    $("#pickList").innerHTML=students.filter(s=>s.name.trim())
+      .map(s=>`<button class="btn ghost" data-who="${esc(s.name)}">${esc(s.name)}</button>`).join("");
+    $("#who").textContent="Waiting…";
+    $("#clock").textContent="0:00";
+    $("#meter").style.width="100%";
+    return;
+  }
+  beginTimer(cur.who);
+}
+$("#pickList").addEventListener("click",e=>{
+  const who=e.target.dataset.who; if(!who)return;
+  plan[step].who=who; waitingPick=false;
+  $("#pickWrap").style.display="none";
+  beginTimer(who);
+});
+function beginTimer(who){
+  $("#who").textContent=who;
+  t0=Date.now();
+  $("#answer").focus();
+  tick();
+  ticker=setInterval(tick,200);
+}
+function tick(){
+  const el=(Date.now()-t0)/1000;
+  const c=$("#clock");
+  if(limit){
+    const left=Math.max(0,limit-el);
+    c.textContent=fmt(left);
+    c.className=left<=5?"out":(left<=Math.max(10,limit*0.25)?"warn":"");
+    $("#meter").style.width=(left/limit*100)+"%";
+    $("#meter").style.background=left<=5?"var(--bad)":(left<=limit*0.25?"var(--warn)":"var(--ok)");
+    if(left<=0){ clearInterval(ticker); record(true); }
+  } else {
+    c.textContent=fmt(el); c.className="";
+    $("#meter").style.width="100%";
+  }
+}
+$("#answer").addEventListener("input",e=>{
+  const w=e.target.value.trim().split(/\s+/).filter(Boolean).length;
+  $("#counter").textContent=w+(w===1?" word":" words");
+});
+$("#answer").addEventListener("keydown",e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==="Enter"){ e.preventDefault(); record(false); }
+});
+$("#submit").onclick=()=>record(false);
+$("#skip").onclick=()=>{ if(waitingPick)return; clearInterval(ticker); record(false,true); };
+function correct(q,text){
+  if(!q.a.trim())return null;
+  const given=text.toLowerCase().replace(/[^a-z0-9 ]/g,"").trim();
+  return q.a.split("|").map(x=>x.toLowerCase().replace(/[^a-z0-9 ]/g,"").trim())
+           .filter(Boolean).some(x=>given===x||given.includes(x));
+}
+function record(timedOut,skipped){
+  if(waitingPick)return;
+  clearInterval(ticker);
+  const cur=plan[step], secs=(Date.now()-t0)/1000;
+  const text=skipped?"":$("#answer").value.trim();
+  answers.push({who:cur.who,q:cur.q.q,expected:cur.q.a,text,
+    secs:Math.round(Math.min(secs,limit||secs)*10)/10,
+    timedOut:!!timedOut,skipped:!!skipped,ok:skipped?false:correct(cur.q,text)});
+  step++;
+  nextStep();
+}
+
+/* ---------- results ---------- */
+function finish(){
+  view("results");
+  const byName={};
+  answers.forEach(a=>{
+    byName[a.who]=byName[a.who]||{n:0,t:0,ok:0,marked:0};
+    const b=byName[a.who]; b.n++; b.t+=a.secs;
+    if(a.ok!==null){ b.marked++; if(a.ok)b.ok++; }
+  });
+  const all=answers.map(a=>a.secs);
+  const avg=all.length?(all.reduce((x,y)=>x+y,0)/all.length):0;
+  $("#stats").innerHTML=
+    `<span class="chip">Answers <b>${answers.length}</b></span>
+     <span class="chip">Average time <b>${avg.toFixed(1)}s</b></span>
+     <span class="chip">Quickest <b>${all.length?Math.min(...all).toFixed(1):0}s</b></span>
+     <span class="chip">Slowest <b>${all.length?Math.max(...all).toFixed(1):0}s</b></span>`
+    +Object.keys(byName).map(n=>{
+      const b=byName[n];
+      return `<span class="chip">${esc(n)} <b>${(b.t/b.n).toFixed(1)}s avg</b>${
+        b.marked?` · ${b.ok}/${b.marked}`:""}</span>`;
+    }).join("");
+  $("#table").innerHTML=
+    `<tr><th>Student</th><th>Question</th><th>Answer</th><th>Time</th><th>Mark</th></tr>`
+    +answers.map((a,i)=>`<tr>
+      <td><b>${esc(a.who)}</b></td>
+      <td>${esc(a.q)}</td>
+      <td class="ans">${a.skipped?"<i style='color:var(--dim)'>skipped</i>":esc(a.text)||"<i style='color:var(--dim)'>blank</i>"}</td>
+      <td class="t">${a.secs}s${a.timedOut?" <span class='tiny'>(ran out)</span>":""}</td>
+      <td><button class="mark ${a.ok?"y":"n"}" data-m="${i}">${a.ok?"correct":"wrong"}</button></td>
+    </tr>`).join("");
+}
+$("#table").addEventListener("click",e=>{
+  const i=e.target.dataset.m; if(i===undefined)return;
+  answers[+i].ok=!answers[+i].ok;
+  finish();
+});
+$("#csv").onclick=()=>{
+  const q=s=>'"'+String(s==null?"":s).replace(/"/g,'""')+'"';
+  const rows=[["Student","Question","Answer","Seconds","Timed out","Correct"]]
+    .concat(answers.map(a=>[a.who,a.q,a.text,a.secs,a.timedOut?"yes":"no",a.ok?"yes":"no"]));
+  const csv=rows.map(r=>r.map(q).join(",")).join("\n");
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+  a.download="classroom-results.csv"; a.click();
+};
+$("#again").onclick=()=>{ view("setup"); };
+
+drawQs(); drawStudents();
+</script>
+</body>
+</html>

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex,follow">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quiz Party — a live quiz game for one screen</title>
+<style>
+:root{
+  --bg:#12131a; --card:#1b1d27; --line:#2b2e3d; --txt:#f2f4f8; --dim:#98a0b3;
+  --acc:#7c5cff; --ok:#12a150; --bad:#e0483d;
+  --c0:#e0483d; --c1:#2f6df6; --c2:#f5a524; --c3:#12a150;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--txt);
+  font:16px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+input,textarea,select{font:inherit;color:var(--txt);background:#0f1017;border:1px solid var(--line);
+  border-radius:10px;padding:10px 12px;outline:none;width:100%}
+input:focus,textarea:focus{border-color:var(--acc)}
+.wrap{max-width:940px;margin:0 auto;padding:26px 20px 60px}
+.view{display:none}.view.on{display:block}
+h1{font-size:30px;margin:0 0 4px;letter-spacing:-.4px}
+h2{font-size:21px;margin:0 0 14px}
+.sub{color:var(--dim);margin:0 0 26px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:14px}
+.btn{background:var(--acc);color:#fff;font-weight:650;border-radius:11px;padding:11px 20px;display:inline-block}
+.btn:hover{filter:brightness(1.12)}
+.btn.ghost{background:#ffffff12;font-weight:500}
+.btn.ghost:hover{background:#ffffff20}
+.btn.wide{width:100%;text-align:center;padding:15px;font-size:17px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.spread{justify-content:space-between}
+.pill{background:#ffffff10;border-radius:99px;padding:5px 12px;font-size:13px;color:var(--dim)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:640px){.grid2{grid-template-columns:1fr}}
+label.lbl{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.7px;color:var(--dim);margin:0 0 6px}
+
+/* play */
+#qtext{font-size:clamp(22px,4vw,34px);font-weight:700;text-align:center;margin:20px 0 8px;line-height:1.25}
+#bar{height:12px;background:#2a2d3a;border-radius:99px;overflow:hidden;margin:18px 0}
+#fill{height:100%;width:100%;background:var(--ok);transition:width .1s linear}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+@media(max-width:640px){.opts{grid-template-columns:1fr}}
+.opt{border-radius:14px;padding:20px 18px;font-size:17px;font-weight:600;color:#fff;text-align:left;
+  display:flex;gap:12px;align-items:center;min-height:74px;transition:transform .08s}
+.opt:hover:not(:disabled){transform:translateY(-2px)}
+.opt .sym{width:26px;height:26px;flex:0 0 26px;display:grid;place-items:center;font-size:14px;
+  background:#0003;border-radius:7px}
+.opt.k0{background:var(--c0)}.opt.k1{background:var(--c1)}.opt.k2{background:var(--c2)}.opt.k3{background:var(--c3)}
+.opt:disabled{opacity:.3}
+.opt.right{outline:4px solid #fff;opacity:1}
+.opt.wrong{opacity:.22}
+#verdict{text-align:center;font-size:20px;font-weight:700;min-height:34px;margin-top:16px}
+#buzzbox{text-align:center;margin-top:14px}
+.scorebar{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:18px}
+.sc{background:#ffffff10;border-radius:10px;padding:7px 13px;font-size:14px}
+.sc b{color:var(--acc)}
+.sc.lead{background:var(--acc);color:#fff}.sc.lead b{color:#fff}
+
+/* editor */
+.qrow{border:1px solid var(--line);border-radius:13px;padding:14px;margin-bottom:12px;background:#161822}
+.qrow .ans{display:grid;grid-template-columns:26px 1fr;gap:9px;align-items:center;margin-top:8px}
+.qrow .ans input[type=radio]{width:auto;accent-color:var(--ok)}
+.tiny{font-size:12px;color:var(--dim)}
+.del{color:var(--dim);padding:4px 8px;border-radius:7px}
+.del:hover{background:var(--bad);color:#fff}
+
+/* results */
+.podium{display:flex;gap:12px;align-items:flex-end;justify-content:center;margin:26px 0}
+.pod{background:var(--card);border:1px solid var(--line);border-radius:14px 14px 0 0;padding:14px;
+  min-width:120px;text-align:center}
+.pod .n{font-weight:700}
+.pod .p{color:var(--acc);font-size:22px;font-weight:800}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ================= HOME ================= -->
+<section class="view on" id="home">
+  <h1>Quiz Party</h1>
+  <p class="sub">A buzzer quiz for one screen. No accounts, no internet, nothing to install —
+     everything stays in this browser.</p>
+
+  <div class="card">
+    <div class="row spread" style="margin-bottom:12px">
+      <h2 style="margin:0">Your quizzes</h2>
+      <button class="btn ghost" id="newQuiz">+ New quiz</button>
+    </div>
+    <div id="quizList"></div>
+  </div>
+
+  <div class="card">
+    <h2>How do you want to play?</h2>
+    <div class="grid2">
+      <div>
+        <label class="lbl">Mode</label>
+        <select id="mode">
+          <option value="solo">Solo / pass the device — click your answer</option>
+          <option value="teams">Teams with buzzers — first key press wins</option>
+        </select>
+      </div>
+      <div>
+        <label class="lbl">Seconds per question</label>
+        <input type="number" id="secs" value="20" min="5" max="120">
+      </div>
+    </div>
+
+    <div id="teamSetup" style="display:none;margin-top:14px">
+      <label class="lbl">Teams — each gets a key to slam</label>
+      <div id="teams"></div>
+      <button class="btn ghost" id="addTeam" style="margin-top:8px">+ Add team</button>
+      <p class="tiny" style="margin:10px 0 0">Read the question out. First team to hit their key buzzes in —
+        then you mark them right or wrong. Wrong answers hand the buzzer to everyone else.</p>
+    </div>
+
+    <button class="btn wide" id="start" style="margin-top:18px">Start quiz</button>
+  </div>
+</section>
+
+<!-- ================= EDITOR ================= -->
+<section class="view" id="edit">
+  <div class="row spread">
+    <h1 style="font-size:24px">Edit quiz</h1>
+    <button class="btn ghost" id="backHome">← Done</button>
+  </div>
+  <div class="card">
+    <label class="lbl">Quiz name</label>
+    <input id="quizName" placeholder="General knowledge">
+  </div>
+  <div id="qs"></div>
+  <div class="row" style="margin-top:6px">
+    <button class="btn" id="addQ">+ Add question</button>
+    <button class="btn ghost" id="bulk">Paste a list of questions</button>
+    <button class="btn ghost" id="exportQ">Export</button>
+    <button class="btn ghost" id="importQ">Import</button>
+  </div>
+  <div class="card" id="bulkBox" style="display:none;margin-top:14px">
+    <label class="lbl">One question per block — put a <b>*</b> in front of the correct answer</label>
+    <textarea id="bulkText" rows="12" placeholder="Which planet is closest to the Sun?
+Venus
+*Mercury
+Mars
+Earth
+
+How many continents are there?
+Five
+Six
+*Seven
+Eight"></textarea>
+    <div class="row" style="margin-top:10px">
+      <button class="btn" id="bulkAdd">Add them</button>
+      <button class="btn ghost" id="bulkCancel">Cancel</button>
+    </div>
+  </div>
+  <input type="file" id="importFile" accept="application/json,.json" hidden>
+</section>
+
+<!-- ================= PLAY ================= -->
+<section class="view" id="play">
+  <div class="row spread">
+    <span class="pill" id="progress"></span>
+    <button class="btn ghost" id="quit">Quit</button>
+  </div>
+  <div id="qtext"></div>
+  <div id="bar"><div id="fill"></div></div>
+  <div class="opts" id="opts"></div>
+  <div id="buzzbox"></div>
+  <div id="verdict"></div>
+  <div class="scorebar" id="scores"></div>
+</section>
+
+<!-- ================= RESULTS ================= -->
+<section class="view" id="results">
+  <h1 style="text-align:center">Final scores</h1>
+  <div class="podium" id="podium"></div>
+  <div class="row" style="justify-content:center">
+    <button class="btn" id="again">Play again</button>
+    <button class="btn ghost" id="home2">Back to start</button>
+  </div>
+</section>
+
+</div>
+<script>
+"use strict";
+const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
+const KEYS=["1","2","3","4","5","6"];
+const SAMPLE={name:"General knowledge",qs:[
+ {q:"Which planet is closest to the Sun?",a:["Venus","Mercury","Mars","Earth"],c:1},
+ {q:"How many continents are there?",a:["Five","Six","Seven","Eight"],c:2},
+ {q:"What is the capital of Japan?",a:["Osaka","Kyoto","Seoul","Tokyo"],c:3},
+ {q:"2 + 2 × 2 = ?",a:["Six","Eight","Four","Ten"],c:0},
+ {q:"Which ocean is the largest?",a:["Atlantic","Indian","Pacific","Arctic"],c:2}
+]};
+
+/* ---------- storage ---------- */
+function load(){
+  try{ const r=localStorage.getItem("quizparty");
+       if(r){ const d=JSON.parse(r); if(d&&d.length) return d; } }catch(e){}
+  return [JSON.parse(JSON.stringify(SAMPLE))];
+}
+function persist(){ try{ localStorage.setItem("quizparty",JSON.stringify(quizzes)); }catch(e){} }
+let quizzes=load(), current=0, editing=0;
+
+/* ---------- views ---------- */
+function view(id){ $$(".view").forEach(v=>v.classList.toggle("on",v.id===id)); scrollTo(0,0); }
+
+/* ---------- home ---------- */
+function drawList(){
+  $("#quizList").innerHTML=quizzes.map((q,i)=>`
+    <div class="row spread" style="padding:9px 0;border-bottom:1px solid var(--line)">
+      <label class="row" style="gap:9px;cursor:pointer">
+        <input type="radio" name="pick" value="${i}" ${i===current?"checked":""} style="width:auto;accent-color:var(--acc)">
+        <span><b>${esc(q.name||"Untitled")}</b>
+          <span class="tiny"> — ${q.qs.length} question${q.qs.length===1?"":"s"}</span></span>
+      </label>
+      <span class="row" style="gap:4px">
+        <button class="btn ghost" data-ed="${i}" style="padding:6px 12px">Edit</button>
+        <button class="del" data-rm="${i}">✕</button>
+      </span>
+    </div>`).join("");
+}
+const esc=s=>String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+$("#quizList").addEventListener("click",e=>{
+  const ed=e.target.dataset.ed, rm=e.target.dataset.rm;
+  if(ed!==undefined){ editing=+ed; openEditor(); }
+  if(rm!==undefined){
+    if(quizzes.length===1) return alert("Keep at least one quiz.");
+    if(confirm("Delete “"+quizzes[+rm].name+"”?")){ quizzes.splice(+rm,1); current=0; persist(); drawList(); }
+  }
+});
+$("#quizList").addEventListener("change",e=>{ if(e.target.name==="pick") current=+e.target.value; });
+$("#newQuiz").onclick=()=>{ quizzes.push({name:"New quiz",qs:[blankQ()]}); editing=quizzes.length-1; persist(); openEditor(); };
+
+/* ---------- teams ---------- */
+let teams=[{name:"Team A"},{name:"Team B"}];
+function drawTeams(){
+  $("#teams").innerHTML=teams.map((t,i)=>`
+    <div class="row" style="margin-bottom:8px">
+      <span class="pill" style="min-width:74px;text-align:center">key <b>${KEYS[i]}</b></span>
+      <input value="${esc(t.name)}" data-t="${i}" style="flex:1">
+      ${teams.length>2?`<button class="del" data-tr="${i}">✕</button>`:""}
+    </div>`).join("");
+}
+$("#teams").addEventListener("input",e=>{ if(e.target.dataset.t!==undefined) teams[+e.target.dataset.t].name=e.target.value; });
+$("#teams").addEventListener("click",e=>{ if(e.target.dataset.tr!==undefined){ teams.splice(+e.target.dataset.tr,1); drawTeams(); } });
+$("#addTeam").onclick=()=>{ if(teams.length<6){ teams.push({name:"Team "+String.fromCharCode(65+teams.length)}); drawTeams(); } };
+$("#mode").onchange=()=>{ $("#teamSetup").style.display=$("#mode").value==="teams"?"":"none"; };
+
+/* ---------- editor ---------- */
+const blankQ=()=>({q:"",a:["","","",""],c:0});
+function openEditor(){ const z=quizzes[editing]; $("#quizName").value=z.name||""; drawQs(); view("edit"); }
+$("#quizName").oninput=e=>{ quizzes[editing].name=e.target.value; persist(); };
+function drawQs(){
+  const z=quizzes[editing];
+  $("#qs").innerHTML=z.qs.map((q,i)=>`
+    <div class="qrow">
+      <div class="row spread" style="margin-bottom:8px">
+        <span class="tiny">Question ${i+1}</span>
+        <button class="del" data-rq="${i}">✕ remove</button>
+      </div>
+      <input data-q="${i}" value="${esc(q.q)}" placeholder="Ask something…">
+      ${q.a.map((a,k)=>`<div class="ans">
+          <input type="radio" name="c${i}" data-c="${i}" value="${k}" ${q.c===k?"checked":""} title="Correct answer">
+          <input data-a="${i}" data-k="${k}" value="${esc(a)}" placeholder="Answer ${k+1}">
+        </div>`).join("")}
+      <div class="tiny" style="margin-top:8px">Tick the circle next to the right answer.</div>
+    </div>`).join("");
+}
+$("#qs").addEventListener("input",e=>{
+  const z=quizzes[editing], d=e.target.dataset;
+  if(d.q!==undefined) z.qs[+d.q].q=e.target.value;
+  if(d.a!==undefined) z.qs[+d.a].a[+d.k]=e.target.value;
+  persist();
+});
+$("#qs").addEventListener("change",e=>{
+  if(e.target.dataset.c!==undefined){ quizzes[editing].qs[+e.target.dataset.c].c=+e.target.value; persist(); }
+});
+$("#qs").addEventListener("click",e=>{
+  if(e.target.dataset.rq!==undefined){ quizzes[editing].qs.splice(+e.target.dataset.rq,1); persist(); drawQs(); }
+});
+$("#addQ").onclick=()=>{ quizzes[editing].qs.push(blankQ()); persist(); drawQs(); scrollTo(0,document.body.scrollHeight); };
+$("#backHome").onclick=()=>{ persist(); drawList(); view("home"); };
+$("#bulk").onclick=()=>{ $("#bulkBox").style.display=""; $("#bulkText").focus(); };
+$("#bulkCancel").onclick=()=>{ $("#bulkBox").style.display="none"; };
+$("#bulkAdd").onclick=()=>{
+  const blocks=$("#bulkText").value.split(/\n\s*\n/).map(b=>b.split(/\r?\n/).map(l=>l.trim()).filter(Boolean));
+  let added=0;
+  for(const b of blocks){
+    if(b.length<3)continue;
+    const q=b[0], answers=b.slice(1,5), c=answers.findIndex(a=>a.startsWith("*"));
+    while(answers.length<4)answers.push("");
+    quizzes[editing].qs.push({q,a:answers.map(a=>a.replace(/^\*\s*/,"")),c:c<0?0:c});
+    added++;
+  }
+  $("#bulkText").value=""; $("#bulkBox").style.display="none";
+  persist(); drawQs();
+  alert(added?added+" question"+(added===1?"":"s")+" added.":"Couldn't read that — one question then its answers, blank line between blocks.");
+};
+$("#exportQ").onclick=()=>{
+  const b=new Blob([JSON.stringify(quizzes[editing],null,1)],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(b);
+  a.download=(quizzes[editing].name||"quiz").replace(/\W+/g,"-").toLowerCase()+".json"; a.click();
+};
+$("#importQ").onclick=()=>$("#importFile").click();
+$("#importFile").onchange=e=>{
+  const f=e.target.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{ try{
+      const d=JSON.parse(r.result);
+      if(!d.qs||!Array.isArray(d.qs))throw 0;
+      quizzes.push(d); editing=quizzes.length-1; persist(); openEditor();
+    }catch(err){ alert("That doesn't look like a quiz file."); } };
+  r.readAsText(f); e.target.value="";
+};
+
+/* ---------- play ---------- */
+let mode="solo", quiz=null, idx=0, secs=20, left=0, ticker=null,
+    scores=[], buzzed=-1, locked=[], answered=false;
+
+$("#start").onclick=()=>{
+  quiz=quizzes[current];
+  const usable=quiz.qs.filter(q=>q.q.trim()&&q.a.filter(a=>a.trim()).length>=2);
+  if(!usable.length) return alert("This quiz has no finished questions yet — edit it first.");
+  quiz={name:quiz.name,qs:usable};
+  mode=$("#mode").value;
+  secs=Math.max(5,+$("#secs").value||20);
+  idx=0;
+  scores=mode==="teams"?teams.map(t=>({name:t.name,pts:0})):[{name:"You",pts:0}];
+  view("play"); nextQ();
+};
+$("#quit").onclick=()=>{ clearInterval(ticker); view("home"); };
+
+function nextQ(){
+  if(idx>=quiz.qs.length) return finish();
+  const q=quiz.qs[idx];
+  answered=false; buzzed=-1; locked=[];
+  $("#progress").textContent="Question "+(idx+1)+" of "+quiz.qs.length;
+  $("#qtext").textContent=q.q;
+  $("#verdict").textContent="";
+  const answers=q.a.map((a,k)=>({a,k})).filter(o=>o.a.trim());
+  $("#opts").innerHTML=answers.map(o=>
+    `<button class="opt k${o.k}" data-k="${o.k}"><span class="sym">${"ABCD"[o.k]}</span>${esc(o.a)}</button>`).join("");
+  $("#opts").style.display=mode==="solo"?"":"grid";
+  $("#buzzbox").innerHTML=mode==="teams"
+    ? `<p class="tiny">Read it out — first team to press their key buzzes in.</p>` : "";
+  drawScores();
+  left=secs; $("#fill").style.width="100%"; $("#fill").style.background="var(--ok)";
+  clearInterval(ticker);
+  ticker=setInterval(()=>{
+    left-=0.1;
+    $("#fill").style.width=Math.max(0,left/secs*100)+"%";
+    if(left<secs*0.3) $("#fill").style.background="var(--bad)";
+    if(left<=0){ clearInterval(ticker); if(!answered) timeUp(); }
+  },100);
+}
+function points(){ return Math.round(500+500*(Math.max(0,left)/secs)); }
+
+$("#opts").addEventListener("click",e=>{
+  const b=e.target.closest(".opt"); if(!b||answered)return;
+  if(mode==="solo") judge(0,+b.dataset.k);
+});
+addEventListener("keydown",e=>{
+  if(!$("#play").classList.contains("on"))return;
+  if(mode==="teams"&&buzzed<0){
+    const i=KEYS.indexOf(e.key);
+    if(i>=0&&i<scores.length&&!locked.includes(i)){ buzzIn(i); return; }
+  }
+  if(e.key==="Enter"&&answered) advance();
+});
+function buzzIn(i){
+  buzzed=i; clearInterval(ticker);
+  $("#buzzbox").innerHTML=`<p style="font-size:20px;font-weight:700;margin:6px 0 12px">
+      ${esc(scores[i].name)} buzzed in!</p>
+    <button class="btn" id="yes" style="background:var(--ok)">✓ Correct</button>
+    <button class="btn" id="no" style="background:var(--bad);margin-left:8px">✕ Wrong</button>`;
+  $("#yes").onclick=()=>judge(i,quiz.qs[idx].c);
+  $("#no").onclick=()=>{
+    locked.push(i); buzzed=-1;
+    scores[i].pts=Math.max(0,scores[i].pts-100);
+    if(locked.length>=scores.length) return timeUp();
+    $("#buzzbox").innerHTML=`<p class="tiny">${esc(scores[i].name)} is out for this one (−100). Anyone else?</p>`;
+    drawScores();
+    ticker=setInterval(()=>{ left-=0.1; $("#fill").style.width=Math.max(0,left/secs*100)+"%";
+      if(left<=0){ clearInterval(ticker); timeUp(); } },100);
+  };
+}
+function judge(who,k){
+  answered=true; clearInterval(ticker);
+  const q=quiz.qs[idx], right=k===q.c;
+  reveal();
+  if(right){ scores[who].pts+=points(); $("#verdict").innerHTML="<span style='color:var(--ok)'>Correct — +"+points()+"</span>"; }
+  else $("#verdict").innerHTML="<span style='color:var(--bad)'>Wrong — it was "+esc(q.a[q.c])+"</span>";
+  drawScores(); after();
+}
+function timeUp(){
+  answered=true; clearInterval(ticker); reveal();
+  $("#verdict").innerHTML="<span style='color:var(--dim)'>Nobody got it — the answer was "+esc(quiz.qs[idx].a[quiz.qs[idx].c])+"</span>";
+  after();
+}
+function reveal(){
+  const c=quiz.qs[idx].c;
+  $$("#opts .opt").forEach(b=>{ b.disabled=true;
+    b.classList.add(+b.dataset.k===c?"right":"wrong"); });
+  $("#buzzbox").innerHTML="";
+}
+function after(){
+  const last=idx===quiz.qs.length-1;
+  $("#buzzbox").innerHTML=`<button class="btn" id="nx" style="margin-top:6px">${last?"See the scores":"Next question"} →</button>`;
+  $("#nx").onclick=advance;
+}
+function advance(){ idx++; nextQ(); }
+function drawScores(){
+  const top=Math.max(...scores.map(s=>s.pts));
+  $("#scores").innerHTML=scores.map(s=>
+    `<span class="sc${s.pts===top&&top>0?" lead":""}">${esc(s.name)} <b>${s.pts}</b></span>`).join("");
+}
+function finish(){
+  clearInterval(ticker);
+  const sorted=[...scores].sort((a,b)=>b.pts-a.pts);
+  $("#podium").innerHTML=sorted.map((s,i)=>
+    `<div class="pod" style="height:${150-i*26}px">
+       <div style="font-size:22px">${["🥇","🥈","🥉"][i]||"🎉"}</div>
+       <div class="n">${esc(s.name)}</div><div class="p">${s.pts}</div></div>`).join("");
+  view("results");
+}
+$("#again").onclick=()=>{ idx=0; scores=scores.map(s=>({name:s.name,pts:0})); view("play"); nextQ(); };
+$("#home2").onclick=()=>{ drawList(); view("home"); };
+
+/* ---------- go ---------- */
+drawList(); drawTeams();
+</script>
+</body>
+</html>

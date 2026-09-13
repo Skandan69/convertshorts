@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BFWSBHKF1P"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-BFWSBHKF1P');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free File Converter Online — PDF, Images, Word, Excel | ConvertShorts</title>
+<meta name="description" content="Free online file converter. PDF to JPG, JPG to PDF, PDF to Word, Word to PDF, PNG to JPG, WebP to JPG, CSV to Excel, Excel to CSV and more. No upload, no watermark, no signup. Runs entirely in your browser.">
+<meta name="keywords" content="free file converter, pdf to jpg, jpg to pdf, png to jpg, webp to jpg, pdf to word, word to pdf, csv to excel, excel to csv, xlsx to csv, json to csv, image converter online, document converter free, no upload converter, online converter no watermark">
+<link rel="canonical" href="https://convertshorts.com/pdf">
+<meta property="og:title" content="Free File Converter — PDF, Images, Word, Excel | No Upload">
+<meta property="og:description" content="Convert PDF, images, Word and Excel files free. Everything runs in your browser — nothing uploaded.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://convertshorts.com/pdf">
+<meta property="og:image" content="https://convertshorts.com/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://convertshorts.com/og-image.png">
+<meta name="robots" content="index, follow">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"ConvertShorts File Converter","description":"Free online file converter for PDF, images, Word documents and spreadsheets. Runs entirely in the browser.","url":"https://convertshorts.com/pdf","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["PDF to JPG","PDF to PNG","JPG to PDF","PNG to PDF","PDF to Word","Word to PDF","PNG to JPG","WebP to JPG","CSV to Excel","Excel to CSV","JSON to CSV","No upload required","No watermark"]}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"How do I convert PDF to JPG for free?","acceptedAnswer":{"@type":"Answer","text":"Drop your PDF into ConvertShorts, choose JPG as the output format, pick your quality, and download each page. Free, no signup, nothing uploaded to a server."}},
+{"@type":"Question","name":"How do I convert JPG to PDF?","acceptedAnswer":{"@type":"Answer","text":"Select one or more JPG or PNG images, choose PDF as the output, set the page size, and download a single combined PDF."}},
+{"@type":"Question","name":"How do I convert PNG to JPG?","acceptedAnswer":{"@type":"Answer","text":"Drop your PNG files in, choose JPG as the output format, adjust quality if needed, and download. Transparent areas are filled with white."}},
+{"@type":"Question","name":"How do I convert Excel to CSV?","acceptedAnswer":{"@type":"Answer","text":"Upload your XLSX or XLS file, choose CSV as the output, and download. Each sheet can be exported separately."}},
+{"@type":"Question","name":"Are my files uploaded to a server?","acceptedAnswer":{"@type":"Answer","text":"No. Every conversion runs in your browser using JavaScript. Your files never leave your device."}},
+{"@type":"Question","name":"Can I convert PowerPoint files?","acceptedAnswer":{"@type":"Answer","text":"Not currently. PowerPoint rendering requires a server-side office engine, which would mean uploading your file. We only support conversions that can run privately in your browser."}}
+]}
+</script>
+<link rel="stylesheet" href="style.css">
+<style>
+.step-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.step-num-badge{width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;font-size:10px;display:inline-flex;align-items:center;justify-content:center;font-weight:700;}
+.file-list{margin:0 0 1.25rem;}
+.file-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--off);border-radius:var(--r);margin-bottom:6px;font-size:13px;}
+.file-item .ficon{font-size:18px;}
+.file-item .fname{flex:1;color:var(--black);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.file-item .fsize{color:var(--muted);font-size:12px;white-space:nowrap;}
+.file-item .fdel{width:24px;height:24px;border:1px solid var(--border);border-radius:5px;background:var(--white);cursor:pointer;color:var(--muted);font-size:12px;flex-shrink:0;}
+.file-item .fdel:hover{background:#FCEBEB;border-color:#F09595;color:#A32D2D;}
+.target-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:1.25rem;}
+.target-btn{padding:12px 10px;border:1.5px solid var(--border);border-radius:var(--r);background:var(--white);cursor:pointer;text-align:center;transition:all .15s;font-family:inherit;}
+.target-btn:hover{border-color:var(--green);background:var(--gl);}
+.target-btn.active{border-color:var(--green);background:var(--gl);}
+.target-ext{font-size:15px;font-weight:800;color:var(--black);letter-spacing:-.3px;}
+.target-btn.active .target-ext{color:var(--gd);}
+.target-desc{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.3;}
+.opts{background:var(--off);border-radius:var(--r);padding:12px 14px;margin-bottom:1.25rem;}
+.opt-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.opt-row:last-child{margin-bottom:0;}
+.opt-row label{font-size:13px;color:var(--muted);min-width:95px;}
+.opt-row select{flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:var(--white);font-family:inherit;}
+.opt-row input[type=range]{flex:1;accent-color:var(--green);}
+.opt-row output{font-size:13px;color:var(--muted);min-width:42px;text-align:right;font-family:monospace;}
+.preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(115px,1fr));gap:10px;margin-top:1rem;}
+.preview-item{border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--off);}
+.preview-item img{width:100%;display:block;background:#fff;}
+.preview-item .plabel{font-size:11px;padding:5px;text-align:center;color:var(--muted);}
+.preview-item a{display:block;padding:6px;text-align:center;font-size:11px;color:var(--green);text-decoration:none;font-weight:700;border-top:1px solid var(--border);}
+.preview-item a:hover{background:var(--gl);}
+.result-box{background:var(--gl);border:1px solid #9FE1CB;border-radius:var(--r);padding:14px;margin-top:1rem;}
+.result-box.err{background:#FCEBEB;border-color:#F09595;}
+.result-title{font-size:14px;font-weight:700;color:var(--gd);margin-bottom:5px;}
+.result-box.err .result-title{color:#A32D2D;}
+.result-body{font-size:13px;color:var(--gd);line-height:1.55;}
+.result-box.err .result-body{color:#A32D2D;}
+.result-body a{color:var(--gd);font-weight:700;}
+.matrix{width:100%;border-collapse:collapse;font-size:13px;margin-top:1rem;}
+.matrix th{text-align:left;padding:8px 12px;background:var(--off);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);}
+.matrix td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--muted);}
+.matrix td:first-child{font-weight:600;color:var(--black);white-space:nowrap;}
+.matrix tr:last-child td{border-bottom:none;}
+.note-box{background:#FAEEDA;border:1px solid #FAC775;border-radius:var(--r);padding:12px 14px;font-size:13px;color:#633806;line-height:1.55;margin-top:1rem;}
+.note-box strong{color:#412402;}
+#popular{margin-top:1.5rem;}
+.pop-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.pop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:8px;}
+.pop-card{border:1px solid var(--border);border-radius:var(--r);padding:11px 12px;background:var(--white);display:flex;align-items:center;flex-wrap:wrap;gap:6px;}
+.pop-from,.pop-to{font-size:13px;font-weight:700;color:var(--black);}
+.pop-to{color:var(--gd);}
+.pop-arrow{color:var(--muted);font-size:13px;}
+.pop-note{flex-basis:100%;font-size:11px;color:var(--muted);line-height:1.3;}
+.pop-foot{font-size:12px;color:var(--muted);margin-top:10px;}
+
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-left">
+    <a href="/" class="logo">Convert<span>Shorts</span></a>
+    <div class="nav-links">
+      <a href="/">🎬 Convert Video</a>
+      <a href="/pdf" class="active">📄 Convert PDF &amp; Docs</a>
+    </div>
+  </div>
+  <span class="nav-badge">100% Free · No Watermark</span>
+</nav>
+<button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Open tools menu">☰ Tools</button>
+<div class="mobile-nav" id="mobileNav">
+  <a href="/">🎬 Convert Video &mdash; 16:9 &harr; 9:16</a>
+  <a href="/pdf" class="active">📄 Convert PDF, Images, Word &amp; Excel</a>
+</div>
+<script>document.getElementById('mobileNavToggle').onclick=function(){document.getElementById('mobileNav').classList.toggle('open')};</script>
+
+<header class="hero">
+  <div class="hero-badge">Free · No Upload · No Watermark · No Signup</div>
+  <h1>Free <em>file converter</em></h1>
+  <p class="hero-sub">PDF, images, Word and spreadsheets. Drop a file and we'll show you what it can become — all in your browser, nothing uploaded.</p>
+  <div class="trust-row">
+    <span class="ti">✓ Nothing uploaded</span>
+    <span class="ti">✓ No watermark</span>
+    <span class="ti">✓ No signup</span>
+    <span class="ti">✓ Unlimited</span>
+  </div>
+</header>
+
+<main class="tool-wrap">
+  <div class="tool-card">
+    <div class="uni-wrap">
+
+      <input type="file" id="fileInput" multiple>
+      <label for="fileInput" class="drop-zone" id="dropZone" style="margin:0;">
+        <div class="drop-icon">📁</div>
+        <p class="drop-title">Drop your files here or click to browse</p>
+        <p class="drop-sub">PDF · JPG · PNG · WebP · DOCX · XLSX · CSV · JSON · TXT</p>
+      </label>
+
+      <div id="popular">
+        <p class="pop-title">Popular conversions</p>
+        <div class="pop-grid">
+          <div class="pop-card"><span class="pop-from">PDF</span><span class="pop-arrow">&rarr;</span><span class="pop-to">JPG</span><span class="pop-note">Every page as an image</span></div>
+          <div class="pop-card"><span class="pop-from">JPG</span><span class="pop-arrow">&rarr;</span><span class="pop-to">PDF</span><span class="pop-note">Merge photos into one file</span></div>
+          <div class="pop-card"><span class="pop-from">PDF</span><span class="pop-arrow">&rarr;</span><span class="pop-to">Word</span><span class="pop-note">Get editable text out</span></div>
+          <div class="pop-card"><span class="pop-from">Word</span><span class="pop-arrow">&rarr;</span><span class="pop-to">PDF</span><span class="pop-note">Share it anywhere</span></div>
+          <div class="pop-card"><span class="pop-from">PNG</span><span class="pop-arrow">&rarr;</span><span class="pop-to">JPG</span><span class="pop-note">Shrink the file size</span></div>
+          <div class="pop-card"><span class="pop-from">WebP</span><span class="pop-arrow">&rarr;</span><span class="pop-to">JPG</span><span class="pop-note">For older apps &amp; sites</span></div>
+          <div class="pop-card"><span class="pop-from">Excel</span><span class="pop-arrow">&rarr;</span><span class="pop-to">CSV</span><span class="pop-note">Plain data, no formatting</span></div>
+          <div class="pop-card"><span class="pop-from">CSV</span><span class="pop-arrow">&rarr;</span><span class="pop-to">Excel</span><span class="pop-note">Open as a workbook</span></div>
+          <div class="pop-card"><span class="pop-from">JSON</span><span class="pop-arrow">&rarr;</span><span class="pop-to">CSV</span><span class="pop-note">Flatten into a table</span></div>
+          <div class="pop-card"><span class="pop-from">PDF</span><span class="pop-arrow">&rarr;</span><span class="pop-to">Text</span><span class="pop-note">Strip out just the words</span></div>
+        </div>
+        <p class="pop-foot">Drop a file above and only the formats it can actually become will appear.</p>
+      </div>
+
+      <div id="stage2" class="hidden" style="margin-top:1.5rem;">
+        <p class="step-label"><span class="step-num-badge">1</span>Your files</p>
+        <div id="fileList" class="file-list"></div>
+
+        <p class="step-label"><span class="step-num-badge">2</span>Convert to</p>
+        <div id="targetGrid" class="target-grid"></div>
+
+        <div id="optsBox" class="opts hidden"></div>
+
+        <button class="xbtn" id="convertBtn" disabled>Choose an output format</button>
+
+        <div id="progressWrap" class="hidden" style="margin-top:12px;">
+          <div class="pbar"><div class="pfill" id="pfill"></div></div>
+          <p id="progressLabel" class="pl">Working…</p>
+        </div>
+
+        <div id="results"></div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<hr class="div">
+<section class="section">
+  <p class="eyebrow">Supported</p>
+  <h2>What you can convert</h2>
+  <p class="sec-sub">Every conversion below runs entirely in your browser. Nothing is ever uploaded.</p>
+  <table class="matrix">
+    <thead><tr><th>From</th><th>To</th></tr></thead>
+    <tbody>
+      <tr><td>PDF</td><td>JPG, PNG, Word (.doc), plain text</td></tr>
+      <tr><td>JPG / PNG / WebP / BMP / GIF</td><td>JPG, PNG, WebP, PDF</td></tr>
+      <tr><td>Word (.docx)</td><td>PDF, HTML, plain text</td></tr>
+      <tr><td>Excel (.xlsx / .xls)</td><td>CSV, Excel, TSV, JSON</td></tr>
+      <tr><td>CSV / TSV</td><td>Excel (.xlsx), CSV, TSV, JSON</td></tr>
+      <tr><td>JSON</td><td>CSV, Excel (.xlsx)</td></tr>
+      <tr><td>Plain text</td><td>PDF, Word (.doc)</td></tr>
+    </tbody>
+  </table>
+  <div class="note-box">
+    <strong>Why no PowerPoint?</strong> Rendering .pptx faithfully needs a full office engine running on a server — which would mean uploading your file. We only ship conversions that can run privately on your own device. Everything above is genuinely free with no limits and no watermark.
+  </div>
+</section>
+
+<hr class="div">
+<section class="section">
+  <p class="eyebrow">How it works</p>
+  <h2>Convert in three steps</h2>
+  <div class="steps-grid">
+    <div class="step"><p class="step-n">Step 1</p><p class="step-t">Drop your file</p><p class="step-b">Any supported format. Drop several at once to batch convert or merge images into one PDF.</p></div>
+    <div class="step"><p class="step-n">Step 2</p><p class="step-t">Pick the output</p><p class="step-b">We detect your file type and show only the formats it can actually become. No guesswork.</p></div>
+    <div class="step"><p class="step-n">Step 3</p><p class="step-t">Download</p><p class="step-b">Convert and download instantly. No watermark, no signup, no daily limit.</p></div>
+  </div>
+</section>
+
+<hr class="div">
+<section class="section">
+  <p class="eyebrow">FAQ</p>
+  <h2>Frequently asked questions</h2>
+  <div class="faq-list" style="margin-top:1.5rem;">
+    <div class="faq-item"><button class="faq-q">How do I convert PDF to JPG for free?<span>+</span></button><div class="faq-a">Drop your PDF in, choose JPG, pick a quality level, and download each page. Free, no signup, nothing uploaded.</div></div>
+    <div class="faq-item"><button class="faq-q">How do I convert JPG to PDF?<span>+</span></button><div class="faq-a">Select one or more images, choose PDF, set your page size, and download a single combined PDF. Drop multiple images to merge them in order.</div></div>
+    <div class="faq-item"><button class="faq-q">How do I convert PNG to JPG?<span>+</span></button><div class="faq-a">Drop your PNG files, choose JPG, adjust quality, and download. Transparent areas are filled with white since JPG has no transparency.</div></div>
+    <div class="faq-item"><button class="faq-q">How do I convert Excel to CSV?<span>+</span></button><div class="faq-a">Upload your XLSX or XLS file, choose CSV, and download instantly.</div></div>
+    <div class="faq-item"><button class="faq-q">Are my files uploaded anywhere?<span>+</span></button><div class="faq-a">No. Every conversion runs in your browser using JavaScript. Your files never leave your device, which is why there are no size limits or daily caps.</div></div>
+    <div class="faq-item"><button class="faq-q">Why doesn't PDF to Word keep my layout?<span>+</span></button><div class="faq-a">Layout-preserving PDF to Word needs commercial server-side libraries. This tool extracts the text so you can edit the words, which covers most needs. Images and tables are not carried over.</div></div>
+    <div class="faq-item"><button class="faq-q">Can I convert PowerPoint files?<span>+</span></button><div class="faq-a">Not yet. Rendering .pptx requires a server-side office engine, which would mean uploading your file. We only offer conversions that stay private on your device.</div></div>
+    <div class="faq-item"><button class="faq-q">Is there a file size limit?<span>+</span></button><div class="faq-a">No hard limit. Files under 50 MB are quick. Very large PDFs may take longer depending on your device.</div></div>
+  </div>
+</section>
+
+<hr class="div">
+<footer>
+  <p style="margin-bottom:6px;"><strong>ConvertShorts</strong> — Free Video &amp; File Converters</p>
+  <p><a href="/" style="color:var(--muted);">Video Converter</a> · <a href="/pdf" style="color:var(--muted);">File Converter</a></p>
+  <p style="margin-top:6px;">PDF to JPG · JPG to PDF · PDF to Word · PNG to JPG · Excel to CSV · No Upload · No Watermark</p>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="pdftool.js"></script>
+<script>
+(function(){
+  var inp=document.getElementById("fileInput"), pop=document.getElementById("popular"), st=document.getElementById("stage2");
+  function sync(){ if(pop&&st) pop.style.display = st.classList.contains("hidden") ? "" : "none"; }
+  if(inp) inp.addEventListener("change", function(){ setTimeout(sync,300); });
+  var dz=document.getElementById("dropZone"); if(dz) dz.addEventListener("drop", function(){ setTimeout(sync,400); });
+  if(st) new MutationObserver(sync).observe(st,{attributes:true,attributeFilter:["class"]});
+})();
+</script>
+</body>
+</html>

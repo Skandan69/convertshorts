@@ -143,9 +143,21 @@
 <body>
 
 <nav>
-  <a href="/" class="logo">Convert<span>Shorts</span></a>
+  <div class="nav-left">
+    <a href="/" class="logo">Convert<span>Shorts</span></a>
+    <div class="nav-links">
+      <a href="/" class="active">🎬 Video</a>
+      <a href="/pdf">📄 Files</a>
+    </div>
+  </div>
   <span class="nav-badge">100% Free · No Watermark</span>
 </nav>
+<button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Open tools menu">☰ Tools</button>
+<div class="mobile-nav" id="mobileNav">
+  <a href="/" class="active">🎬 Video Converter</a>
+  <a href="/pdf">📄 File Converter</a>
+</div>
+<script>document.getElementById('mobileNavToggle').onclick=function(){document.getElementById('mobileNav').classList.toggle('open')};</script>
 
 <header class="hero">
   <div class="hero-badge">Free · No Upload · No Watermark · No Account</div>

@@ -1,0 +1,232 @@
+:root{
+  --bg:#faf8ff; --panel:#ffffff; --border:#e2e4e9; --text:#1f2430;
+  --muted:#6b7280; --accent:#7c3aed; --accent-hover:#6d28d9; --accent-pink:#ec4899;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0; font-family:'Segoe UI',Arial,sans-serif; color:var(--text);
+  background:linear-gradient(180deg,#f5eeff 0%,#fdfbff 420px,var(--bg) 420px);
+  display:flex; flex-direction:column; align-items:center; padding:0 16px 60px;
+}
+h1{font-size:34px; font-weight:800; letter-spacing:-0.5px; margin:8px 0 8px; color:#1e1436; text-align:center; max-width:760px;}
+h1 .hl{background:linear-gradient(135deg,#7c3aed,#f59e0b); -webkit-background-clip:text; background-clip:text; color:transparent;}
+.subtitle{color:#5b5578; font-size:15px; margin:0 0 16px; text-align:center; max-width:640px; line-height:1.6;}
+.site-nav{ width:100%; max-width:1150px; margin:0 auto; padding:18px 4px 10px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+.site-nav-logo{ font-weight:800; font-size:18px; color:#3c2a86; display:flex; align-items:center; gap:8px; }
+.site-nav-logo .dot{ width:9px; height:9px; border-radius:50%; background:#f59e0b; display:inline-block; }
+.site-nav nav{ display:flex; gap:22px; }
+.site-nav nav a{ font-size:13px; color:#55507a; text-decoration:none; font-weight:600; cursor:pointer; }
+.site-nav nav a:hover{ color:#3c2a86; }
+.nav-cta{ background:linear-gradient(135deg,#7c3aed,#ec4899); color:#fff; padding:9px 18px; border-radius:999px; font-weight:700; font-size:13px; border:none; cursor:pointer; }
+.nav-cta:hover{ background:linear-gradient(135deg,#6d28d9,#db2777); }
+.hero-badges{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin:0 0 22px; }
+.hero-badges span{ background:#f4eefe; color:#6d28d9; font-size:12px; font-weight:700; padding:6px 12px; border-radius:999px; }
+.layout{display:flex; gap:14px; flex-wrap:wrap; justify-content:center; align-items:flex-start; width:100%; max-width:1650px;}
+.panel{
+  background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:14px;
+  width:296px; flex-shrink:0;
+  max-height: calc(100vh - 170px); overflow-y: auto;
+  box-shadow:0 2px 10px rgba(124,58,237,0.06);
+ flex-shrink: 1; min-width: 220px;}
+.panel h2{font-size:13px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); margin:0 0 10px;}
+.field{margin-bottom:12px;}
+.field label{display:block; font-size:12px; color:var(--muted); margin-bottom:4px;}
+select, input[type=text], input[type=number], input[type=range]{width:100%;}
+select, input[type=text], input[type=number]{
+  padding:6px 8px; border:1px solid var(--border); border-radius:6px; font-size:13px; background:#fff;
+}
+.row{display:flex; gap:10px;}
+.row .field{flex:1;}
+.gender-toggle{display:flex; gap:8px; font-size:12px;}
+.gender-toggle label{display:flex; align-items:center; gap:4px; font-weight:normal; color:var(--text);}
+input[type=color]{width:42px; height:28px; border:1px solid var(--border); border-radius:6px; padding:2px; background:#fff;}
+.color-row{display:flex; align-items:center; gap:10px;}
+.checkbox-field{display:flex; align-items:center; gap:6px; font-size:13px; margin:8px 0;}
+.stage-wrap{
+  background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:14px;
+  display:flex; flex-direction:column; align-items:center; gap:12px;
+  flex-shrink:0; max-height: calc(100vh - 170px); overflow-y: auto;
+  box-shadow:0 2px 10px rgba(124,58,237,0.06);
+}
+canvas{background:#fff; border-radius:8px; border:1px solid var(--border); max-width:100%;}
+.controls-row{display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:center;}
+button{
+  border:none; border-radius:10px; padding:9px 16px; font-size:13px; cursor:pointer;
+  background:var(--accent); color:#fff; font-weight:600;
+  transition:background-color .15s ease, transform .05s ease, box-shadow .15s ease;
+}
+button:hover{background:var(--accent-hover); box-shadow:0 6px 14px rgba(124,58,237,.22);}
+button:active:not(:disabled){transform:scale(0.97);}
+button.secondary{background:#eef0f4; color:var(--text);}
+button.secondary:hover{background:#e2e4e9;}
+button.small{padding:6px 10px; font-size:12px;}
+button:disabled{opacity:.5; cursor:not-allowed;}
+
+/* Consistent keyboard-focus ring across every interactive control (buttons, icon-buttons, selects,
+   inputs) — previously relied entirely on each browser's own default focus treatment, which is
+   inconsistent (and sometimes near-invisible) across browsers/OSes. Only shows for keyboard/assistive
+   navigation (:focus-visible), so it never appears as a stray outline after a plain mouse click. */
+button:focus-visible, .icon-btn:focus-visible, select:focus-visible,
+input[type=text]:focus-visible, input[type=number]:focus-visible,
+input[type=color]:focus-visible, input[type=checkbox]:focus-visible,
+input[type=range]:focus-visible{
+  outline:2px solid var(--accent); outline-offset:2px;
+}
+select:focus, input[type=text]:focus, input[type=number]:focus{
+  border-color:var(--accent); outline:none;
+}
+input[type=checkbox]{accent-color:var(--accent);}
+/* AI-assisted generation button (js/ui.js -> POST /api/generate-scene): a distinct violet gradient so
+   it reads as "smarter but optional", separate from the always-free instant keyword-parser button. */
+.ai-btn{background:linear-gradient(135deg,#7c3aed,#c026d3); color:#fff;}
+.ai-btn:hover{background:linear-gradient(135deg,#6d28d9,#a21caf);}
+.speed-wrap{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted);}
+.export-box{width:100%; text-align:center;}
+video{max-width:100%; border-radius:8px; margin-top:8px; display:none; border:1px solid var(--border);}
+a.download-link{
+  display:none; margin-top:8px; font-size:13px; color:var(--accent); text-decoration:none; font-weight:600;
+ padding:10px 18px; font-weight:600; font-size:14px; border-radius:10px; background:#16a34a; color:#fff; box-shadow:0 2px 8px rgba(22,163,74,0.25); text-decoration:none;}
+.note{
+  font-size:12px; color:var(--muted); max-width:1100px; margin-top:18px; text-align:center; line-height:1.5;
+}
+hr.sep{border:none; border-top:1px solid var(--border); margin:14px 0;}
+
+.segment-card{border:1px solid var(--border); border-radius:8px; padding:10px; margin-bottom:10px; background:#fafbfc; transition:opacity .15s, border-color .15s, box-shadow .15s;}
+.segment-card:hover{box-shadow:0 1px 4px rgba(15,17,23,0.06);}
+.segment-card.dragging{opacity:.4;}
+.segment-card.drag-over{border-color:var(--accent); border-style:dashed;}
+.segment-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; gap:6px;}
+.segment-head strong{font-size:12px; color:var(--text); flex:1;}
+.drag-handle{cursor:grab; color:var(--muted); font-size:12px; line-height:1; letter-spacing:-2px; user-select:none;}
+.segment-actions-row{display:flex; gap:4px;}
+.icon-btn{width:26px; height:26px; border-radius:6px; border:1px solid var(--border); background:#fff; cursor:pointer; font-size:12px; padding:0; color:var(--text); font-weight:600; transition:background-color .15s ease, transform .05s ease;}
+.icon-btn:hover{background:#f1f2f5;}
+.icon-btn:active:not(:disabled){transform:scale(0.93);}
+.icon-btn.danger{color:#dc2626; border-color:#fecdd3;}
+.icon-btn.danger:hover{background:#fef2f2;}
+.icon-btn:disabled{opacity:.35; cursor:not-allowed;}
+.timeline-total{font-size:12px; color:var(--muted); margin:0 0 10px;}
+#addSegmentBtn{width:100%;}
+
+/* Shown under a character's direction dropdown when they have a dragged custom end-position for this
+   segment (task #28: drag directly on the canvas preview) — the dropdown alone can't reflect a custom
+   position, so this note plus inline clear button makes the override visible and reversible. */
+.drag-target-note{font-size:11px; color:var(--accent); margin-top:4px; display:flex; align-items:center; gap:6px;}
+.drag-target-note .icon-btn{width:auto; height:auto; padding:2px 6px; font-size:11px; font-weight:500;}
+#stage{cursor:default;}
+
+/* Canva/CapCut-style visual timeline strip: segments as proportionally-sized colored blocks with a
+   moving playhead, sitting above the detailed segment cards (which stay the source of truth for
+   editing — the strip is a navigational/visual overview, click a block or its card to jump there). */
+.timeline-strip{
+  display:flex; gap:2px; height:40px; border-radius:6px; overflow:hidden;
+  margin-bottom:10px; border:1px solid var(--border); position:relative; background:#eef0f4;
+}
+.timeline-strip-block{
+  display:flex; align-items:center; gap:3px; flex-shrink:0; position:relative;
+  font-size:10px; font-weight:600; color:#fff; padding:0 3px 0 2px;
+  overflow:hidden; transition:filter .1s;
+  border-right:1px solid rgba(255,255,255,0.35);
+}
+.timeline-strip-block:hover{ filter:brightness(1.08); }
+.timeline-strip-block.dragging{ opacity:.4; }
+.timeline-strip-block.drag-over{ outline:2px dashed #fff; outline-offset:-2px; }
+.strip-drag-handle{
+  cursor:grab; flex-shrink:0; font-size:9px; letter-spacing:-1px; opacity:.85; line-height:1;
+}
+.strip-label{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; pointer-events:none; }
+.strip-resize-handle{
+  flex-shrink:0; width:6px; align-self:stretch; cursor:ew-resize; margin-right:-3px;
+  border-right:2px solid rgba(255,255,255,0.6);
+}
+.strip-resize-handle:hover{ border-right-color:#fff; }
+.timeline-strip-playhead{
+  position:absolute; top:0; bottom:0; width:2px; background:#111;
+  pointer-events:none; transition:left .05s linear; z-index:2;
+}
+
+/* Headline-feature callout for the Pose Designer (see index.html) — distinct violet theme matching
+   .ai-btn so it reads as "the smart/premium capability" the way the AI generate button already does. */
+.scene-designer-cta{
+  width:100%; max-width:1150px; margin:0 auto 18px; box-sizing:border-box;
+  background:linear-gradient(135deg,#f5f3ff,#fdf4ff); border:1px solid #ddd6fe; border-radius:18px;
+  padding:14px 20px; display:flex; align-items:center; justify-content:space-between; gap:18px; flex-wrap:wrap;
+  box-shadow:0 8px 24px rgba(124,58,237,.08);
+}
+.scene-designer-cta-text strong{font-size:14px; color:#4c1d95;}
+.scene-designer-cta-text p{font-size:12px; color:#5b21b6; margin:4px 0 0; line-height:1.5; max-width:720px;}
+.scene-designer-cta button{
+  flex-shrink:0; background:linear-gradient(135deg,#7c3aed,#c026d3); color:#fff; padding:10px 18px;
+}
+.scene-designer-cta button:hover{background:linear-gradient(135deg,#6d28d9,#a21caf);}
+
+/* Pose Designer overlay (js/ui.js): the one auxiliary "modal" surface in this app, introduced for this
+   feature specifically since there's a real reason to leave the normal editing layout entirely (posing
+   sliders + a live preview need focus/room a permanently-docked panel wouldn't have). Everything else
+   in this app is an always-in-flow .panel; this stays the exception, on purpose. */
+.designer-overlay{
+  position:fixed; inset:0; background:rgba(15,17,23,0.55); z-index:50;
+  display:flex; align-items:center; justify-content:center; padding:20px;
+  animation:designerFadeIn .12s ease;
+}
+.designer-panel{
+  background:var(--panel); border-radius:14px; padding:18px 20px; width:100%; max-width:960px;
+  max-height:92vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.35);
+  animation:designerPanelIn .15s ease;
+}
+/* Small entrance motion for the Pose Designer modal — this is the app's one true "leave the normal
+   flow" surface (see the comment above), so a brief fade/scale-in on open makes that transition read
+   as intentional instead of an abrupt pop, matching the overlay dimming which already fades the rest
+   of the page. Purely cosmetic: no layout/timing behavior changes. */
+@keyframes designerFadeIn{ from{opacity:0;} to{opacity:1;} }
+@keyframes designerPanelIn{ from{opacity:0; transform:translateY(6px) scale(0.98);} to{opacity:1; transform:none;} }
+.designer-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;}
+.designer-head h2{font-size:16px; margin:0;}
+.designer-body{display:flex; gap:18px; flex-wrap:wrap;}
+/* Wide enough that the drag-to-pose handles (js/ui.js) are actually grabbable — this used to be a
+   240px thumbnail sized for glancing at the pose, not for precisely dragging a hand or foot on it. */
+.designer-preview{
+  flex:0 0 360px; display:flex; flex-direction:column; align-items:center; gap:8px;
+  background:#fafbfc; border:1px solid var(--border); border-radius:10px; padding:10px;
+}
+.designer-preview canvas{max-width:100%; cursor:default;}
+.designer-preview-controls{display:flex; flex-direction:column; align-items:center; gap:4px; width:100%;}
+.designer-controls{flex:1; min-width:280px; display:flex; flex-direction:column; gap:4px;}
+.designer-sliders{
+  display:grid; grid-template-columns:1fr 1fr; gap:4px 14px;
+  max-height:260px; overflow-y:auto; padding-right:4px;
+}
+.designer-slider-row{font-size:11px; color:var(--text);}
+.designer-slider-row label{display:flex; justify-content:space-between; color:var(--muted); margin-bottom:2px;}
+.designer-slider-val{color:var(--text); font-weight:600;}
+.designer-keyframes{border-top:1px dashed var(--border); padding-top:8px; margin-top:6px;}
+.designer-kf-row{
+  display:flex; align-items:center; gap:6px; font-size:12px; padding:4px 6px; border-radius:6px;
+  margin-bottom:4px; background:#fafbfc; border:1px solid var(--border); cursor:pointer;
+  transition:background-color .1s ease, border-color .1s ease;
+}
+.designer-kf-row:hover{background:#f1f2f5;}
+.designer-kf-row.active{border-color:var(--accent); background:#eef2ff;}
+.designer-kf-row input[type=number]{width:52px; padding:3px 5px; font-size:12px;}
+.designer-kf-s{color:var(--muted); font-size:11px;}
+.designer-foot{display:flex; justify-content:flex-end; gap:8px; margin-top:14px;}
+
+/* Flipbook Animator (index.html + js/flipbook.js): a standalone hand-drawn, frame-by-frame animation
+   tool, unrelated to the character/scene timeline elsewhere on the page. Reuses the same
+   designer-overlay/designer-panel/designer-head/designer-body/designer-controls shell as the Pose
+   Designer so it doesn't need its own modal chrome. */
+.flip-stage{
+  flex:0 0 480px; display:flex; flex-direction:column; align-items:center; gap:8px;
+  background:#fafbfc; border:1px solid var(--border); border-radius:10px; padding:10px; position:relative;
+}
+.flip-stage canvas{max-width:100%; border-radius:8px; touch-action:none;}
+#flipGhost{position:absolute; left:10px; top:10px; pointer-events:none; opacity:0;}
+.flip-strip{display:flex; gap:6px; overflow-x:auto; padding:8px 0; margin-bottom:4px;}
+.flip-frame{position:relative; flex:0 0 auto; border:2px solid var(--border); border-radius:6px; overflow:hidden; cursor:pointer; background:#fff;}
+.flip-frame.on{border-color:var(--accent);}
+.flip-frame canvas{display:block; width:80px; height:50px;}
+.flip-frame b{position:absolute; left:2px; top:0; font-size:9px; color:var(--muted); background:#fff9; padding:0 3px; border-radius:3px;}
+.flip-palette{display:flex; flex-wrap:wrap; gap:6px;}
+.flip-sw{width:22px; height:22px; border-radius:50%; border:2px solid #fff; outline:1px solid var(--border); cursor:pointer;}
+.flip-sw.on{outline:2px solid var(--accent); outline-offset:2px;}
+.designer-controls button.on{background:var(--accent); color:#fff;}

@@ -1,5 +1,12 @@
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+const PDF_WORKER_URL = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+try {
+  const x = new XMLHttpRequest();
+  x.open('GET', PDF_WORKER_URL, false);
+  x.send();
+  pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(new Blob([x.responseText], { type: 'text/javascript' }));
+} catch (e) {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = PDF_WORKER_URL;
+}
 
 let files = [];
 let sourceKind = null;

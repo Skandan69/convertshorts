@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
 
+# staging copies, not for indexing
+Disallow: /c2s/
+
 Sitemap: https://convertshorts.com/sitemap.xml

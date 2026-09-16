@@ -25,6 +25,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://convertshorts.com/stickframe</loc>
+    <lastmod>2026-09-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://convertshorts.com/canvas</loc>
     <lastmod>2026-09-14</lastmod>
     <changefreq>weekly</changefreq>

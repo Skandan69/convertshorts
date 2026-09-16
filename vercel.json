@@ -35,5 +35,17 @@
       ]
     }
   ],
-  "cleanUrls": true
+  "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/c2s",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/c2s/:path*",
+      "destination": "/",
+      "permanent": true
+    }
+  ]
 }

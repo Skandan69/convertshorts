@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BFWSBHKF1P"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-BFWSBHKF1P');</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free Bar Chart Race Maker — Animated Ranking Video, No Watermark</title>
+<meta name="description" content="Make a bar chart race video free. Paste your data, add photos, and export an animated ranking chart for YouTube, Reels, Shorts or TikTok. No upload, no sign-up, no watermark.">
+<meta name="keywords" content="bar chart race, bar chart race maker, bar chart race generator free, animated bar chart, racing bar chart, ranking animation video, data animation maker, animated chart video, chart race online free, make bar chart race youtube, data visualisation video, animated graph maker, no watermark chart animation, flourish alternative free, bar graph race creator">
+<link rel="canonical" href="https://convertshorts.com/chart-race">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="Free Bar Chart Race Maker — Animated Ranking Videos">
+<meta property="og:description" content="Paste data, add photos, export an animated ranking video. Free, no upload, no watermark.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://convertshorts.com/chart-race">
+<meta property="og:image" content="https://convertshorts.com/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Bar Chart Race Maker","description":"Free browser-based bar chart race generator. Paste data and export an animated ranking video with no watermark.","url":"https://convertshorts.com/chart-race","applicationCategory":"MultimediaApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"What is a bar chart race?","acceptedAnswer":{"@type":"Answer","text":"A bar chart race is an animated ranking chart. Bars grow and overtake each other as the values change over time, which makes it an easy way to show how a leaderboard shifted across days, months or years."}},
+{"@type":"Question","name":"Is this bar chart race maker free?","acceptedAnswer":{"@type":"Answer","text":"Yes. It is free with no account, no export limit and no watermark on your video."}},
+{"@type":"Question","name":"What data format do I need?","acceptedAnswer":{"@type":"Answer","text":"A simple table. The first column is the name, and every column after it is one step in time. Paste it in or upload a CSV exported from Excel or Google Sheets."}},
+{"@type":"Question","name":"Can I add photos to the bars?","acceptedAnswer":{"@type":"Answer","text":"Yes. Each row can have its own photo, which appears as a circular avatar at the end of that bar, and its own colour."}},
+{"@type":"Question","name":"Can I make a vertical bar chart race for Reels or Shorts?","acceptedAnswer":{"@type":"Answer","text":"Yes. Choose the 9:16 portrait size to export a vertical video sized for Instagram Reels, YouTube Shorts and TikTok. There is also 16:9 landscape and 1:1 square."}},
+{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The chart is drawn and recorded entirely in your browser, so your data and photos never leave your device."}}]}</script>
+<link rel="stylesheet" href="/style.css">
+<style>
+.cr-wrap{max-width:1180px;margin:0 auto;padding:0 1.5rem 3rem;}
+.cr-grid{display:grid;grid-template-columns:340px 1fr;gap:1.25rem;align-items:start;}
+.cr-panel{background:var(--white);border:1.5px solid var(--border);border-radius:var(--rl);padding:1rem;}
+.cr-stagewrap{background:var(--white);border:1.5px solid var(--border);border-radius:var(--rl);padding:1rem;}
+#stage{display:block;width:100%;height:auto;background:#0f1117;border-radius:10px;max-height:62vh;margin:0 auto;}
+.cr-label{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:0 0 6px;}
+.cr-sub{font-size:12px;color:var(--muted);margin:6px 0 0;line-height:1.5;}
+textarea#data{width:100%;height:150px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:1.5;padding:9px;border:1px solid var(--border);border-radius:8px;resize:vertical;background:var(--off);}
+.cr-row{display:flex;align-items:center;gap:9px;margin-bottom:9px;}
+.cr-row label{font-size:12px;color:var(--muted);min-width:78px;}
+.cr-row select,.cr-row input[type=text]{flex:1;padding:6px 9px;border:1px solid var(--border);border-radius:7px;font-size:13px;background:var(--white);font-family:inherit;}
+.cr-row input[type=range]{flex:1;accent-color:var(--green);}
+.cr-row output{font-size:12px;color:var(--muted);min-width:34px;text-align:right;font-family:ui-monospace,monospace;}
+.cr-row input[type=color]{width:34px;height:26px;padding:0;border:1px solid var(--border);border-radius:6px;background:none;}
+.cr-btn{padding:8px 14px;border:1px solid var(--border);border-radius:8px;background:var(--white);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+.cr-btn:hover{background:var(--off);}
+.cr-btn.primary{background:var(--green);color:#fff;border-color:var(--green);}
+.cr-btn.primary:hover{background:var(--gd);}
+.cr-btn:disabled{opacity:.5;cursor:not-allowed;}
+.cr-bar{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap;}
+#scrub{flex:1;min-width:150px;accent-color:var(--green);}
+#rowList{max-height:190px;overflow-y:auto;margin-top:8px;}
+.row-item{display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid var(--border);}
+.row-item:last-child{border-bottom:none;}
+.row-name{flex:1;font-size:12.5px;color:var(--black);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.av-btn{font-size:11px;padding:3px 8px;border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--muted);}
+.av-btn:hover{background:var(--off);}
+.av-clear{border:1px solid var(--border);background:var(--white);border-radius:6px;width:22px;height:22px;cursor:pointer;color:var(--muted);line-height:1;}
+#dataErr{color:#A32D2D;font-size:12px;margin-top:6px;min-height:1em;}
+#exportNote{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5;}
+#meta{font-size:12px;color:var(--muted);margin-top:6px;}
+hr.cr-sep{border:none;border-top:1px solid var(--border);margin:14px 0;}
+@media(max-width:860px){.cr-grid{grid-template-columns:1fr;}#stage{max-height:none;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-left">
+    <a href="/" class="logo">Convert<span>Shorts</span></a>
+    <div class="nav-links">
+      <a href="/">🎬 Convert Video</a>
+      <a href="/pdf">📄 Convert PDF &amp; Docs</a>
+      <a href="/chart-race" class="active">📊 Chart Race</a>
+      <a href="/stickmotion">🎭 Stickman Animator</a>
+      <a href="/stickman-studio">🧑‍🎨 Stickman Studio</a>
+      <a href="/canvas">🧠 Infinite Canvas</a>
+      <a href="/art-studio">🎨 Art Studio</a>
+    </div>
+  </div>
+  <span class="nav-badge">100% Free · No Watermark</span>
+</nav>
+
+<header class="hero">
+  <div class="hero-badge">Free · No Upload · No Watermark · No Signup</div>
+  <h1>Free <em>bar chart race</em> maker</h1>
+  <p class="hero-sub">Paste your numbers, add a photo per row, and export an animated ranking video for YouTube, Reels, Shorts or TikTok. Everything renders in your browser.</p>
+  <div class="trust-row">
+    <span class="ti">✓ Nothing uploaded</span>
+    <span class="ti">✓ No watermark</span>
+    <span class="ti">✓ Photos on bars</span>
+    <span class="ti">✓ 16:9, 9:16 or 1:1</span>
+  </div>
+</header>
+
+<main class="cr-wrap">
+  <div class="cr-grid">
+
+    <div class="cr-panel">
+      <p class="cr-label">1 · Your data</p>
+      <textarea id="data" spellcheck="false">Name,Day 1,Day 5,Day 10,Day 20,Day 30,Day 45
+Rohith,74,820,1854,3200,4533,6120
+Trigun,10,540,1420,2410,3180,4260
+Mukesh,18,610,1103,1780,2527,3340
+Ramaprasad,17,430,944,1444,2010,2680
+Shalini,12,300,629,1029,1480,1960
+Debjani,9,240,503,803,1103,1470
+Jhansi,6,180,363,663,963,1280
+Sudheer,6,150,347,547,847,1130
+Varshini,4,120,318,518,718,960
+Srushti,3,100,309,509,709,940</textarea>
+      <p id="dataErr"></p>
+      <div class="cr-bar">
+        <button class="cr-btn primary" id="loadBtn">Load data</button>
+        <label class="cr-btn" style="margin:0;">Upload CSV<input type="file" id="csvFile" accept=".csv,.tsv,.txt" hidden></label>
+      </div>
+      <p class="cr-sub">First column is the name. Every column after it is one step in time. Paste straight from Excel or Google Sheets.</p>
+      <p id="meta"></p>
+
+      <hr class="cr-sep">
+      <p class="cr-label">2 · Rows, colours &amp; photos</p>
+      <div id="rowList"></div>
+
+      <hr class="cr-sep">
+      <p class="cr-label">3 · Look</p>
+      <div class="cr-row"><label>Title</label><input type="text" id="title" placeholder="Optional heading" value=""></div>
+      <div class="cr-row"><label>Size</label>
+        <select id="ratio">
+          <option value="landscape">16:9 landscape — YouTube</option>
+          <option value="portrait">9:16 portrait — Reels, Shorts, TikTok</option>
+          <option value="square">1:1 square — feed posts</option>
+        </select>
+      </div>
+      <div class="cr-row"><label>Bars shown</label><input type="range" id="topN" min="4" max="14" value="10"><output id="topNOut">10</output></div>
+      <div class="cr-row"><label>Seconds/step</label><input type="range" id="stepSecs" min="0.4" max="4" step="0.1" value="1.6"><output id="stepSecsOut">1.6s</output></div>
+      <div class="cr-row"><label>Background</label><input type="color" id="bg" value="#0f1117"><label style="min-width:auto;">Text</label><input type="color" id="fg" value="#ffffff"></div>
+      <div class="cr-row"><label>Running total</label><input type="checkbox" id="showTotal" checked style="accent-color:var(--green);"></div>
+    </div>
+
+    <div class="cr-stagewrap">
+      <canvas id="stage" width="1920" height="1080"></canvas>
+      <div class="cr-bar">
+        <button class="cr-btn" id="playBtn">▶ Play</button>
+        <input type="range" id="scrub" min="0" max="5" step="0.001" value="0">
+        <button class="cr-btn primary" id="exportBtn">⬇ Export video</button>
+      </div>
+      <p id="exportNote">Recording captures the canvas live, so keep this tab visible while it exports.</p>
+    </div>
+
+  </div>
+</main>
+
+<hr class="div">
+<section class="section">
+  <p class="eyebrow">How it works</p>
+  <h2>Make a bar chart race in three steps</h2>
+  <div class="steps-grid">
+    <div class="step"><p class="step-n">Step 1</p><p class="step-t">Paste your table</p><p class="step-b">Name in the first column, then one column per point in time. Copy straight out of Excel or Google Sheets, or upload a CSV.</p></div>
+    <div class="step"><p class="step-n">Step 2</p><p class="step-t">Set colours and photos</p><p class="step-b">Give each row its own colour and an optional photo, which shows as a circular avatar riding the end of its bar.</p></div>
+    <div class="step"><p class="step-n">Step 3</p><p class="step-t">Export the video</p><p class="step-b">Pick 16:9, 9:16 or 1:1, preview it, then export. No watermark and no sign-up.</p></div>
+  </div>
+</section>
+
+<hr class="div">
+<section class="section">
+  <p class="eyebrow">Why use this</p>
+  <h2>What makes it different</h2>
+  <div class="why-grid">
+    <div class="why-card"><div class="why-ic">🔒</div><p class="why-t">Your data stays yours</p><p class="why-b">The chart is drawn and recorded in your browser. Nothing you paste and no photo you add is ever sent to a server.</p></div>
+    <div class="why-card"><div class="why-ic">📱</div><p class="why-t">Made for vertical video</p><p class="why-b">Most chart race tools only export widescreen. Pick 9:16 and you get a video sized correctly for Reels, Shorts and TikTok.</p></div>
+    <div class="why-card"><div class="why-ic">🖼️</div><p class="why-t">Photos on the bars</p><p class="why-b">Add a face to each row and the ranking becomes far easier to follow than colour alone.</p></div>
+    <div class="why-card"><div class="why-ic">✅</div><p class="why-t">No watermark, no limit</p><p class="why-b">Export as many videos as you like. Nothing is stamped on them and nothing is capped.</p></div>
+  </div>
+</section>
+
+<hr class="div">
+<section class="section">
+  <p class="eyebrow">FAQ</p>
+  <h2>Frequently asked questions</h2>
+  <div class="faq-list" style="margin-top:1.5rem;">
+    <div class="faq-item"><button class="faq-q">What is a bar chart race?<span>+</span></button><div class="faq-a">An animated ranking chart. Bars grow and overtake each other as values change over time, making it easy to show how a leaderboard shifted across days, months or years.</div></div>
+    <div class="faq-item"><button class="faq-q">Is this bar chart race maker free?<span>+</span></button><div class="faq-a">Yes. No account, no export limit, no watermark.</div></div>
+    <div class="faq-item"><button class="faq-q">What data format do I need?<span>+</span></button><div class="faq-a">A simple table. First column is the name, every column after it is one step in time. Paste it in or upload a CSV from Excel or Google Sheets.</div></div>
+    <div class="faq-item"><button class="faq-q">Can I add photos to the bars?<span>+</span></button><div class="faq-a">Yes. Each row can have its own photo, shown as a circular avatar at the end of the bar, plus its own colour.</div></div>
+    <div class="faq-item"><button class="faq-q">Can I make a vertical chart race for Reels or Shorts?<span>+</span></button><div class="faq-a">Yes. Choose 9:16 portrait for Instagram Reels, YouTube Shorts and TikTok. 16:9 landscape and 1:1 square are also available.</div></div>
+    <div class="faq-item"><button class="faq-q">Is my data uploaded anywhere?<span>+</span></button><div class="faq-a">No. Everything runs in your browser, so your numbers and photos never leave your device.</div></div>
+    <div class="faq-item"><button class="faq-q">Why must I keep the tab visible while exporting?<span>+</span></button><div class="faq-a">The video is recorded from the live canvas, and browsers pause animation in background tabs to save power. Leave the tab in front and the recording will be smooth.</div></div>
+    <div class="faq-item"><button class="faq-q">What video format does it produce?<span>+</span></button><div class="faq-a">WebM, which plays in Chrome, Edge, Firefox and VLC, and uploads directly to YouTube, Instagram and TikTok.</div></div>
+  </div>
+</section>
+
+<hr class="div">
+<footer>
+  <p style="margin-bottom:6px;"><strong>ConvertShorts</strong> — Free browser-based tools</p>
+  <p><a href="/" style="color:var(--muted);">Video</a> · <a href="/pdf" style="color:var(--muted);">PDF &amp; Docs</a> · <a href="/chart-race" style="color:var(--muted);">Chart Race</a> · <a href="/stickmotion" style="color:var(--muted);">Stickman Animator</a> · <a href="/stickman-studio" style="color:var(--muted);">Stickman Studio</a> · <a href="/canvas" style="color:var(--muted);">Infinite Canvas</a> · <a href="/art-studio" style="color:var(--muted);">Art Studio</a></p>
+  <p style="margin-top:8px;"><a href="/about" style="color:var(--muted);">About</a> · <a href="/privacy" style="color:var(--muted);">Privacy Policy</a> · <a href="/terms" style="color:var(--muted);">Terms</a> · <a href="/contact" style="color:var(--muted);">Contact</a></p>
+  <p style="margin-top:10px;font-size:12px;">More from us: <a href="https://devaigames.com" rel="noopener" style="color:var(--muted);">DevAI Games</a> — free browser games, nothing to install</p>
+</footer>
+
+<script src="/chartrace.js"></script>
+</body>
+</html>

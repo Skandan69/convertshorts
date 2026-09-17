@@ -1148,38 +1148,7 @@ const GAME_ENGINE = '<!DOCTYPE html><html><head><meta charset="utf-8">'
 +' requestAnimationFrame(loop);}\n'
 +'function over(){state="done";if(score>best)best=score;\n'
 +' show("Game over","You scored <b>"+score+"</b>.<br>Best so far: "+best,"Play again");}\n'
-+'<\/script><section class="cs-seo">
-<h2>How to draw and animate online, free</h2>
-<p>Art Studio is a drawing and animation tool that runs entirely inside your browser. There is nothing to install, no account to make, and nothing you draw is ever uploaded to a server. It works on a laptop with a mouse, on a tablet with a stylus, and on a phone with your finger.</p>
-<h3>The four modes</h3>
-<p><strong>Draw</strong> is a straightforward sketching canvas with pencil, ink pen, marker and crayon brushes. Each brush behaves differently: pencil gives a light, textured line good for roughing out shapes, while ink pen lays down a solid, consistent stroke better suited to finished outlines.</p>
-<p><strong>Colour in</strong> turns a line drawing into something you can fill. Useful if you have outlines you want to shade without worrying about going over the edges.</p>
-<p><strong>Animate</strong> is where the frame-by-frame work happens. Add a frame, draw the next position, and repeat. The faint ghost of the previous frame stays visible behind your current one so you can line movement up accurately.</p>
-<p><strong>Make a game</strong> takes what you have drawn and puts it into a simple playable scene.</p>
-<h3>What onion skinning is, and why it matters</h3>
-<p>Onion skinning is the single most useful feature if you are animating. It shows a semi-transparent copy of the previous frame underneath the one you are drawing, so you can see exactly how far something has moved. Traditional animators worked this way for decades using translucent paper on a lightbox, and the principle has not changed.</p>
-<p>Without it you are guessing at spacing between frames, and the result tends to jitter. With it, you can keep a walk cycle or a bouncing ball consistent. The onion skin slider controls how strongly the previous frame shows through, so turn it up while blocking out rough movement and down when you are adding detail.</p>
-<h3>Making your first animation</h3>
-<ol>
-<li><strong>Start simple.</strong> A ball bouncing is the classic first exercise because it teaches timing and spacing without needing drawing skill.</li>
-<li><strong>Draw your first frame,</strong> then press Add to create the next one. The previous drawing appears faintly behind it.</li>
-<li><strong>Move the object a little,</strong> not a lot. Small changes between frames give smooth motion. Large jumps look choppy.</li>
-<li><strong>Use Copy</strong> when the next frame is mostly the same as the last one, then adjust only what moves.</li>
-<li><strong>Set your speed.</strong> Eight frames per second is a good default for hand-drawn work; twelve feels smoother but needs more drawings.</li>
-<li><strong>Press Play</strong> to check the loop, then export as a WebM video when you are happy.</li>
-</ol>
-<h3>Timing: fewer frames than you think</h3>
-<p>A common mistake is drawing too many frames. Much traditional animation is made "on twos", meaning each drawing is held for two frames of video. At 24 frames per second that means twelve drawings per second rather than twenty-four, and the eye reads it as perfectly smooth. Starting at eight frames per second here keeps the workload sane while you learn.</p>
-<h3>Exporting your work</h3>
-<p>Animations export as WebM video, which uploads directly to YouTube, Instagram and TikTok, and plays in Chrome, Edge, Firefox and VLC. Single frames can be saved as PNG. One thing to know: recording captures the canvas as it plays, so keep the tab visible until it finishes. Browsers deliberately pause animation in background tabs to save battery, which would leave you with a stalled recording.</p>
-<h3>Your work stays on your device</h3>
-<p>Everything here is computed by your own browser. No drawing, frame or exported video is transmitted anywhere. That also means we cannot recover your work if you close the tab without exporting, so save anything you want to keep.</p>
-</section>
-<div class="cs-foot">
-<p style="margin:0 0 6px"><strong>ConvertShorts</strong> &mdash; free browser-based tools</p>
-<p style="margin:0"><a href="/">Video</a> &middot; <a href="/pdf">PDF &amp; Docs</a> &middot; <a href="/chart-race">Chart Race</a> &middot; <a href="/stickmotion">Stickman Animator</a> &middot; <a href="/canvas">Infinite Canvas</a> &middot; <a href="/art-studio">Art Studio</a></p>
-<p style="margin:8px 0 0"><a href="/about">About</a> &middot; <a href="/privacy">Privacy</a> &middot; <a href="/terms">Terms</a> &middot; <a href="/contact">Contact</a></p>
-</div>
++'<\/script>
 </body></html>';
 
 function buildGame(){
@@ -1272,5 +1241,37 @@ $$(".tab").forEach(t=>t.onclick=()=>{
 fitPaper();
 setColour("#1b1f27");
 </script>
+<section class="cs-seo">
+<h2>How to draw and animate online, free</h2>
+<p>Art Studio is a drawing and animation tool that runs entirely inside your browser. There is nothing to install, no account to make, and nothing you draw is ever uploaded to a server. It works on a laptop with a mouse, on a tablet with a stylus, and on a phone with your finger.</p>
+<h3>The four modes</h3>
+<p><strong>Draw</strong> is a straightforward sketching canvas with pencil, ink pen, marker and crayon brushes. Each brush behaves differently: pencil gives a light, textured line good for roughing out shapes, while ink pen lays down a solid, consistent stroke better suited to finished outlines.</p>
+<p><strong>Colour in</strong> turns a line drawing into something you can fill. Useful if you have outlines you want to shade without worrying about going over the edges.</p>
+<p><strong>Animate</strong> is where the frame-by-frame work happens. Add a frame, draw the next position, and repeat. The faint ghost of the previous frame stays visible behind your current one so you can line movement up accurately.</p>
+<p><strong>Make a game</strong> takes what you have drawn and puts it into a simple playable scene.</p>
+<h3>What onion skinning is, and why it matters</h3>
+<p>Onion skinning is the single most useful feature if you are animating. It shows a semi-transparent copy of the previous frame underneath the one you are drawing, so you can see exactly how far something has moved. Traditional animators worked this way for decades using translucent paper on a lightbox, and the principle has not changed.</p>
+<p>Without it you are guessing at spacing between frames, and the result tends to jitter. With it, you can keep a walk cycle or a bouncing ball consistent. The onion skin slider controls how strongly the previous frame shows through, so turn it up while blocking out rough movement and down when you are adding detail.</p>
+<h3>Making your first animation</h3>
+<ol>
+<li><strong>Start simple.</strong> A ball bouncing is the classic first exercise because it teaches timing and spacing without needing drawing skill.</li>
+<li><strong>Draw your first frame,</strong> then press Add to create the next one. The previous drawing appears faintly behind it.</li>
+<li><strong>Move the object a little,</strong> not a lot. Small changes between frames give smooth motion. Large jumps look choppy.</li>
+<li><strong>Use Copy</strong> when the next frame is mostly the same as the last one, then adjust only what moves.</li>
+<li><strong>Set your speed.</strong> Eight frames per second is a good default for hand-drawn work; twelve feels smoother but needs more drawings.</li>
+<li><strong>Press Play</strong> to check the loop, then export as a WebM video when you are happy.</li>
+</ol>
+<h3>Timing: fewer frames than you think</h3>
+<p>A common mistake is drawing too many frames. Much traditional animation is made "on twos", meaning each drawing is held for two frames of video. At 24 frames per second that means twelve drawings per second rather than twenty-four, and the eye reads it as perfectly smooth. Starting at eight frames per second here keeps the workload sane while you learn.</p>
+<h3>Exporting your work</h3>
+<p>Animations export as WebM video, which uploads directly to YouTube, Instagram and TikTok, and plays in Chrome, Edge, Firefox and VLC. Single frames can be saved as PNG. One thing to know: recording captures the canvas as it plays, so keep the tab visible until it finishes. Browsers deliberately pause animation in background tabs to save battery, which would leave you with a stalled recording.</p>
+<h3>Your work stays on your device</h3>
+<p>Everything here is computed by your own browser. No drawing, frame or exported video is transmitted anywhere. That also means we cannot recover your work if you close the tab without exporting, so save anything you want to keep.</p>
+</section>
+<div class="cs-foot">
+<p style="margin:0 0 6px"><strong>ConvertShorts</strong> &mdash; free browser-based tools</p>
+<p style="margin:0"><a href="/">Video</a> &middot; <a href="/pdf">PDF &amp; Docs</a> &middot; <a href="/chart-race">Chart Race</a> &middot; <a href="/stickmotion">Stickman Animator</a> &middot; <a href="/canvas">Infinite Canvas</a> &middot; <a href="/art-studio">Art Studio</a></p>
+<p style="margin:8px 0 0"><a href="/about">About</a> &middot; <a href="/privacy">Privacy</a> &middot; <a href="/terms">Terms</a> &middot; <a href="/contact">Contact</a></p>
+</div>
 </body>
 </html>

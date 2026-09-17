@@ -186,14 +186,15 @@ function draw(t, ease) {
 
     // avatar at the end of the bar
     if (r.avatar) {
-      const ar = barH * 0.44, ax = trackL + w - ar - barH * 0.12, ay = y + barH / 2;
+      const avScale = parseFloat(($("avSize")||{}).value || "0.44");
+      const ar = barH * avScale, ax = trackL + w - ar - barH * 0.10, ay = y + barH / 2;
       ctx.save();
       ctx.beginPath(); ctx.arc(ax + ar, ay, ar, 0, Math.PI * 2); ctx.closePath(); ctx.clip();
       const s = Math.min(r.avatar.width, r.avatar.height);
       ctx.drawImage(r.avatar, (r.avatar.width - s) / 2, (r.avatar.height - s) / 2, s, s,
                     ax, ay - ar, ar * 2, ar * 2);
       ctx.restore();
-      ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = Math.max(2, barH * 0.045);
+      ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = Math.max(2, ar * 0.10);
       ctx.beginPath(); ctx.arc(ax + ar, ay, ar, 0, Math.PI * 2); ctx.stroke();
     }
 
@@ -205,13 +206,23 @@ function draw(t, ease) {
   });
 
   // footer: running total + current column label
-  const showTotal = $('showTotal').checked;
-  if (showTotal) {
-    const tot = rows.reduce((s, r, i) => s + state[i].value, 0);
+  const statMode = ($("statMode")||{}).value || "total";
+  if (statMode !== "none") {
+    const vis = order.slice(0, topN);
+    const sum = rows.reduce(function(s, r, i){ return s + state[i].value; }, 0);
+    const nf = function(n){ return Math.round(n).toLocaleString(); };
+    let statText = "";
+    if (statMode === "total")   statText = "Total: " + nf(sum);
+    if (statMode === "average") statText = "Average: " + nf(sum / Math.max(rows.length, 1));
+    if (statMode === "leader")  statText = "Leader: " + (rows[order[0]] ? rows[order[0]].name : "");
+    if (statMode === "highest") statText = "Highest: " + nf(state[order[0]] ? state[order[0]].value : 0);
+    if (statMode === "gap")     statText = "Lead by: " + nf((state[order[0]] ? state[order[0]].value : 0) - (state[order[1]] ? state[order[1]].value : 0));
+    if (statMode === "count")   statText = rows.length + " entries";
+    if (statMode === "visible") statText = "Top " + vis.length + " of " + rows.length;
     ctx.fillStyle = $('fg').value;
     ctx.font = '800 ' + Math.round(footH * 0.42) + 'px Inter, system-ui, sans-serif';
     ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic';
-    ctx.fillText('Total: ' + Math.round(tot).toLocaleString(), W - pad, H - pad * 0.9);
+    ctx.fillText(statText, W - pad, H - pad * 0.9);
   }
   const lbl = labelAt(t);
   if (lbl) {
@@ -327,7 +338,7 @@ function loadFromTextarea() {
 }
 
 ['ratio'].forEach(id => $(id).addEventListener('change', () => { setupCanvas(); draw(currentT(), false); }));
-['topN','bg','fg','title','showTotal'].forEach(id =>
+['topN','bg','fg','title','statMode','avSize'].forEach(id =>
   $(id).addEventListener('input', () => draw(currentT(), false)));
 $('stepSecs').addEventListener('input', () => {
   $('stepSecsOut').textContent = parseFloat($('stepSecs').value).toFixed(1) + 's';
@@ -335,6 +346,7 @@ $('stepSecs').addEventListener('input', () => {
     totalDuration().toFixed(1) + 's video';
 });
 $('topN').addEventListener('input', () => $('topNOut').textContent = $('topN').value);
+$('avSize').addEventListener('input', function(){ $('avSizeOut').textContent = Math.round(parseFloat(this.value)*100) + '%'; });
 $('scrub').addEventListener('input', () => { stop(); draw(currentT()); });
 $('loadBtn').addEventListener('click', loadFromTextarea);
 $('playBtn').addEventListener('click', () => { if (playing) stop(); else { if (currentT() >= (labels.length - 1)) { $('scrub').value = 0; resetState(); } play(); } });

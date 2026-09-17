@@ -133,7 +133,19 @@ Srushti,3,100,309,509,709,940</textarea>
       <div class="cr-row"><label>Bars shown</label><input type="range" id="topN" min="4" max="14" value="10"><output id="topNOut">10</output></div>
       <div class="cr-row"><label>Seconds/step</label><input type="range" id="stepSecs" min="0.4" max="4" step="0.1" value="1.6"><output id="stepSecsOut">1.6s</output></div>
       <div class="cr-row"><label>Background</label><input type="color" id="bg" value="#0f1117"><label style="min-width:auto;">Text</label><input type="color" id="fg" value="#ffffff"></div>
-      <div class="cr-row"><label>Running total</label><input type="checkbox" id="showTotal" checked style="accent-color:var(--green);"></div>
+      <div class="cr-row"><label>Photo size</label><input type="range" id="avSize" min="0.30" max="0.95" step="0.01" value="0.60"><output id="avSizeOut">60%</output></div>
+      <div class="cr-row"><label>Corner stat</label>
+        <select id="statMode">
+          <option value="total">Running total</option>
+          <option value="average">Average value</option>
+          <option value="leader">Current leader</option>
+          <option value="highest">Highest value</option>
+          <option value="gap">Lead over 2nd</option>
+          <option value="count">Number of entries</option>
+          <option value="visible">Top N of total</option>
+          <option value="none">Nothing</option>
+        </select>
+      </div>
     </div>
 
     <div class="cr-stagewrap">

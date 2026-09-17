@@ -96,6 +96,12 @@ hr.cr-sep{border:none;border-top:1px solid var(--border);margin:14px 0;}
   <div class="cr-grid">
 
     <div class="cr-panel">
+      <div class="cr-row" style="margin-bottom:14px;"><label style="font-weight:700;color:var(--black);">Chart type</label>
+        <select id="chartType">
+          <option value="bars">📊 Racing bars</option>
+          <option value="lines">📈 Line chart over time</option>
+        </select>
+      </div>
       <p class="cr-label">1 · Your data</p>
       <textarea id="data" spellcheck="false">Name,Day 1,Day 5,Day 10,Day 20,Day 30,Day 45
 Rohith,74,820,1854,3200,4533,6120
@@ -124,13 +130,7 @@ Srushti,3,100,309,509,709,940</textarea>
       <hr class="cr-sep">
       <p class="cr-label">3 · Look</p>
       <div class="cr-row"><label>Title</label><input type="text" id="title" placeholder="Optional heading" value=""></div>
-      <div class="cr-row"><label>Chart type</label>
-        <select id="chartType">
-          <option value="bars">Racing bars</option>
-          <option value="lines">Line chart over time</option>
-        </select>
-      </div>
-      <div class="cr-row"><label>Size</label>
+            <div class="cr-row"><label>Size</label>
         <select id="ratio">
           <option value="landscape">16:9 landscape — YouTube</option>
           <option value="portrait">9:16 portrait — Reels, Shorts, TikTok</option>
@@ -142,7 +142,7 @@ Srushti,3,100,309,509,709,940</textarea>
       <div class="cr-row"><label>Background</label><input type="color" id="bg" value="#0f1117"><label style="min-width:auto;">Text</label><input type="color" id="fg" value="#ffffff"></div>
       <div class="cr-row"><label>Photo size</label><input type="range" id="avSize" min="0.30" max="0.95" step="0.01" value="0.60"><output id="avSizeOut">60%</output></div>
       <div class="cr-row"><label>Big date label</label>
-        <select id="bigPeriod"><option value="on">Show, top right</option><option value="off">Hide</option></select>
+        <select id="bigPeriod"><option value="off" selected>Hide</option><option value="on">Show, top right</option></select>
       </div>
       <div class="cr-row"><label>Leader card</label>
         <select id="showLeader"><option value="off" selected>Hide</option><option value="on">Show, top left</option></select>

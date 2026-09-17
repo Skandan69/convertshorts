@@ -158,11 +158,79 @@ function drawLines(t, order, vals, g) {
     ctx.fillStyle=r.color;
     ctx.font="700 "+Math.round(fs*1.15)+"px Inter, system-ui, sans-serif";
     ctx.textAlign="left"; ctx.textBaseline="middle";
-    ctx.fillText(r.name+"  "+Math.round(vals[i]).toLocaleString(), hx+W*0.012, hy);
+    var _lx = hx + W*0.012;
+    if (r.avatar && $("showLeader") && $("showLeader").value !== "off") {
+      var _lr = Math.max(9, H*0.013);
+      ctx.save();
+      ctx.beginPath(); ctx.arc(_lx+_lr, hy, _lr, 0, Math.PI*2); ctx.closePath(); ctx.clip();
+      var _s = Math.min(r.avatar.width, r.avatar.height);
+      ctx.drawImage(r.avatar, (r.avatar.width-_s)/2, (r.avatar.height-_s)/2, _s, _s, _lx, hy-_lr, _lr*2, _lr*2);
+      ctx.restore();
+      ctx.strokeStyle = r.color; ctx.lineWidth = Math.max(1.5, _lr*0.16);
+      ctx.beginPath(); ctx.arc(_lx+_lr, hy, _lr, 0, Math.PI*2); ctx.stroke();
+      _lx += _lr*2 + W*0.008;
+      ctx.fillStyle = r.color;
+    }
+    ctx.fillText(r.name+"  "+Math.round(vals[i]).toLocaleString(), _lx, hy);
   });
+  drawBigPeriod(t, W, H, pad);
+  drawLeaderCard(t, order, vals, W, H, pad);
   drawFooter(t,order,vals,W,H,pad,g.footH,topN);
 }
 
+
+function drawBigPeriod(t, W, H, pad) {
+  if (!$("bigPeriod") || $("bigPeriod").value === "off") return;
+  const lbl = labelAt(t); if (!lbl) return;
+  ctx.fillStyle = $("fg").value;
+  ctx.font = "800 " + Math.round(H*0.055) + "px Inter, system-ui, sans-serif";
+  ctx.textAlign = "right"; ctx.textBaseline = "top";
+  ctx.fillText(lbl, W - pad, pad * 0.9);
+}
+
+function drawLeaderCard(t, order, vals, W, H, pad) {
+  if (!$("showLeader") || $("showLeader").value === "off") return;
+  const li = order[0]; if (li === undefined) return;
+  const r = rows[li]; if (!r) return;
+  const fg = $("fg").value;
+  let held = 0;
+  for (let k = Math.floor(t); k >= 0; k--) {
+    let best = -Infinity, bi = -1;
+    rows.forEach(function (rr, ii) { const v = rr.values[k]; if (v > best) { best = v; bi = ii; } });
+    if (bi === li) held++; else break;
+  }
+  const cw = Math.round(W * 0.40), ch = Math.round(H * 0.085);
+  const cx = pad, cy = pad * 0.8;
+  ctx.save();
+  ctx.globalAlpha = 0.10; ctx.fillStyle = fg;
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(cx, cy, cw, ch, ch*0.16); else ctx.rect(cx, cy, cw, ch);
+  ctx.fill(); ctx.globalAlpha = 1;
+  const ph = ch * 0.74, px = cx + ch*0.13, py = cy + (ch-ph)/2;
+  if (r.avatar) {
+    ctx.save(); ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(px, py, ph, ph, ph*0.14); else ctx.rect(px, py, ph, ph);
+    ctx.closePath(); ctx.clip();
+    const s = Math.min(r.avatar.width, r.avatar.height);
+    ctx.drawImage(r.avatar, (r.avatar.width-s)/2, (r.avatar.height-s)/2, s, s, px, py, ph, ph);
+    ctx.restore();
+  } else {
+    ctx.fillStyle = r.color; ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(px, py, ph, ph, ph*0.14); else ctx.rect(px, py, ph, ph);
+    ctx.fill();
+  }
+  const tx = px + ph + ch*0.16;
+  ctx.textAlign = "left"; ctx.textBaseline = "top"; ctx.fillStyle = fg;
+  ctx.font = "700 " + Math.round(ch*0.30) + "px Inter, system-ui, sans-serif";
+  ctx.fillText(r.name, tx, cy + ch*0.16);
+  ctx.globalAlpha = 0.72;
+  ctx.font = "600 " + Math.round(ch*0.21) + "px Inter, system-ui, sans-serif";
+  ctx.fillText("Leading with " + Math.round(vals[li]).toLocaleString(), tx, cy + ch*0.50);
+  ctx.globalAlpha = 0.5;
+  ctx.font = "500 " + Math.round(ch*0.18) + "px Inter, system-ui, sans-serif";
+  ctx.fillText(held <= 1 ? "just took the lead" : "in front for " + held + " steps", tx, cy + ch*0.75);
+  ctx.restore(); ctx.globalAlpha = 1;
+}
 function drawFooter(t, order, vals, W, H, pad, footH, topN) {
   const statMode=(($("statMode")||{}).value)||"total";
   const fg=$("fg").value;
@@ -317,6 +385,8 @@ function draw(t, ease) {
     ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic';
     ctx.fillText(statText, W - pad, H - pad * 0.9);
   }
+  drawBigPeriod(t, W, H, pad);
+  drawLeaderCard(t, order, vals, W, H, pad);
   const lbl = labelAt(t);
   if (lbl) {
     ctx.fillStyle = $('fg').value;
@@ -431,7 +501,7 @@ function loadFromTextarea() {
 }
 
 ['ratio'].forEach(id => $(id).addEventListener('change', () => { setupCanvas(); draw(currentT(), false); }));
-['topN','bg','fg','title','statMode','avSize','chartType'].forEach(id =>
+['topN','bg','fg','title','statMode','avSize','chartType','bigPeriod','showLeader'].forEach(id =>
   $(id).addEventListener('input', () => draw(currentT(), false)));
 $('stepSecs').addEventListener('input', () => {
   $('stepSecsOut').textContent = parseFloat($('stepSecs').value).toFixed(1) + 's';

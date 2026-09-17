@@ -149,7 +149,10 @@ function draw(t, ease) {
   const maxV  = Math.max(...shown.map(i => state[i].value), 1);
   const nameW = Math.round(W * (portrait ? 0.30 : 0.20));
   const trackL = pad + (portrait ? W * 0.07 : 0);
-  const trackR = W - pad - Math.round(W * (portrait ? 0.17 : 0.10));
+  const _avsR = parseFloat(($("avSize")||{}).value || "0.44");
+  const _anyAvatar = rows.some(function(rr){ return !!rr.avatar; });
+  const _reserve = (portrait ? 0.17 : 0.10) + (_anyAvatar ? _avsR * 0.10 : 0);
+  const trackR = W - pad - Math.round(W * _reserve);
   const trackW = trackR - trackL;
 
   shown.forEach(i => {
@@ -202,7 +205,10 @@ function draw(t, ease) {
     ctx.fillStyle = $('fg').value;
     ctx.font = '600 ' + Math.round(fs * 0.92) + 'px Inter, system-ui, sans-serif';
     ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-    ctx.fillText(Math.round(st.value).toLocaleString(), trackL + w + W * 0.012, y + barH / 2);
+    var _avs = parseFloat(($("avSize")||{}).value || "0.44");
+    var _vx = trackL + w + W * 0.012;
+    if (r.avatar) _vx = trackL + w + barH * _avs - barH * 0.10 + W * 0.016;
+    ctx.fillText(Math.round(st.value).toLocaleString(), _vx, y + barH / 2);
   });
 
   // footer: running total + current column label

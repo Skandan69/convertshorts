@@ -279,7 +279,11 @@ function draw(t, ease) {
   const pad      = Math.round(W * (portrait ? 0.05 : 0.035));
   const titleH   = $('title').value.trim() ? Math.round(H * 0.075) : Math.round(H * 0.02);
   const footH    = Math.round(H * (portrait ? 0.11 : 0.14));
-  const areaTop  = titleH + pad * 0.4;
+  const _leaderOn = (($("showLeader")||{}).value || "on") !== "off";
+  const _periodOn = (($("bigPeriod")||{}).value || "on") !== "off";
+  const _cardH    = Math.round(H * 0.085);
+  const _hdrBand  = (_leaderOn || _periodOn) ? (pad * 0.8 + _cardH + pad * 0.45) : 0;
+  const areaTop  = titleH + pad * 0.4 + _hdrBand;
   const areaH    = H - areaTop - footH;
   const slot     = areaH / topN;
   const barH     = slot * 0.74;

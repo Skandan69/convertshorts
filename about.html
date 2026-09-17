@@ -52,6 +52,18 @@
 <h3>Limitations we're upfront about</h3>
 <p>Browser-based processing has real trade-offs. Very large files depend on your device's memory. PDF to Word extracts text rather than rebuilding the original layout. PowerPoint conversion is not offered at all, because doing it properly needs a server-side office engine — which would mean uploading your file, and that is the one thing this site does not do.</p>
 
+<h3>Why browser-based, and what it costs you</h3>
+<p>Running everything locally is not just a privacy decision, it changes the economics. A conversion site that uploads files pays for bandwidth in both directions and for the server time spent encoding. Those costs have to come from somewhere, which is why such sites cap your daily conversions, watermark the output, or ask you to subscribe.</p>
+<p>Because your own machine does the work here, our costs do not rise with usage. That is the reason there is no daily limit, no watermark and no paid tier. It is not generosity; the bill simply does not exist.</p>
+<p>The trade-off is real and worth stating. Your device sets the ceiling. A long 4K video will convert more slowly on an old laptop than a new one, and a very large file can exhaust the memory a browser tab is allowed. Server-based tools do not have that problem because the server is always the same speed. We think the trade is worth it for most people, most of the time.</p>
+<h3>How the tools are built</h3>
+<p>The video converter uses FFmpeg compiled to WebAssembly, the same engine behind most video software, running inside your browser rather than on a machine we own. The PDF tools use PDF.js for reading and jsPDF for writing. The animation tools draw to an HTML canvas and record it with the browser’s own MediaRecorder. All of these are open-source libraries doing the work locally.</p>
+<h3>What we collect, briefly</h3>
+<p>Google Analytics tells us which tools people use so we know what to improve. It records page views, rough location and device type. It does not and cannot see the contents of your files, because those never reach a server. The full detail is in our <a href="/privacy">Privacy Policy</a>.</p>
+<h3>Who makes this</h3>
+<p>ConvertShorts is built and maintained by one person, not a company. That means fixes ship quickly when something breaks, and it also means replies to email take a few days rather than minutes. Feature requests genuinely shape what gets built next &mdash; several of the tools here exist because someone asked.</p>
+<h3>What we will not add</h3>
+<p>Two things, deliberately. We will not add an account system, because nothing here needs one. And we will not add server-side conversion for formats like PowerPoint, even though people ask, because it would mean uploading your file and that breaks the one promise every tool on this site makes.</p>
 <h3>Get in touch</h3>
 <p>Feedback and bug reports are welcome. See the <a href="/contact">Contact page</a>.</p>
 </div>

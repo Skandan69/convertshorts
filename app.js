@@ -359,7 +359,7 @@ exportBtn.addEventListener('click', async () => {
         '-i', 'input.mp4',
         '-t', segDur.toFixed(3),
         '-vf', vf,
-        '-c:v', 'libx264', '-preset', 'fast', '-crf', '16',
+        '-c:v', 'libx264', '-preset', 'fast', '-crf', '20',
         '-pix_fmt', 'yuv420p',
         '-c:a', 'aac', '-b:a', '192k',
         '-movflags', '+faststart',
@@ -386,7 +386,7 @@ exportBtn.addEventListener('click', async () => {
       ff.FS('writeFile', 'list.txt', new TextEncoder().encode(list));
       await ff.run(
         '-f', 'concat', '-safe', '0', '-i', 'list.txt',
-        '-c:v', 'libx264', '-preset', 'fast', '-crf', '16',
+        '-c:v', 'libx264', '-preset', 'fast', '-crf', '20',
         '-pix_fmt', 'yuv420p',
         '-vf', 'setsar=1',
         '-c:a', 'aac', '-b:a', '192k',
@@ -427,3 +427,40 @@ exportBtn.addEventListener('click', async () => {
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 function fmtTime(s) { return Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0'); }
 function fmtSize(b) { return b>1e9?(b/1e9).toFixed(1)+' GB':b>1e6?(b/1e6).toFixed(1)+' MB':(b/1e3).toFixed(0)+' KB'; }
+
+// coverage readout
+(function () {
+  function pct(n) { return Math.round(n * 100) + "%"; }
+  function update() {
+    var el = document.getElementById("coverage");
+    var v  = document.getElementById("vid");
+    var z  = document.getElementById("zoom");
+    if (!el || !v || !z || !v.videoWidth) return;
+    var vw = v.videoWidth, vh = v.videoHeight;
+    var m = document.getElementById("mL2P");
+    var l2p = !!(m && m.classList && m.classList.contains("active"));
+    var outW, outH;
+    if (l2p) { outH = vh; outW = Math.round(vh * 9 / 16); }
+    else     { outW = vw; outH = Math.round(vw * 9 / 16); }
+    var zoom = (parseFloat(z.value) || 100) / 100;
+    var sw, sh, fit;
+    if (zoom >= 1) { sw = Math.round(outW / zoom); sh = Math.round(outH / zoom); fit = false; }
+    else { sw = vw; sh = vh; fit = true; }
+    sw = Math.min(sw, vw); sh = Math.min(sh, vh);
+    if (fit) {
+      el.textContent = "Whole frame kept, with black bars top and bottom. Nothing is cut off.";
+    } else {
+      var wc = Math.min(sw / vw, 1), hc = Math.min(sh / vh, 1);
+      el.textContent = "Keeping " + pct(wc) + " of the width and " + pct(hc) +
+        " of the height \u00b7 " + Math.round(100 - wc * 100) + "% of the sides cut \u00b7 output " +
+        (outW - outW % 2) + "\u00d7" + (outH - outH % 2);
+    }
+  }
+  ["zoom", "cx", "cy", "mL2P", "mP2L"].forEach(function (id) {
+    var e = document.getElementById(id);
+    if (e) { e.addEventListener("input", update); e.addEventListener("click", function () { setTimeout(update, 30); }); }
+  });
+  var vv = document.getElementById("vid");
+  if (vv) vv.addEventListener("loadedmetadata", function () { setTimeout(update, 60); });
+  setInterval(update, 600);
+})();

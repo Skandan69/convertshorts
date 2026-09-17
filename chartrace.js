@@ -108,6 +108,89 @@ function labelAt(t) {
   return labels[Math.max(i, 0)] || '';
 }
 
+
+function drawLines(t, order, vals, g) {
+  const W=g.W,H=g.H,pad=g.pad,topN=g.topN;
+  const fg=$("fg").value;
+  const maxI=labels.length-1;
+  const shown=order.slice(0,topN);
+  let peak=1;
+  shown.forEach(function(i){ rows[i].values.forEach(function(v){ if(v>peak) peak=v; }); });
+  const left=pad+Math.round(W*0.10);
+  const right=W-pad-Math.round(W*0.16);
+  const top=g.areaTop+Math.round(H*0.02);
+  const bottom=g.areaTop+g.areaH-Math.round(H*0.05);
+  const plotW=right-left, plotH=bottom-top;
+  const fs=Math.max(11,Math.round(H*0.018));
+  const X=function(i){ return left+(maxI?(i/maxI)*plotW:plotW/2); };
+  const Y=function(v){ return bottom-(v/peak)*plotH; };
+  ctx.strokeStyle=fg; ctx.lineWidth=1;
+  ctx.font="500 "+fs+"px Inter, system-ui, sans-serif";
+  ctx.textAlign="right"; ctx.textBaseline="middle";
+  for(let s=0;s<=4;s++){
+    const v=(peak/4)*s, yy=Y(v);
+    ctx.globalAlpha=0.13;
+    ctx.beginPath(); ctx.moveTo(left,yy); ctx.lineTo(right,yy); ctx.stroke();
+    ctx.globalAlpha=0.55; ctx.fillStyle=fg;
+    ctx.fillText(Math.round(v).toLocaleString(), left-W*0.012, yy);
+  }
+  ctx.globalAlpha=1;
+  ctx.textAlign="center"; ctx.textBaseline="top"; ctx.globalAlpha=0.55; ctx.fillStyle=fg;
+  const everyN=Math.ceil(labels.length/Math.max(2,Math.round(plotW/(W*0.10))));
+  labels.forEach(function(lb,i){ if(i%everyN===0||i===maxI) ctx.fillText(lb,X(i),bottom+H*0.012); });
+  ctx.globalAlpha=1;
+  const whole=Math.floor(t), frac=t-whole;
+  shown.forEach(function(i){
+    const r=rows[i];
+    ctx.strokeStyle=r.color; ctx.lineWidth=Math.max(2.5,H*0.0042);
+    ctx.lineJoin="round"; ctx.lineCap="round";
+    ctx.beginPath(); ctx.moveTo(X(0),Y(r.values[0]||0));
+    for(let k=1;k<=whole&&k<=maxI;k++) ctx.lineTo(X(k),Y(r.values[k]||0));
+    let hx=X(Math.min(whole,maxI)), hy=Y(r.values[Math.min(whole,maxI)]||0);
+    if(whole<maxI&&frac>0){
+      const a=r.values[whole]||0,b=r.values[whole+1]||a;
+      hx=X(whole+frac); hy=Y(a+(b-a)*frac); ctx.lineTo(hx,hy);
+    }
+    ctx.stroke();
+    ctx.fillStyle=r.color;
+    ctx.beginPath(); ctx.arc(hx,hy,Math.max(4,H*0.006),0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle=$("bg").value; ctx.lineWidth=Math.max(1.5,H*0.002); ctx.stroke();
+    ctx.fillStyle=r.color;
+    ctx.font="700 "+Math.round(fs*1.15)+"px Inter, system-ui, sans-serif";
+    ctx.textAlign="left"; ctx.textBaseline="middle";
+    ctx.fillText(r.name+"  "+Math.round(vals[i]).toLocaleString(), hx+W*0.012, hy);
+  });
+  drawFooter(t,order,vals,W,H,pad,g.footH,topN);
+}
+
+function drawFooter(t, order, vals, W, H, pad, footH, topN) {
+  const statMode=(($("statMode")||{}).value)||"total";
+  const fg=$("fg").value;
+  if(statMode!=="none"){
+    const vis=order.slice(0,topN);
+    const sum=rows.reduce(function(s,r,i){ return s+state[i].value; },0);
+    const nf=function(n){ return Math.round(n).toLocaleString(); };
+    let statText="";
+    if(statMode==="total") statText="Total: "+nf(sum);
+    if(statMode==="average") statText="Average: "+nf(sum/Math.max(rows.length,1));
+    if(statMode==="leader") statText="Leader: "+(rows[order[0]]?rows[order[0]].name:"");
+    if(statMode==="highest") statText="Highest: "+nf(state[order[0]]?state[order[0]].value:0);
+    if(statMode==="gap") statText="Lead by: "+nf((state[order[0]]?state[order[0]].value:0)-(state[order[1]]?state[order[1]].value:0));
+    if(statMode==="count") statText=rows.length+" entries";
+    if(statMode==="visible") statText="Top "+vis.length+" of "+rows.length;
+    ctx.fillStyle=fg;
+    ctx.font="800 "+Math.round(footH*0.42)+"px Inter, system-ui, sans-serif";
+    ctx.textAlign="right"; ctx.textBaseline="alphabetic";
+    ctx.fillText(statText,W-pad,H-pad*0.9);
+  }
+  const lbl=labelAt(t);
+  if(lbl){
+    ctx.fillStyle=fg; ctx.globalAlpha=0.55;
+    ctx.font="600 "+Math.round(footH*0.26)+"px Inter, system-ui, sans-serif";
+    ctx.textAlign="left"; ctx.textBaseline="alphabetic";
+    ctx.fillText(lbl,pad,H-pad*0.9); ctx.globalAlpha=1;
+  }
+}
 function draw(t, ease) {
   if (!rows.length) { ctx.clearRect(0, 0, cv.width, cv.height); return; }
   const topN   = parseInt($('topN').value, 10);
@@ -145,6 +228,10 @@ function draw(t, ease) {
     ctx.fillText(title, pad, titleH * 0.58);
   }
 
+  if ((($("chartType")||{}).value) === "lines") {
+    drawLines(t, order, vals, { W:W, H:H, pad:pad, areaTop:areaTop, areaH:areaH, footH:footH, topN:topN });
+    return;
+  }
   const shown = order.slice(0, topN);
   const maxV  = Math.max(...shown.map(i => state[i].value), 1);
   const nameW = Math.round(W * (portrait ? 0.30 : 0.20));
@@ -344,7 +431,7 @@ function loadFromTextarea() {
 }
 
 ['ratio'].forEach(id => $(id).addEventListener('change', () => { setupCanvas(); draw(currentT(), false); }));
-['topN','bg','fg','title','statMode','avSize'].forEach(id =>
+['topN','bg','fg','title','statMode','avSize','chartType'].forEach(id =>
   $(id).addEventListener('input', () => draw(currentT(), false)));
 $('stepSecs').addEventListener('input', () => {
   $('stepSecsOut').textContent = parseFloat($('stepSecs').value).toFixed(1) + 's';

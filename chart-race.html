@@ -87,7 +87,7 @@ hr.cr-sep{border:none;border-top:1px solid var(--border);margin:14px 0;}
   <div class="trust-row">
     <span class="ti">✓ Nothing uploaded</span>
     <span class="ti">✓ No watermark</span>
-    <span class="ti">✓ Photos on bars</span>
+    <span class="ti">✓ Bars or lines</span>
     <span class="ti">✓ 16:9, 9:16 or 1:1</span>
   </div>
 </header>
@@ -124,6 +124,12 @@ Srushti,3,100,309,509,709,940</textarea>
       <hr class="cr-sep">
       <p class="cr-label">3 · Look</p>
       <div class="cr-row"><label>Title</label><input type="text" id="title" placeholder="Optional heading" value=""></div>
+      <div class="cr-row"><label>Chart type</label>
+        <select id="chartType">
+          <option value="bars">Racing bars</option>
+          <option value="lines">Line chart over time</option>
+        </select>
+      </div>
       <div class="cr-row"><label>Size</label>
         <select id="ratio">
           <option value="landscape">16:9 landscape — YouTube</option>

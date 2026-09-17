@@ -179,8 +179,113 @@ function drawLines(t, order, vals, g) {
 }
 
 
+
+// chess-video style: smooth curves, labels stacked down the right edge
+function drawChess(t, order, vals, g) {
+  const W=g.W, H=g.H, pad=g.pad, topN=g.topN;
+  const fg=$("fg").value;
+  const maxI=labels.length-1;
+  const shown=order.slice(0, topN);
+
+  let peak=1;
+  shown.forEach(function(i){ rows[i].values.forEach(function(v){ if(v>peak) peak=v; }); });
+
+  const labW  = Math.round(W * 0.30);
+  const left  = pad + Math.round(W*0.02);
+  const right = W - pad - labW;
+  const top   = g.areaTop + Math.round(H*0.02);
+  const bottom= g.areaTop + g.areaH - Math.round(H*0.045);
+  const plotW = right-left, plotH = bottom-top;
+  const fs    = Math.max(11, Math.round(H*0.0165));
+
+  const X=function(i){ return left + (maxI ? (i/maxI)*plotW : plotW/2); };
+  const Y=function(v){ return bottom - (v/peak)*plotH; };
+
+  // faint grid, both directions
+  ctx.strokeStyle=fg; ctx.globalAlpha=0.09; ctx.lineWidth=1;
+  for(let s=0;s<=5;s++){ const yy=top+(plotH/5)*s; ctx.beginPath(); ctx.moveTo(left,yy); ctx.lineTo(right,yy); ctx.stroke(); }
+  for(let s=0;s<=6;s++){ const xx=left+(plotW/6)*s; ctx.beginPath(); ctx.moveTo(xx,top); ctx.lineTo(xx,bottom); ctx.stroke(); }
+  ctx.globalAlpha=1;
+
+  // x axis ticks
+  ctx.fillStyle=fg; ctx.globalAlpha=0.45;
+  ctx.font="500 "+fs+"px Inter, system-ui, sans-serif";
+  ctx.textAlign="center"; ctx.textBaseline="top";
+  const everyN=Math.ceil(labels.length/Math.max(2,Math.round(plotW/(W*0.11))));
+  labels.forEach(function(lb,i){ if(i%everyN===0||i===maxI) ctx.fillText(lb, X(i), bottom+H*0.010); });
+  ctx.globalAlpha=1;
+
+  const whole=Math.floor(t), frac=t-whole;
+  const heads=[];
+
+  shown.forEach(function(i){
+    const r=rows[i];
+    // build the visible portion of the series
+    const pts=[];
+    for(let k=0;k<=Math.min(whole,maxI);k++) pts.push([X(k), Y(r.values[k]||0)]);
+    if(whole<maxI && frac>0){
+      const a=r.values[whole]||0, b=r.values[whole+1]||a;
+      pts.push([X(whole+frac), Y(a+(b-a)*frac)]);
+    }
+    if(!pts.length) return;
+
+    ctx.strokeStyle=r.color;
+    ctx.lineWidth=Math.max(2, H*0.0034);
+    ctx.lineJoin="round"; ctx.lineCap="round";
+    ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
+    // smooth through midpoints so the curve flows like the chess chart
+    for(let k=1;k<pts.length;k++){
+      const mx=(pts[k-1][0]+pts[k][0])/2, my=(pts[k-1][1]+pts[k][1])/2;
+      ctx.quadraticCurveTo(pts[k-1][0], pts[k-1][1], mx, my);
+    }
+    ctx.lineTo(pts[pts.length-1][0], pts[pts.length-1][1]);
+    ctx.stroke();
+
+    const hd=pts[pts.length-1];
+    heads.push({ i:i, x:hd[0], y:hd[1], color:r.color, name:r.name, val:vals[i], avatar:r.avatar });
+  });
+
+  // stack the right-hand labels so they never overlap
+  heads.sort(function(a,b){ return a.y-b.y; });
+  const rowH=Math.max(fs*1.9, H*0.030);
+  for(let k=1;k<heads.length;k++){
+    if(heads[k].y - heads[k-1].y < rowH) heads[k].y = heads[k-1].y + rowH;
+  }
+  const overflow=heads.length ? (heads[heads.length-1].y - bottom) : 0;
+  if(overflow>0) heads.forEach(function(hh){ hh.y -= overflow; });
+
+  heads.forEach(function(hh){
+    // connector from the curve head to its label
+    ctx.strokeStyle=hh.color; ctx.globalAlpha=0.5; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(hh.x, hh.y===hh.y?hh.y:hh.y); ctx.lineTo(right+W*0.012, hh.y); ctx.stroke();
+    ctx.globalAlpha=1;
+    let lx=right+W*0.016;
+    ctx.fillStyle=hh.color;
+    ctx.beginPath(); ctx.arc(lx, hh.y, Math.max(3.5,H*0.0045), 0, Math.PI*2); ctx.fill();
+    lx += Math.max(3.5,H*0.0045)*2 + W*0.006;
+    if(hh.avatar){
+      const ar=Math.max(8, H*0.0115);
+      ctx.save(); ctx.beginPath(); ctx.arc(lx+ar, hh.y, ar, 0, Math.PI*2); ctx.closePath(); ctx.clip();
+      const s=Math.min(hh.avatar.width, hh.avatar.height);
+      ctx.drawImage(hh.avatar,(hh.avatar.width-s)/2,(hh.avatar.height-s)/2,s,s, lx, hh.y-ar, ar*2, ar*2);
+      ctx.restore();
+      ctx.strokeStyle=hh.color; ctx.lineWidth=Math.max(1.2, ar*0.15);
+      ctx.beginPath(); ctx.arc(lx+ar, hh.y, ar, 0, Math.PI*2); ctx.stroke();
+      lx += ar*2 + W*0.006;
+    }
+    ctx.fillStyle=fg;
+    ctx.font="600 "+fs+"px Inter, system-ui, sans-serif";
+    ctx.textAlign="left"; ctx.textBaseline="middle";
+    ctx.fillText(hh.name+", "+Math.round(hh.val).toLocaleString(), lx, hh.y);
+  });
+
+  drawBigPeriod(t, W, H, pad);
+  drawLeaderCard(t, order, vals, W, H, pad);
+  drawFooter(t, order, vals, W, H, pad, g.footH, topN);
+}
 function drawBigPeriod(t, W, H, pad) {
-  if (!$("bigPeriod") || $("bigPeriod").value === "off") return;
+  const _ctp = (($("chartType")||{}).value);
+  if (_ctp !== "chess" && (!$("bigPeriod") || $("bigPeriod").value === "off")) return;
   const lbl = labelAt(t); if (!lbl) return;
   ctx.fillStyle = $("fg").value;
   ctx.font = "800 " + Math.round(H*0.055) + "px Inter, system-ui, sans-serif";
@@ -189,7 +294,8 @@ function drawBigPeriod(t, W, H, pad) {
 }
 
 function drawLeaderCard(t, order, vals, W, H, pad) {
-  if (!$("showLeader") || $("showLeader").value === "off") return;
+  const _ct = (($("chartType")||{}).value);
+  if (_ct !== "chess" && (!$("showLeader") || $("showLeader").value === "off")) return;
   const li = order[0]; if (li === undefined) return;
   const r = rows[li]; if (!r) return;
   const fg = $("fg").value;
@@ -279,7 +385,8 @@ function draw(t, ease) {
   const pad      = Math.round(W * (portrait ? 0.05 : 0.035));
   const titleH   = $('title').value.trim() ? Math.round(H * 0.075) : Math.round(H * 0.02);
   const footH    = Math.round(H * (portrait ? 0.11 : 0.14));
-  const _leaderOn = (($("showLeader")||{}).value || "on") !== "off";
+  const _ctype = (($("chartType")||{}).value);
+  const _leaderOn = _ctype === "chess" || ((($("showLeader")||{}).value || "on") !== "off");
   const _periodOn = (($("bigPeriod")||{}).value || "on") !== "off";
   const _cardH    = Math.round(H * 0.085);
   const _hdrBand  = (_leaderOn || _periodOn) ? (pad * 0.8 + _cardH + pad * 0.45) : 0;
@@ -300,6 +407,10 @@ function draw(t, ease) {
     ctx.fillText(title, pad, titleH * 0.58);
   }
 
+  if ((($("chartType")||{}).value) === "chess") {
+    drawChess(t, order, vals, { W:W, H:H, pad:pad, areaTop:areaTop, areaH:areaH, footH:footH, topN:topN });
+    return;
+  }
   if ((($("chartType")||{}).value) === "lines") {
     drawLines(t, order, vals, { W:W, H:H, pad:pad, areaTop:areaTop, areaH:areaH, footH:footH, topN:topN });
     return;

@@ -350,5 +350,28 @@ $('csvFile').addEventListener('change', e => {
 document.querySelectorAll('.faq-q').forEach(b =>
   b.addEventListener('click', () => b.nextElementSibling.classList.toggle('open')));
 
+
+// sample CSV template
+function downloadSample(){
+  var rows = [
+    "Name,Jan,Feb,Mar,Apr,May,Jun",
+    "Alice,120,340,610,980,1450,2100",
+    "Ben,90,410,720,1180,1620,1950",
+    "Chandra,150,300,540,860,1390,2320",
+    "Divya,60,220,480,900,1510,2040",
+    "Emeka,30,180,390,700,1120,1680"
+  ];
+  var csv = rows.join(String.fromCharCode(10)) + String.fromCharCode(10);
+  var blob = new Blob([String.fromCharCode(65279) + csv], { type: "text/csv;charset=utf-8" });
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "chart-race-template.csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 30000);
+}
+var _sb = document.getElementById("sampleBtn");
+if (_sb) _sb.addEventListener("click", downloadSample);
 // start with something on screen
 loadFromTextarea();

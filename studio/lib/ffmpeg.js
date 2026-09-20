@@ -21,3 +21,12 @@ export async function runChecked(ff,args,output){
  }finally{ff.setLogger(()=>{});}
 }
 export async function hasAudio(ff,path){let audio=false;ff.setLogger(({message})=>{if(/Stream.*Audio:/.test(message))audio=true;});try{await ff.run('-i',path);}finally{ff.setLogger(()=>{});}return audio;}
+
+export async function loadEngine(ff) {
+ let timeout;
+ try {
+  await Promise.race([ff.load(), new Promise((_, reject) => {
+   timeout = setTimeout(() => reject(Error('The video engine took too long to load. Check your connection and retry.')), 120000);
+  })]);
+ } finally { clearTimeout(timeout); }
+}

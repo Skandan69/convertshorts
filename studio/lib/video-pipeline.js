@@ -30,7 +30,7 @@ export function finalArguments({ duration, format, quality, bitrate, musicVolume
   const args = ['-i', 'joined.mp4'];
   if (musicVolume !== null) {
     args.push('-i', 'music-input', '-filter_complex',
-      `[1:a]volume=${musicVolume},apad[m];[0:a][m]amix=inputs=2:duration=first:normalize=0[a]`,
+      `[1:a]volume=${musicVolume},apad[m];[0:a][m]amix=inputs=2:duration=first:dropout_transition=0,volume=2[a]`,
       '-map', '0:v:0', '-map', '[a]');
   } else args.push('-map', '0:v:0', '-map', '0:a:0');
   args.push('-t', duration.toFixed(5));

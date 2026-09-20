@@ -4,7 +4,7 @@ import { fitFilter } from './common.js';
 export function clipArguments(clip, { width, height, source, audio }) {
   const duration = clip.end - clip.start;
   const args = ['-ss', clip.start.toFixed(5), '-i', source,
-    '-f', 'lavfi', '-i', 'anullsrc=channel_layout=stereo:sample_rate=48000'];
+    '-i', 'silence.wav'];
   const fit = fitFilter(width, height, clip.fit, clip.x, clip.y);
   let filters = `[0:v]${fit},fps=30,format=yuv420p[base]`;
   let output = 'base';
@@ -43,4 +43,18 @@ export function finalArguments({ duration, format, quality, bitrate, musicVolume
       '-c:a', 'libopus', '-b:a', '128k');
   }
   return [...args, '-pix_fmt', 'yuv420p', '-map_metadata', '-1'];
+}
+
+/** One second of silent PCM; apad extends this for silent clips.
+ * FFmpeg WASM omits the lavfi input device available in desktop builds. */
+export function silenceWav() {
+  const samples = 48000, channels = 2, size = samples * channels * 2;
+  const buffer = new ArrayBuffer(44 + size), view = new DataView(buffer);
+  const text = (offset, value) => [...value].forEach((c, i) => view.setUint8(offset + i, c.charCodeAt(0)));
+  text(0, 'RIFF'); view.setUint32(4, 36 + size, true); text(8, 'WAVE');
+  text(12, 'fmt '); view.setUint32(16, 16, true); view.setUint16(20, 1, true);
+  view.setUint16(22, channels, true); view.setUint32(24, samples, true);
+  view.setUint32(28, samples * channels * 2, true); view.setUint16(32, channels * 2, true);
+  view.setUint16(34, 16, true); text(36, 'data'); view.setUint32(40, size, true);
+  return new Uint8Array(buffer);
 }

@@ -16,7 +16,7 @@ function ff(args, name) { execFileSync('ffmpeg', ['-hide_banner','-loglevel','er
  ff(['-f','lavfi','-i','sine=frequency=660:sample_rate=48000','-t','1','-c:a','pcm_s16le'],'music.wav');
  const doc=await PDF.PDFDocument.create();doc.addPage([400,200]).drawText('FIRST PAGE');doc.addPage([300,500]).drawText('SECOND PAGE');await fs.writeFile(path.join(fixtures,'sample.pdf'),await doc.save());
  const browser=await chromium.launch({headless:true});const page=await browser.newPage({viewport:{width:1440,height:1000}});const errors=[];
- page.on('pageerror',e=>errors.push(e.message));
+ page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')console.error('Browser console:',m.text());});
  async function route(hash){await page.goto(`http://127.0.0.1:4173/studio#${hash}`);await page.locator('h1').waitFor();}
  async function ready(){await page.waitForFunction(()=>{const s=document.querySelector('#status');return s&&(/ready|failed|could not|cancelled/i.test(s.textContent));},{},{timeout:180000});const s=await page.locator('#status').innerText();assert(!/failed|could not/i.test(s),s);return s;}
  async function save(name){const promise=page.waitForEvent('download');await page.locator('#downloads a').first().click();await(await promise).saveAs(path.join(out,name));}

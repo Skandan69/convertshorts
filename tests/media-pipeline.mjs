@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
-import { clipArguments, finalArguments } from '../studio/lib/video-pipeline.js';
+import { clipArguments, finalArguments, silenceWav } from '../studio/lib/video-pipeline.js';
 import { appendPDFPage } from '../studio/lib/pdf-pages.js';
 import { dimensions, fitFilter } from '../studio/lib/common.js';
 const require = createRequire(import.meta.url);
@@ -42,6 +42,7 @@ ff(['-f','lavfi','-i','testsrc2=size=320x180:rate=30','-f','lavfi','-i','sine=fr
 ff(['-f','lavfi','-i','color=c=green:size=180x320:rate=30','-t','2','-c:v','libx264','-pix_fmt','yuv420p','-an'],'silent.mp4');
 // A red title overlay lets us assert that compositing affects real output pixels.
 ff(['-f','lavfi','-i','color=c=red:size=320x180','-frames:v','1'],'title.png');
+await writeFile(join(dir, 'silence.wav'), silenceWav());
 const clip = { start: 0.5, end: 2, fit: 'contain', x: .5, y: .5, volume: .6, text: 'Title', transition: 'fade' };
 ff(clipArguments(clip, { width: 320, height: 180, source: 'input.mp4', audio: true }), 'part0.mp4');
 ff(clipArguments({ ...clip, start: 0, end: 1, text: '', fit: 'cover' }, { width: 320, height: 180, source: 'silent.mp4', audio: false }), 'part1.mp4');

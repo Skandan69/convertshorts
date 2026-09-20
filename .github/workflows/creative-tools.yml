@@ -1,0 +1,39 @@
+name: Creative tools exports
+on:
+  pull_request:
+    paths:
+      - 'studio/**'
+      - 'studio.html'
+      - 'tests/**'
+      - 'vercel.json'
+      - '.github/workflows/creative-tools.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install test runtime
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+          npm install --prefix tests --no-save --package-lock=false --ignore-scripts playwright@1.62.1
+          tests/node_modules/.bin/playwright install --with-deps chromium
+      - name: Validate PDF and encoding pipeline
+        run: node tests/media-pipeline.mjs
+      - name: Verify browser editing and real downloads
+        run: |
+          python tests/serve.py > /tmp/convertshorts-server.log 2>&1 &
+          node tests/browser-smoke.cjs
+      - name: Upload exported files and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: creative-tools-results
+          path: tests/results/
+          retention-days: 7

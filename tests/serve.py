@@ -10,7 +10,8 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_header('Cross-Origin-Resource-Policy', 'cross-origin')
         super().end_headers()
     def do_GET(self):
-        if self.path.split('?')[0] == '/studio':
-            self.path = '/studio.html'
+        path = self.path.split('?')[0]
+        if path in ['/studio', '/pdf', '/image-tools', '/pdf-tools', '/video-tools', '/design-studio', '/video-editor']:
+            self.path = path + '.html'
         super().do_GET()
 ThreadingHTTPServer(('0.0.0.0', 4173), Handler).serve_forever()

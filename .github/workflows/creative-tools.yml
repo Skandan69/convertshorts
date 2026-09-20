@@ -3,7 +3,8 @@ on:
   pull_request:
     paths:
       - 'studio/**'
-      - 'studio.html'
+      - '*.html'
+      - 'feature-navigation.*'
       - 'tests/**'
       - 'vercel.json'
       - '.github/workflows/creative-tools.yml'

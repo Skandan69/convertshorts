@@ -24,6 +24,7 @@ assert.match(fitFilter(180, 320, 'cover', 0.25, 0.75), /crop=180:320/);
 const source = await PDFLib.PDFDocument.create();
 const p1 = source.addPage([400, 200]);p1.drawText('First page', { x: 20, y: 50 });
 const p2 = source.addPage([300, 500]);p2.drawText('Rotated page', { x: 20, y: 50 });p2.setRotation(PDFLib.degrees(90));
+source.addPage([200, 200]);
 const merged = await PDFLib.PDFDocument.create();
 await appendPDFPage(merged, source, 1, null, PDFLib);
 await appendPDFPage(merged, source, 0, null, PDFLib);
@@ -35,6 +36,8 @@ const resized = await PDFLib.PDFDocument.create();
 await appendPDFPage(resized, source, 1, [595.28, 841.89], PDFLib);
 assert.deepEqual(resized.getPage(0).getSize(), { width: 595.28, height: 841.89 });
 assert.equal(resized.getPage(0).getRotation().angle, 0);
+await appendPDFPage(resized, source, 2, [595.28, 841.89], PDFLib);
+assert.equal(resized.getPageCount(), 2);
 await writeFile(join(dir, 'resized.pdf'), await resized.save());
 console.log('PASS PDF reorder/copy, rotated-page resize and dimension validation');
 

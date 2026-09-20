@@ -199,3 +199,8 @@ nav { display: flex; align-items: center; justify-content: space-between; gap: 1
 /* UNIVERSAL CONVERTER EXTRAS */
 .uni-wrap { padding: 1.5rem; }
 .hidden { display: none !important; }
+
+/* Keep the expanded tools navigation within the viewport. */
+.nav-left { min-width: 0; flex: 1; }
+.nav-left > .logo, nav > .nav-badge { flex-shrink: 0; }
+.nav-links { min-width: 0; overflow-x: auto; }

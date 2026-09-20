@@ -6,6 +6,7 @@ export async function appendPDFPage(output, source, index, target, api) {
     return;
   }
   const page = source.getPage(index);
+  if (!page.node.Contents()) { output.addPage(target); return; }
   const crop = page.getCropBox();
   const embedded = await output.embedPage(page, {
     left: crop.x, bottom: crop.y, right: crop.x + crop.width, top: crop.y + crop.height,

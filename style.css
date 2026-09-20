@@ -204,3 +204,14 @@ nav { display: flex; align-items: center; justify-content: space-between; gap: 1
 .nav-left { min-width: 0; flex: 1; }
 .nav-left > .logo, nav > .nav-badge { flex-shrink: 0; }
 .nav-links { min-width: 0; overflow-x: auto; }
+
+/* Direct access to the five editors, visible beside the existing tool menu. */
+.creative-tools-bar { max-width: 1500px; margin: 0 auto; padding: 16px 24px 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+.creative-tools-bar a { min-width: 0; display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1px solid var(--border); border-radius: 10px; color: var(--black); text-decoration: none; background: var(--white); transition: border-color .15s, background .15s; }
+.creative-tools-bar a:hover { background: var(--gl); border-color: var(--green); }
+.creative-tools-bar a:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; }
+.creative-tools-bar a > span { color: var(--green); font-size: 25px; line-height: 1; flex-shrink: 0; }
+.creative-tools-bar strong { display: block; font-size: 14px; font-weight: 700; }
+.creative-tools-bar small { display: block; font-size: 12px; color: var(--muted); }
+@media (max-width: 1050px) { .creative-tools-bar { gap: 7px; padding: 12px 16px 0; } .creative-tools-bar a { padding: 10px; gap: 7px; } .creative-tools-bar small { font-size: 11px; } }
+@media (max-width: 750px) { .creative-tools-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); } .creative-tools-bar a:last-child { grid-column: 1 / -1; } .creative-tools-bar small { font-size: 12px; } }

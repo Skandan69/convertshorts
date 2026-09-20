@@ -117,7 +117,7 @@ body>.app{height:calc(100vh - var(--cs-strip,44px));min-height:520px;display:fle
     <button class="tab" data-tab="colour">Colour in</button>
     <button class="tab" data-tab="animate">Animate</button>
     <button class="tab" data-tab="life">Bring to life</button>
-    <button class="tab" data-tab="game">Make a game</button>
+    
   </div>
   <span class="spacer"></span>
   <button class="btn ghost" id="undo">↶ Undo</button>
@@ -1148,8 +1148,7 @@ const GAME_ENGINE = '<!DOCTYPE html><html><head><meta charset="utf-8">'
 +' requestAnimationFrame(loop);}\n'
 +'function over(){state="done";if(score>best)best=score;\n'
 +' show("Game over","You scored <b>"+score+"</b>.<br>Best so far: "+best,"Play again");}\n'
-+'<\/script>
-</body></html>';
++'<\/script></body></html>';
 
 function buildGame(){
   const roles=readRoles();
@@ -1248,7 +1247,7 @@ setColour("#1b1f27");
 <p><strong>Draw</strong> is a straightforward sketching canvas with pencil, ink pen, marker and crayon brushes. Each brush behaves differently: pencil gives a light, textured line good for roughing out shapes, while ink pen lays down a solid, consistent stroke better suited to finished outlines.</p>
 <p><strong>Colour in</strong> turns a line drawing into something you can fill. Useful if you have outlines you want to shade without worrying about going over the edges.</p>
 <p><strong>Animate</strong> is where the frame-by-frame work happens. Add a frame, draw the next position, and repeat. The faint ghost of the previous frame stays visible behind your current one so you can line movement up accurately.</p>
-<p><strong>Make a game</strong> takes what you have drawn and puts it into a simple playable scene.</p>
+
 <h3>What onion skinning is, and why it matters</h3>
 <p>Onion skinning is the single most useful feature if you are animating. It shows a semi-transparent copy of the previous frame underneath the one you are drawing, so you can see exactly how far something has moved. Traditional animators worked this way for decades using translucent paper on a lightbox, and the principle has not changed.</p>
 <p>Without it you are guessing at spacing between frames, and the result tends to jitter. With it, you can keep a walk cycle or a bouncing ball consistent. The onion skin slider controls how strongly the previous frame shows through, so turn it up while blocking out rough movement and down when you are adding detail.</p>

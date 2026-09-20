@@ -1,6 +1,6 @@
 # ConvertShorts Creative Tools
 
-Entry point: `/studio` (Vercel clean URLs), with `#image`, `#pdf`, `#video`, `#design` and `#editor` workspaces. The existing converters remain intact. No backend, accounts, paid processing API, tracking script or file-upload service is added to this workspace.
+Separate entry points: `/image-tools`, `/pdf-tools`, `/video-tools`, `/design-studio` and `/video-editor` (Vercel clean URLs). Each page mounts only its own workspace. Old `/studio#image`, `#pdf`, `#video`, `#design` and `#editor` links redirect to the corresponding page. The existing converters remain intact. No backend, accounts, paid processing API, tracking script or file-upload service is added to this workspace.
 
 ## Features
 
@@ -22,7 +22,7 @@ All file contents remain in browser memory and are processed locally. Downloads 
 - Video: 250 MB total inputs, up to 30 clips, 30 MB music, even output dimensions from 16–1,920 px. Browser-playable inputs only. Device memory and browser support still determine practical limits; long/high-resolution timelines can fail or be slow. Exports are 30 fps and 48 kHz stereo.
 - MP4 and WebM are re-encoded. Target sizes use a one-pass bitrate estimate and are not guaranteed exact. Transitions fade through black rather than cross-dissolve overlapping clips. Background music plays once and is padded with silence if shorter than the timeline.
 - Title overlays are rendered to PNG with Canvas, so exports do not depend on FFmpeg's drawtext/font build configuration.
-- `vercel.json` adds COOP/COEP headers only to `/studio` and `/studio.html`, retaining existing converter headers. FFmpeg 0.11's multithreaded core needs cross-origin isolation and SharedArrayBuffer. Serve over HTTPS or localhost; `file://` does not work.
+- `vercel.json` includes COOP/COEP headers for the five feature routes and their `.html` variants, retaining existing converter headers. FFmpeg 0.11's multithreaded core needs cross-origin isolation and SharedArrayBuffer. Serve over HTTPS or localhost; `file://` does not work.
 
 ## Dependencies and notices
 
@@ -45,7 +45,7 @@ Run from the repository root:
 
 ```sh
 python tests/serve.py
-# Open http://localhost:4173/studio
+# Open http://localhost:4173/image-tools
 node tests/media-pipeline.mjs
 ```
 

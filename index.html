@@ -140,48 +140,35 @@
 }
 </script>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="/feature-navigation.css">
 </head>
 <body>
 
-<nav>
-  <div class="nav-left">
-    <a href="/" class="logo">Convert<span>Shorts</span></a>
-    <div class="nav-links">
-      <a href="/studio">✦ Creative Tools</a>
-      <a href="/" class="active">🎬 Convert Video</a>
-      <a href="/pdf">📄 Convert PDF &amp; Docs</a>
-      <a href="/chart-race">📊 Chart Race</a>
-      <a href="/stickmotion">🎭 Stickman Animator</a>
-      <a href="/stickman-studio">🧑‍🎨 Stickman Studio</a>
-      <a href="/canvas">🧠 Infinite Canvas</a>
-      <a href="/art-studio">🎨 Art Studio</a>
-      <a href="/stickframe">🕺 Stickframe</a>
+<div class="feature-header" role="banner">
+  <div class="feature-header-inner">
+    <div class="feature-brand-row">
+      <a href="/" class="feature-logo">Convert<span>Shorts</span></a>
+      <span class="feature-badge">100% Free · No Watermark</span>
+      <button class="feature-menu-toggle" aria-expanded="false" aria-controls="feature-links">All tools <span aria-hidden="true">☰</span></button>
     </div>
+    <nav class="feature-links" id="feature-links" aria-label="All tools">
+      <a href="/" aria-current="page"><span aria-hidden="true">🎬</span> Convert Video</a>
+      <a href="/pdf"><span aria-hidden="true">📄</span> Convert PDF &amp; Docs</a>
+      <a href="/chart-race"><span aria-hidden="true">📊</span> Chart Race</a>
+      <a href="/stickmotion"><span aria-hidden="true">🎭</span> Stickman Animator</a>
+      <a href="/stickman-studio"><span aria-hidden="true">🧑‍🎨</span> Stickman Studio</a>
+      <a href="/canvas"><span aria-hidden="true">🧠</span> Infinite Canvas</a>
+      <a href="/art-studio"><span aria-hidden="true">🎨</span> Art Studio</a>
+      <a href="/stickframe"><span aria-hidden="true">🕺</span> Stickframe</a>
+      <a href="/image-tools"><span aria-hidden="true">▧</span> Image Tools</a>
+      <a href="/pdf-tools"><span aria-hidden="true">▤</span> PDF Tools</a>
+      <a href="/video-tools"><span aria-hidden="true">▷</span> Video Tools</a>
+      <a href="/design-studio"><span aria-hidden="true">◈</span> Design Studio</a>
+      <a href="/video-editor"><span aria-hidden="true">▥</span> Video Editor</a>
+    </nav>
   </div>
-  <span class="nav-badge">100% Free · No Watermark</span>
-</nav>
-<button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Open tools menu">☰ Tools</button>
-<div class="mobile-nav" id="mobileNav">
-  <a href="/studio">✦ Image, PDF &amp; Video Editors</a>
-  <a href="/" class="active">🎬 Convert Video &mdash; 16:9 &harr; 9:16</a>
-  <a href="/pdf">📄 Convert PDF, Images, Word &amp; Excel</a>
-  <a href="/chart-race">📊 Chart Race — animated ranking videos</a>
-  <a href="/stickmotion">🎭 Stickman Animator — make stick figure videos</a>
-  <a href="/stickman-studio">🧑‍🎨 Stickman Studio — scenes, poses, flipbook, duel</a>
-  <a href="/canvas">🧠 Infinite Canvas — endless whiteboard</a>
-  <a href="/art-studio">🎨 Art Studio — draw, colour, animate</a>
-  <a href="/stickframe">🕺 Stickframe — write a scene, get a stickman video</a>
 </div>
-<script>document.getElementById('mobileNavToggle').onclick=function(){document.getElementById('mobileNav').classList.toggle('open')};</script>
-
-
-<div class="creative-tools-bar" role="navigation" aria-label="Image, PDF and video editing tools">
-  <a href="/studio#image"><span aria-hidden="true">▧</span><div><strong>Image Tools</strong><small>Resize · Crop · Compress</small></div></a>
-  <a href="/studio#pdf"><span aria-hidden="true">▤</span><div><strong>PDF Tools</strong><small>Merge · Split · Resize</small></div></a>
-  <a href="/studio#video"><span aria-hidden="true">▷</span><div><strong>Video Tools</strong><small>Trim · Resize · Compress</small></div></a>
-  <a href="/studio#design"><span aria-hidden="true">◈</span><div><strong>Design Studio</strong><small>Text · Images · Templates</small></div></a>
-  <a href="/studio#editor"><span aria-hidden="true">▥</span><div><strong>Video Editor</strong><small>Clips · Music · Captions</small></div></a>
-</div>
+<script src="/feature-navigation.js" defer></script>
 
 <header class="hero">
   <div class="hero-badge">Free · No Upload · No Watermark · No Account</div>

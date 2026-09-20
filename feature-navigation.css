@@ -1,0 +1,25 @@
+/* Scoped navigation shared by the converters and standalone feature pages. */
+.feature-header { background:#fff; border-bottom:1px solid #e3e5e1; color:#182923; font-family:Inter,system-ui,sans-serif; }
+.feature-header-inner { max-width:1600px; margin:0 auto; padding:14px 28px 12px; }
+.feature-brand-row { display:flex; align-items:center; gap:16px; margin-bottom:10px; }
+.feature-logo { font-size:22px; font-weight:850; letter-spacing:-.8px; color:#161b18; text-decoration:none; white-space:nowrap; }
+.feature-logo span { color:#169f73; }
+.feature-badge { margin-left:auto; font-size:12px; color:#087550; background:#e6f5ee; border-radius:20px; padding:4px 12px; white-space:nowrap; }
+.feature-header .feature-links { position:static; height:auto; min-height:0; display:flex; flex-wrap:wrap; justify-content:flex-start; align-items:center; gap:5px; overflow:visible; padding:0; margin:0; border:0; box-shadow:none; background:transparent; }
+.feature-header .feature-links a { display:inline-flex; align-items:center; gap:7px; padding:9px 12px; border:0; border-radius:7px; color:#626b66; text-decoration:none; font-size:13px; font-weight:600; line-height:1.35; white-space:nowrap; box-shadow:none; transition:background .15s; }
+.feature-header .feature-links a span { display:inline; color:inherit; font-size:15px; font-weight:400; }
+.feature-header .feature-links a:hover { color:#126d4f; background:#f1f7f3; }
+.feature-header .feature-links a[aria-current=page] { color:#087550; background:#e6f5ee; }
+.feature-header a:focus-visible,.feature-header button:focus-visible { outline:3px solid #169f73; outline-offset:2px; }
+.feature-menu-toggle { display:none; }
+.app.standalone { display:block; max-width:1440px; min-height:calc(100vh - 190px); }
+@media(max-width:700px) {
+  .feature-header-inner { padding:14px; }
+  .feature-brand-row { margin-bottom:0; flex-wrap:wrap; gap:10px; }
+  .feature-logo { font-size:20px; }
+  .feature-badge { font-size:10px; padding:4px 7px; }
+  .feature-menu-toggle { display:flex; justify-content:space-between; align-items:center; width:100%; padding:9px 12px; margin-top:3px; border:1px solid #dce5df; border-radius:7px; background:#f7faf8; color:#126d4f; font:600 13px/1.4 Inter,system-ui,sans-serif; cursor:pointer; }
+  .feature-header .feature-links { display:none; padding-top:12px; }
+  .feature-header .feature-links.is-open { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:5px; }
+  .feature-header .feature-links a { white-space:normal; font-size:12px; padding:10px 8px; min-height:42px; }
+}

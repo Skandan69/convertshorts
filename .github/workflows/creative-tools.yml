@@ -25,6 +25,8 @@ jobs:
           sudo apt-get install -y ffmpeg
           npm install --prefix tests --no-save --package-lock=false --ignore-scripts playwright@1.62.1
           tests/node_modules/.bin/playwright install --with-deps chromium
+      - name: Validate static feature SEO
+        run: python tests/seo-pages.py
       - name: Validate PDF and encoding pipeline
         run: node tests/media-pipeline.mjs
       - name: Verify browser editing and real downloads

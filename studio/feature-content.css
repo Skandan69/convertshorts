@@ -1,0 +1,40 @@
+/* Guides stay below the workspace and affect only the five feature pages. */
+.feature-intro { margin-bottom:24px; }
+.feature-intro h1 { max-width:1000px; line-height:1.2; }
+.feature-intro .intro { max-width:900px; margin:12px 0; }
+.feature-breadcrumbs { display:flex; flex-wrap:wrap; gap:8px; list-style:none; padding:0; margin:0 0 16px; color:var(--muted); font-size:12px; }
+.feature-breadcrumbs li+li::before { content:'/'; margin-right:8px; color:#8c9a92; }
+.feature-breadcrumbs a { text-decoration:none; }
+.feature-jumps { display:flex; flex-wrap:wrap; gap:8px 20px; font-size:13px; }
+.feature-jumps a { text-underline-offset:3px; }
+.feature-guide { margin:48px auto 0; max-width:1040px; line-height:1.75; }
+.feature-guide section { border-top:1px solid var(--line); padding:30px 0; scroll-margin-top:20px; }
+.feature-guide h2 { font-size:23px; line-height:1.3; letter-spacing:-.4px; margin:0 0 18px; }
+.feature-guide h3 { font-size:16px; line-height:1.4; margin:0 0 10px; }
+.feature-guide p { color:var(--muted); margin:10px 0 16px; }
+.feature-guide a { text-underline-offset:3px; }
+.feature-guide .feature-kicker { font-size:11px; letter-spacing:1.5px; color:var(--green); font-weight:750; margin:0 0 10px; }
+.feature-steps { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:22px; padding-left:24px; margin:22px 0 0; }
+.feature-steps li { padding-left:4px; }
+.feature-steps li::marker { font-weight:700; color:var(--green); }
+.feature-steps p { font-size:14px; }
+.feature-guide table { width:100%; border-collapse:collapse; margin:20px 0; font-size:14px; table-layout:fixed; }
+.feature-guide caption { text-align:left; color:var(--muted); font-size:12px; margin-bottom:8px; }
+.feature-guide th,.feature-guide td { padding:12px 14px; text-align:left; border:1px solid var(--line); vertical-align:top; overflow-wrap:anywhere; }
+.feature-guide th { font-weight:650; background:#eaf2ed; }
+.feature-guide td { background:#fff; color:var(--muted); }
+.feature-guide details { background:white; border:1px solid var(--line); border-radius:9px; margin:10px 0; padding:0 18px; }
+.feature-guide summary { cursor:pointer; font-weight:600; padding:15px 0; line-height:1.5; }
+.feature-guide details p { padding:0 0 4px; margin:0 0 14px; }
+.feature-related ul { padding-left:20px; }
+.feature-related li { margin:8px 0; }
+.feature-back { display:inline-block; margin-top:14px; font-weight:600; }
+#workspace { scroll-margin-top:20px; }
+@media(max-width:700px) {
+ .feature-guide { margin-top:32px; font-size:14px; }
+ .feature-guide h2 { font-size:21px; }
+ .feature-guide section { padding:24px 0; }
+ .feature-steps { grid-template-columns:1fr; gap:10px; }
+ .feature-guide th,.feature-guide td { padding:9px 8px; font-size:12px; }
+ .feature-guide details { padding:0 13px; }
+}

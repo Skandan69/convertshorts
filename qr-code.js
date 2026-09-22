@@ -134,7 +134,43 @@
     return { r: parseInt(value.slice(0,2),16), g: parseInt(value.slice(2,4),16), b: parseInt(value.slice(4,6),16) };
   }
 
-  function drawFaceMosaic(qr) {
+  
+function drawPhotoInside(qr){
+  var canvas=document.getElementById("qrCanvas");
+  var ctx=canvas.getContext("2d");
+  var size=canvas.width;
+  var geo=qrGeometry(qr,size);
+  var quiet=geo.quiet, count=geo.count, cell=geo.cell;
+  var bgEl=document.getElementById("backgroundColour");
+  ctx.fillStyle=bgEl?bgEl.value:"#ffffff";
+  ctx.fillRect(0,0,size,size);
+  var img=state.photo;
+  var side=cell*count;
+  if(img){
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(quiet,quiet,side,side);
+    ctx.clip();
+    var s=Math.min(img.width,img.height);
+    ctx.drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,quiet,quiet,side,side);
+    ctx.restore();
+  }
+  var cornerEl=document.getElementById("cornerColour");
+  for(var r=0;r<count;r++){
+    for(var c=0;c<count;c++){
+      var dark=qr.isDark(r,c);
+      var x=quiet+c*cell, y=quiet+r*cell;
+      if(isFinder(r,c,count)){
+        ctx.fillStyle=dark?(cornerEl?cornerEl.value:"#000000"):"#ffffff";
+        ctx.fillRect(x,y,cell,cell);
+        continue;
+      }
+      ctx.fillStyle=dark?"rgba(0,0,0,0.76)":"rgba(255,255,255,0.84)";
+      ctx.fillRect(x,y,cell,cell);
+    }
+  }
+}
+function drawFaceMosaic(qr) {
     const size = photoCanvas.width;
     const { quiet, count, cell } = qrGeometry(qr, size);
     const sample = document.createElement('canvas');
@@ -179,7 +215,7 @@
       photoCanvas.classList.toggle('hidden', !photoActive);
       $('#qrStage').classList.toggle('photo-active', !!photoActive && state.photoStyle === 'card');
       if (photoActive) {
-        if (state.photoStyle === 'mosaic') drawFaceMosaic(qr); else drawPhotoCard(qr);
+        if (state.photoStyle === 'mosaic') if(state.photoStyle==="inside"){ drawPhotoInside(qr); } else { drawFaceMosaic(qr); } else drawPhotoCard(qr);
       } else {
         drawQr(context, qr, canvas.width);
         if (state.mode === 'logo') drawLogo(context, canvas.width);

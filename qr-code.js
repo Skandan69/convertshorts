@@ -250,7 +250,7 @@ function drawPhotoInside(qr){
       // centre dot sized so a blurred camera still reads the right polarity
       ctx.fillStyle = want ? fg : bg;
       ctx.beginPath();
-      ctx.arc(bx+cell/2, by+cell/2, cell*0.38, 0, Math.PI*2);
+      ctx.arc(bx+cell/2, by+cell/2, cell*0.22, 0, Math.PI*2);
       ctx.fill();
     }
   }

@@ -235,14 +235,11 @@ function drawPhotoInside(qr){
         }
       }
       // keep the module average on the correct side of mid-grey
-      if(want && darkCount<5){
-        for(var fy=0;fy<sub&&darkCount<5;fy++) for(var fx=0;fx<sub&&darkCount<5;fx++){
-          var fi=(r*sub+fy)*N+(c*sub+fx); if(!outDark[fi]){ outDark[fi]=1; darkCount++; }
-        }
-      } else if(!want && darkCount>4){
-        for(var gy=0;gy<sub&&darkCount>4;gy++) for(var gx=0;gx<sub&&darkCount>4;gx++){
-          var gi=(r*sub+gy)*N+(c*sub+gx); if(outDark[gi]){ outDark[gi]=0; darkCount--; }
-        }
+      // leave the photo as much freedom as the bigger centre dot allows
+      if(want && darkCount<1){
+        var fi0=(r*sub+1)*N+(c*sub+0); outDark[fi0]=1; darkCount++;
+      } else if(!want && darkCount>8){
+        var gi0=(r*sub+1)*N+(c*sub+0); outDark[gi0]=0; darkCount--;
       }
       for(var sy=0;sy<sub;sy++){
         for(var sx=0;sx<sub;sx++){
@@ -253,7 +250,7 @@ function drawPhotoInside(qr){
       // centre dot sized so a blurred camera still reads the right polarity
       ctx.fillStyle = want ? fg : bg;
       ctx.beginPath();
-      ctx.arc(bx+cell/2, by+cell/2, cell*0.30, 0, Math.PI*2);
+      ctx.arc(bx+cell/2, by+cell/2, cell*0.38, 0, Math.PI*2);
       ctx.fill();
     }
   }

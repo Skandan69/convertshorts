@@ -135,43 +135,77 @@
   }
 
   
+function hiResQr(payload, minVersion){
+  for(var v=minVersion; v<=20; v++){
+    try{ var q=qrcode(v,"H"); q.addData(payload); q.make(); return q; }catch(e){}
+  }
+  var f=qrcode(0,"H"); f.addData(payload); f.make(); return f;
+}
+
 function drawPhotoInside(qr){
-  var canvas=photoCanvas;
-  var ctx=photoContext;
-  var size=canvas.width;
+  var canvas=photoCanvas, ctx=photoContext, size=canvas.width;
+  var detailEl=document.getElementById("photoDetail");
+  var detail=detailEl?parseInt(detailEl.value,10):10;
+  try{ qr = hiResQr(state.payload, detail); }catch(e){}
   var geo=qrGeometry(qr,size);
   var quiet=geo.quiet, count=geo.count, cell=geo.cell;
   var bgEl=document.getElementById("backgroundColour");
   var fgEl=document.getElementById("qrColour");
   var cornerEl=document.getElementById("cornerColour");
-  var bg=bgEl?bgEl.value:"#ffffff";
-  var fg=fgEl?fgEl.value:"#000000";
+  var bg=bgEl?bgEl.value:"#ffffff", fg=fgEl?fgEl.value:"#000000";
   ctx.fillStyle=bg; ctx.fillRect(0,0,size,size);
   var img=state.photo;
   if(!img){ drawQr(ctx,qr,size,{}); return; }
-  var sub=3, gridN=count*sub;
-  var tmp=document.createElement("canvas"); tmp.width=gridN; tmp.height=gridN;
+
+  var sub=3, N=count*sub;
+  var tmp=document.createElement("canvas"); tmp.width=N; tmp.height=N;
   var tctx=tmp.getContext("2d");
   var s=Math.min(img.width,img.height);
-  tctx.drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,gridN,gridN);
-  var data=tctx.getImageData(0,0,gridN,gridN).data;
-  function lum(gx,gy){ var i=(gy*gridN+gx)*4; return data[i]*0.299+data[i+1]*0.587+data[i+2]*0.114; }
+  tctx.drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,N,N);
+  var px=tctx.getImageData(0,0,N,N).data;
+
+  var grey=new Float32Array(N*N), lo=255, hi=0, i;
+  for(i=0;i<N*N;i++){
+    var v=px[i*4]*0.299+px[i*4+1]*0.587+px[i*4+2]*0.114;
+    grey[i]=v; if(v<lo)lo=v; if(v>hi)hi=v;
+  }
+  var span=Math.max(hi-lo,1);
+  for(i=0;i<N*N;i++){
+    var n=(grey[i]-lo)/span;
+    n=Math.pow(n,0.85);
+    grey[i]=Math.min(255,Math.max(0,n*255));
+  }
+
+  function forced(gx,gy){ return (gx%sub===1)&&(gy%sub===1); }
+  var outDark=new Uint8Array(N*N);
+  for(var y=0;y<N;y++){
+    for(var x=0;x<N;x++){
+      var idx=y*N+x, old=grey[idx], dark;
+      if(forced(x,y)) dark = qr.isDark(Math.floor(y/sub), Math.floor(x/sub));
+      else dark = old < 128;
+      outDark[idx]=dark?1:0;
+      var err=old-(dark?0:255);
+      if(x+1<N && !forced(x+1,y)) grey[idx+1] += err*7/16;
+      if(y+1<N){
+        if(x>0 && !forced(x-1,y+1))   grey[idx+N-1] += err*3/16;
+        if(!forced(x,y+1))            grey[idx+N]   += err*5/16;
+        if(x+1<N && !forced(x+1,y+1)) grey[idx+N+1] += err*1/16;
+      }
+    }
+  }
+
   var sc=cell/sub;
   for(var r=0;r<count;r++){
     for(var c=0;c<count;c++){
-      var dark=qr.isDark(r,c);
       var bx=quiet+c*cell, by=quiet+r*cell;
       if(isFinder(r,c,count)){
-        ctx.fillStyle=dark?(cornerEl?cornerEl.value:fg):bg;
+        ctx.fillStyle=qr.isDark(r,c)?(cornerEl?cornerEl.value:fg):bg;
         ctx.fillRect(bx,by,cell,cell);
         continue;
       }
       for(var sy=0;sy<sub;sy++){
         for(var sx=0;sx<sub;sx++){
-          var colour;
-          if(sx===1&&sy===1){ colour = dark ? fg : bg; }
-          else { colour = lum(c*sub+sx, r*sub+sy) < 128 ? fg : bg; }
-          ctx.fillStyle=colour;
+          ctx.fillStyle = outDark[(r*sub+sy)*N + (c*sub+sx)] ? fg : bg;
           ctx.fillRect(bx+sx*sc, by+sy*sc, sc+0.5, sc+0.5);
         }
       }

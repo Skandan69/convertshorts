@@ -136,8 +136,8 @@
 
   
 function drawPhotoInside(qr){
-  var canvas=document.getElementById("qrCanvas");
-  var ctx=canvas.getContext("2d");
+  var canvas=photoCanvas;
+  var ctx=photoContext;
   var size=canvas.width;
   var geo=qrGeometry(qr,size);
   var quiet=geo.quiet, count=geo.count, cell=geo.cell;

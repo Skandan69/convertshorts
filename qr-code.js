@@ -142,31 +142,39 @@ function drawPhotoInside(qr){
   var geo=qrGeometry(qr,size);
   var quiet=geo.quiet, count=geo.count, cell=geo.cell;
   var bgEl=document.getElementById("backgroundColour");
-  ctx.fillStyle=bgEl?bgEl.value:"#ffffff";
-  ctx.fillRect(0,0,size,size);
-  var img=state.photo;
-  var side=cell*count;
-  if(img){
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(quiet,quiet,side,side);
-    ctx.clip();
-    var s=Math.min(img.width,img.height);
-    ctx.drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,quiet,quiet,side,side);
-    ctx.restore();
-  }
+  var fgEl=document.getElementById("qrColour");
   var cornerEl=document.getElementById("cornerColour");
+  var bg=bgEl?bgEl.value:"#ffffff";
+  var fg=fgEl?fgEl.value:"#000000";
+  ctx.fillStyle=bg; ctx.fillRect(0,0,size,size);
+  var img=state.photo;
+  if(!img){ drawQr(ctx,qr,size,{}); return; }
+  var sub=3, gridN=count*sub;
+  var tmp=document.createElement("canvas"); tmp.width=gridN; tmp.height=gridN;
+  var tctx=tmp.getContext("2d");
+  var s=Math.min(img.width,img.height);
+  tctx.drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,gridN,gridN);
+  var data=tctx.getImageData(0,0,gridN,gridN).data;
+  function lum(gx,gy){ var i=(gy*gridN+gx)*4; return data[i]*0.299+data[i+1]*0.587+data[i+2]*0.114; }
+  var sc=cell/sub;
   for(var r=0;r<count;r++){
     for(var c=0;c<count;c++){
       var dark=qr.isDark(r,c);
-      var x=quiet+c*cell, y=quiet+r*cell;
+      var bx=quiet+c*cell, by=quiet+r*cell;
       if(isFinder(r,c,count)){
-        ctx.fillStyle=dark?(cornerEl?cornerEl.value:"#000000"):"#ffffff";
-        ctx.fillRect(x,y,cell,cell);
+        ctx.fillStyle=dark?(cornerEl?cornerEl.value:fg):bg;
+        ctx.fillRect(bx,by,cell,cell);
         continue;
       }
-      ctx.fillStyle=dark?"rgba(0,0,0,0.76)":"rgba(255,255,255,0.84)";
-      ctx.fillRect(x,y,cell,cell);
+      for(var sy=0;sy<sub;sy++){
+        for(var sx=0;sx<sub;sx++){
+          var colour;
+          if(sx===1&&sy===1){ colour = dark ? fg : bg; }
+          else { colour = lum(c*sub+sx, r*sub+sy) < 128 ? fg : bg; }
+          ctx.fillStyle=colour;
+          ctx.fillRect(bx+sx*sc, by+sy*sc, sc+0.5, sc+0.5);
+        }
+      }
     }
   }
 }
@@ -215,7 +223,8 @@ function drawFaceMosaic(qr) {
       photoCanvas.classList.toggle('hidden', !photoActive);
       $('#qrStage').classList.toggle('photo-active', !!photoActive && state.photoStyle === 'card');
       if (photoActive) {
-        if (state.photoStyle === 'mosaic') if(state.photoStyle==="inside"){ drawPhotoInside(qr); } else { drawFaceMosaic(qr); } else drawPhotoCard(qr);
+        if (state.photoStyle === 'inside') drawPhotoInside(qr);
+    else if (state.photoStyle === 'mosaic') drawFaceMosaic(qr); else drawPhotoCard(qr);
       } else {
         drawQr(context, qr, canvas.width);
         if (state.mode === 'logo') drawLogo(context, canvas.width);

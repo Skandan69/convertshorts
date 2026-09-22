@@ -172,8 +172,33 @@ function drawPhotoInside(qr){
   var span=Math.max(hi-lo,1);
   for(i=0;i<N*N;i++){
     var n=(grey[i]-lo)/span;
-    n=Math.pow(n,0.85);
     grey[i]=Math.min(255,Math.max(0,n*255));
+  }
+
+  // soften sensor noise and fine texture so they do not become dither speckle
+  var blur=new Float32Array(N*N);
+  for(var by=0;by<N;by++){
+    for(var bx=0;bx<N;bx++){
+      var sum=0,cnt=0;
+      for(var dy=-1;dy<=1;dy++){
+        for(var dx=-1;dx<=1;dx++){
+          var nx=bx+dx, ny=by+dy;
+          if(nx<0||ny<0||nx>=N||ny>=N) continue;
+          sum+=grey[ny*N+nx]; cnt++;
+        }
+      }
+      blur[by*N+bx]=sum/cnt;
+    }
+  }
+
+  // unsharp mask: push facial edges apart, then a contrast curve
+  var strengthEl=document.getElementById("photoContrast");
+  var amt=strengthEl?parseInt(strengthEl.value,10)/100:1.2;
+  for(i=0;i<N*N;i++){
+    var sharp=grey[i]+(grey[i]-blur[i])*1.1;
+    var t=(sharp-128)/128;
+    t=Math.tanh(t*amt);
+    grey[i]=Math.min(255,Math.max(0,128+t*128));
   }
 
   function forced(gx,gy){ return (gx%sub===1)&&(gy%sub===1); }

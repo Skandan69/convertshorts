@@ -228,12 +228,33 @@ function drawPhotoInside(qr){
         ctx.fillRect(bx,by,cell,cell);
         continue;
       }
+      var want=qr.isDark(r,c), darkCount=0;
+      for(var sy=0;sy<sub;sy++){
+        for(var sx=0;sx<sub;sx++){
+          if(outDark[(r*sub+sy)*N + (c*sub+sx)]) darkCount++;
+        }
+      }
+      // keep the module average on the correct side of mid-grey
+      if(want && darkCount<5){
+        for(var fy=0;fy<sub&&darkCount<5;fy++) for(var fx=0;fx<sub&&darkCount<5;fx++){
+          var fi=(r*sub+fy)*N+(c*sub+fx); if(!outDark[fi]){ outDark[fi]=1; darkCount++; }
+        }
+      } else if(!want && darkCount>4){
+        for(var gy=0;gy<sub&&darkCount>4;gy++) for(var gx=0;gx<sub&&darkCount>4;gx++){
+          var gi=(r*sub+gy)*N+(c*sub+gx); if(outDark[gi]){ outDark[gi]=0; darkCount--; }
+        }
+      }
       for(var sy=0;sy<sub;sy++){
         for(var sx=0;sx<sub;sx++){
           ctx.fillStyle = outDark[(r*sub+sy)*N + (c*sub+sx)] ? fg : bg;
           ctx.fillRect(bx+sx*sc, by+sy*sc, sc+0.5, sc+0.5);
         }
       }
+      // centre dot sized so a blurred camera still reads the right polarity
+      ctx.fillStyle = want ? fg : bg;
+      ctx.beginPath();
+      ctx.arc(bx+cell/2, by+cell/2, cell*0.30, 0, Math.PI*2);
+      ctx.fill();
     }
   }
 }

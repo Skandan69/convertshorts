@@ -1,0 +1,68 @@
+[
+  {
+    "id": "photocraft",
+    "version": "0.5.0",
+    "commit": "e5e3e397523b4db6a016dd19526e4c68514fcc72",
+    "source": "https://github.com/storytold/photocraft",
+    "release": "https://github.com/storytold/photocraft/releases/tag/v0.5.0",
+    "name": "photocraft-web-0.5.0.zip",
+    "url": "https://github.com/storytold/photocraft/releases/download/v0.5.0/photocraft-web-0.5.0.zip",
+    "bytes": 9363108,
+    "sha256": "855da01e7ce518049c6f3a090f1218864f7b780811e340db409e5c3cef93cd6d"
+  },
+  {
+    "id": "vectorcraft",
+    "version": "0.7.0",
+    "commit": "af7a5239be4636035abf7ecf79e6b0b8d274c7c3",
+    "source": "https://github.com/storytold/vectorcraft",
+    "release": "https://github.com/storytold/vectorcraft/releases/tag/v0.7.0",
+    "name": "vectorcraft-web-0.7.0.zip",
+    "url": "https://github.com/storytold/vectorcraft/releases/download/v0.7.0/vectorcraft-web-0.7.0.zip",
+    "bytes": 19487517,
+    "sha256": "743399a836b82eedf6d1c96eeed89d1a1e1087a964b0ad7d3c8a5810326f999a"
+  },
+  {
+    "id": "lightcraft",
+    "version": "0.4.0",
+    "commit": "2472021091a28eb93a05947cfc9b941d3911543a",
+    "source": "https://github.com/storytold/lightcraft",
+    "release": "https://github.com/storytold/lightcraft/releases/tag/v0.4.0",
+    "name": "lightcraft-web-0.4.0.zip",
+    "url": "https://github.com/storytold/lightcraft/releases/download/v0.4.0/lightcraft-web-0.4.0.zip",
+    "bytes": 64590667,
+    "sha256": "1c0c0d760f290993903a1399f054900faa2aa410737aca0d43f16127ec9554af"
+  },
+  {
+    "id": "pdfcraft",
+    "version": "0.4.0",
+    "commit": "96c58f6f4452f8f8d23c3071ff252a8e3395bac1",
+    "source": "https://github.com/storytold/pdfcraft",
+    "release": "https://github.com/storytold/pdfcraft/releases/tag/v0.4.0",
+    "name": "pdfcraft-web-0.4.0.zip",
+    "url": "https://github.com/storytold/pdfcraft/releases/download/v0.4.0/pdfcraft-web-0.4.0.zip",
+    "bytes": 14462694,
+    "sha256": "9fc19ab631e4a8c1889f227e01a1d9ff3e7a983a7b56ad4e56686d6b94b2bcbe"
+  },
+  {
+    "id": "effectcraft",
+    "version": "0.6.0",
+    "commit": "6943872cf65b3da1275f1e0f808b60b2e51d84dc",
+    "source": "https://github.com/storytold/effectcraft",
+    "release": "https://github.com/storytold/effectcraft/releases/tag/v0.6.0",
+    "name": "effectcraft-web-0.6.0.zip",
+    "url": "https://github.com/storytold/effectcraft/releases/download/v0.6.0/effectcraft-web-0.6.0.zip",
+    "bytes": 17948306,
+    "sha256": "396e490f66dc94780fcafeea4a389b7b6202b8053165754d0b26a442e0ab245b"
+  },
+  {
+    "id": "designcraft",
+    "version": "0.4.0",
+    "commit": "14e677b24216396e398823ff034d9882322362d1",
+    "source": "https://github.com/storytold/designcraft",
+    "release": "https://github.com/storytold/designcraft/releases/tag/v0.4.0",
+    "name": "designcraft-web-0.4.0.zip",
+    "url": "https://github.com/storytold/designcraft/releases/download/v0.4.0/designcraft-web-0.4.0.zip",
+    "bytes": 17564720,
+    "sha256": "9fb8b1416c16757e7f54b429d3fe29577cf838a8be1b64afd14e55574a02dfec"
+  }
+]

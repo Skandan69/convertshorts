@@ -18,6 +18,7 @@ class Page(HTMLParser):
         self.h1 = self.details = self.mains = 0
         self.title = ''
         self.json = ''
+        self.json_blocks = []
         self.read_title = self.read_json = False
         self.feed(source)
     def handle_starttag(self, tag, attrs):
@@ -30,10 +31,14 @@ class Page(HTMLParser):
         if tag == 'details': self.details += 1
         if tag == 'main': self.mains += 1
         if tag == 'title': self.read_title = True
-        if tag == 'script' and a.get('type') == 'application/ld+json': self.read_json = True
+        if tag == 'script' and a.get('type') == 'application/ld+json':
+            self.read_json = True
+            self.json = ''
     def handle_endtag(self, tag):
         if tag == 'title': self.read_title = False
-        if tag == 'script': self.read_json = False
+        if tag == 'script' and self.read_json:
+            self.json_blocks.append(json.loads(self.json))
+            self.read_json = False
     def handle_data(self, data):
         if self.read_title: self.title += data
         if self.read_json: self.json += data
@@ -42,6 +47,7 @@ titles, descriptions = set(), set()
 ns = {'s': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
 sitemap = ET.parse(ROOT / 'sitemap.xml')
 urls = {n.find('s:loc', ns).text: n for n in sitemap.findall('s:url', ns)}
+redirects = {BASE + r['source']: BASE + r['destination'] for r in json.loads((ROOT / 'vercel.json').read_text()).get('redirects', []) if r.get('permanent')}
 for slug in SLUGS:
     source = (ROOT / f'{slug}.html').read_text()
     page = Page(source)
@@ -62,12 +68,13 @@ for slug in SLUGS:
         elif href.startswith('/'):
             target = href.split('#')[0].split('?')[0].lstrip('/') or 'index'
             assert (ROOT / target).exists() or (ROOT / f'{target}.html').exists(), (slug, href)
-    graph = json.loads(page.json)['@graph']
+    graph = next(block['@graph'] for block in page.json_blocks if '@graph' in block)
     types = {n['@type']: n for n in graph}
     assert set(types) == {'WebPage', 'WebApplication', 'BreadcrumbList'}, slug
     assert types['WebPage']['mainEntity']['@id'] == types['WebApplication']['@id'], slug
     assert types['WebPage']['breadcrumb']['@id'] == types['BreadcrumbList']['@id'], slug
     assert types['WebApplication']['offers']['price'] == '0', slug
     assert types['BreadcrumbList']['itemListElement'][-1]['item'] == url, slug
-    assert url in urls and urls[url].find('s:lastmod', ns) is not None, slug
+    sitemap_url = redirects.get(url, url)
+    assert sitemap_url in urls and urls[sitemap_url].find('s:lastmod', ns) is not None, slug
     print(f'PASS {slug}: static content, unique metadata, canonical, schema, links and sitemap')

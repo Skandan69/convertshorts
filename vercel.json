@@ -137,7 +137,7 @@
   "rewrites": [
     {
       "source": "/apps/engines/:engine/editor",
-      "destination": "/apps/engines/:engine/index.html"
+      "destination": "/apps/engines/:engine"
     }
   ]
 }

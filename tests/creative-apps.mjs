@@ -45,5 +45,7 @@ for(const app of APPS){
 for(const file of ['index.html','app.js','video-editor.html','image-tools.html','pdf-tools.html','qr-code.html','studio/app.js','canvas/index.html']) await fs.access(path.join(root,'dist',file));
 const cfg=JSON.parse(await fs.readFile(path.join(root,'vercel.json'),'utf8'));
 assert.equal(cfg.outputDirectory,'dist');
+assert.ok(cfg.rewrites.some(r=>r.source==='/apps/engines/:engine/editor'&&r.destination==='/apps/engines/:engine'));
+if(cfg.cleanUrls) assert.ok(cfg.rewrites.every(r=>!r.source.endsWith('.html')&&!r.destination.endsWith('.html')),'cleanUrls requires extensionless rewrite paths');
 assert.ok(cfg.headers.some(h=>h.source==='/apps/:path*'&&h.headers.some(v=>v.key==='Cross-Origin-Embedder-Policy'&&v.value==='require-corp')));
 console.log('PASS seven studio routes, preserved tools and hosting configuration');

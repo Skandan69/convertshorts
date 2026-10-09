@@ -1,0 +1,37 @@
+name: Creative apps integration
+on:
+  pull_request:
+    paths:
+      - 'apps/**'
+      - 'scripts/**'
+      - 'tests/creative-apps*'
+      - 'vercel.json'
+      - '.github/workflows/creative-apps.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - run: node scripts/build-creative-apps.mjs
+      - run: node tests/creative-apps.mjs
+      - name: Install browser test runtime
+        run: |
+          npm install --prefix tests --no-save --package-lock=false --ignore-scripts playwright@1.62.1
+          tests/node_modules/.bin/playwright install --with-deps chromium
+      - name: Check browser workspaces
+        run: |
+          python tests/serve.py > /tmp/convertshorts-server.log 2>&1 &
+          node tests/creative-apps-browser.cjs
+      - name: Save browser screenshots and startup results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: creative-apps-results
+          path: tests/results/creative-apps/
+          retention-days: 7

@@ -11,6 +11,8 @@ class Handler(SimpleHTTPRequestHandler):
         super().end_headers()
     def do_GET(self):
         path = self.path.split('?')[0]
+        if path.startswith('/apps/engines/') and path.endswith('/editor'):
+            self.path = path[:-len('editor')] + 'index.html'
         if path in ['/studio', '/pdf', '/image-tools', '/pdf-tools', '/video-tools', '/design-studio', '/video-editor']:
             self.path = path + '.html'
         super().do_GET()

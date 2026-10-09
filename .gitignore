@@ -1,3 +1,7 @@
 node_modules/
 tests/results/
 .DS_Store
+
+.creative-cache/
+apps/engines/
+dist/

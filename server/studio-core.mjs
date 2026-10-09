@@ -72,9 +72,10 @@ export function validateSchema(value,schema,path='input',depth=0){
  return value;
 }
 export function normalizeMedia(result,kind){
-  const entries=[];const add=(v,type)=>{if(!v)return;const url=typeof v==='string'?v:v.url;try{const u=new URL(url);if(u.protocol!=='https:')return;entries.push({url:u.href,type,name:typeof v==='object'?v.file_name:undefined,mime:typeof v==='object'?v.content_type:undefined});}catch{}};
+  const entries=[];const add=(v,type)=>{if(!v)return;const url=typeof v==='string'?v:v.url;try{const u=new URL(url);if(u.protocol!=='https:')return;if(entries.some(e=>e.url===u.href))return;entries.push({url:u.href,type,name:typeof v==='object'?v.file_name:undefined,mime:typeof v==='object'?v.content_type:undefined});}catch{}};
   for(const v of result.images||[])add(v,'image');add(result.image,'image');add(result.video,'video');add(result.audio||result.audio_url||result.audio_file,'audio');add(result.model_glb||result.glb||result.model_urls?.glb||result.model||(kind==='object'?result.model_mesh:null),'model');add((kind==='world'?result.model_mesh:null)||result.world_file||result.gaussian_splat||result.gaussian_splat_file||result.splat||result.ply,'world');
   if(result.output&&typeof result.output==='object'){for(const key of ['model_glb','glb'])add(result.output[key],'model');for(const key of ['ply','splat'])add(result.output[key],'world');}
   for(const v of result.videos||[])add(v,'video');
+  add(result.mask_video,'video');add(result.model_obj,'model');for(const [format,v] of Object.entries(result.model_urls||{}))add(v,['glb','fbx','obj'].includes(format)?'model':format==='texture'?'image':'file');for(const key of ['rigged_character_glb','rigged_character_fbx','animation_glb','animation_fbx'])add(result[key],'model');for(const v of result.result_files||[])add(v,/\.(glb|fbx|obj)$/i.test(v.file_name||v.url)?'model':'file');add(result.material_mtl,'file');add(result.texture,'image');
   if(!entries.length)throw new StudioError('The provider finished without a usable media file. Check the request in your Fal dashboard.',502);return entries;
 }

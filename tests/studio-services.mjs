@@ -39,7 +39,7 @@ globalThis.fetch=async(url,options={})=>{
 for(const m of MODELS.filter(m=>m.adapter==='schema'))assert.ok(Object.keys(m.schema.properties).length>0,m.id+' has no parameters');
 
 for(const m of MODELS.filter(m=>m.adapter==='schema')){assert.throws(()=>prepareGeneration({model:m.id,input:{untrusted_parameter:true}}),undefined,m.id);}
-assert.equal(normalizeMedia({model_mesh:{url:'https://fal.media/test.ply'}},'world')[0].type,'world');
+assert.equal(normalizeMedia({model_obj:{url:'https://fal.media/test.obj'}},'object')[0].type,'model');assert.equal(normalizeMedia({result_files:[{url:'https://fal.media/part.fbx',file_name:'part.fbx'}]},'object')[0].type,'model');assert.equal(normalizeMedia({model_mesh:{url:'https://fal.media/test.ply'}},'world')[0].type,'world');
 validateQueueURL('https://queue.fal.run/bria/video/background-removal/requests/fixture/status');
 assert.throws(()=>validateQueueURL('https://queue.fal.run/bria/video/requests/fixture/status?steal=true'));
 try{

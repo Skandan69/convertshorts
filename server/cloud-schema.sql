@@ -28,6 +28,8 @@ create table convertshorts_private.invites (
  role text not null check(role in ('editor','viewer')), expires_at timestamptz not null default now()+interval '7 days',
  created_by uuid not null references auth.users(id)
 );
+create index convertshorts_invites_workspace_idx on convertshorts_private.invites(workspace_id);
+create index convertshorts_invites_creator_idx on convertshorts_private.invites(created_by);
 alter table public.convertshorts_workspaces enable row level security;
 alter table public.convertshorts_members enable row level security;
 alter table public.convertshorts_records enable row level security;

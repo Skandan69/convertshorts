@@ -3,6 +3,7 @@ import {mountImage} from './image.js';
 import {mountPDF} from './pdf.js';
 import {mountDesign} from './design.js';
 import {mountVideo} from './video.js';
+if(new URLSearchParams(location.search).get('studio')==='1')document.body.classList.add('studio-embed');
 let cleanup=()=>{};let busy=false;
 export const setBusy=value=>{busy=value;};
 window.addEventListener('beforeunload',e=>{if(busy){e.preventDefault();e.returnValue='';}});

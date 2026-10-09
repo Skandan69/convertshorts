@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
+import { gunzipSync } from 'node:zlib';
 
 // Pinned upstream distributions, kept outside Git. Never download or run executables.
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -54,11 +55,30 @@ for (const engine of engines) {
   console.log(`Verified and installed ${engine.id} ${engine.version}: ${count} runtime/license files`);
 }
 
+// Exact MIT Three.js package files, checksum pinned and installed without scripts.
+const three=JSON.parse(await fs.readFile(path.join(root,'apps/studio/three-lock.json'),'utf8'));
+const threeArchive=path.join(cache,`three-${three.version}.tgz`);
+let threeBytes;
+try{threeBytes=await fs.readFile(threeArchive);}catch{threeBytes=await download(three.url);await fs.writeFile(threeArchive,threeBytes);}
+if('sha512-'+createHash('sha512').update(threeBytes).digest('base64')!==three.integrity)throw new Error('Three.js checksum mismatch');
+const tar=gunzipSync(threeBytes),wanted=new Set(three.files),threeDir=path.join(root,'apps/studio/vendor/three');
+await fs.rm(threeDir,{recursive:true,force:true});
+for(let offset=0;offset+512<=tar.length;){
+ const header=tar.subarray(offset,offset+512);const name=header.subarray(0,100).toString().split('\0')[0];if(!name)break;
+ const size=parseInt(header.subarray(124,136).toString().replace(/\0/g,'').trim()||'0',8);
+ if(!Number.isFinite(size)||size<0||offset+512+size>tar.length)throw new Error('Invalid Three.js archive');
+ const relative=name.replace(/^package\//,'');
+ if(name.startsWith('package/')&&wanted.has(relative)){const target=path.join(threeDir,relative);await fs.mkdir(path.dirname(target),{recursive:true});await fs.writeFile(target,tar.subarray(offset+512,offset+512+size));wanted.delete(relative);}
+ offset+=512+Math.ceil(size/512)*512;
+}
+if(wanted.size)throw new Error('Missing Three.js files: '+[...wanted].join(', '));
+console.log('Verified and installed Three.js '+three.version+' with MIT license.');
+
 // Self-contained static output retains every existing converter and tool.
 const output = path.join(root, 'dist');
 await fs.rm(output, { recursive: true, force: true });
 await fs.mkdir(output, { recursive: true });
-const excluded = new Set(['.git', '.github', '.openai', '.creative-cache', '.vercel', 'dist', 'tests', 'scripts', 'docs', 'node_modules']);
+const excluded = new Set(['.git', '.github', '.openai', '.creative-cache', '.vercel', 'dist', 'tests', 'scripts', 'docs', 'node_modules', 'api', 'server', 'package.json', 'package-lock.json']);
 for (const entry of await fs.readdir(root, { withFileTypes: true })) {
   if (entry.name.startsWith('.') || excluded.has(entry.name)) continue;
   if (entry.name === 'apps') {

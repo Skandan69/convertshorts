@@ -1,0 +1,1 @@
+{"name":"convertshorts","private":true,"engines":{"node":"24.x"},"scripts":{"build":"node scripts/build-creative-apps.mjs"}}

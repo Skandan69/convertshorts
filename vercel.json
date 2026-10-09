@@ -1,6 +1,10 @@
 {
   "headers": [
     {
+      "source": "/api/:path*",
+      "headers": [{"key":"Cache-Control","value":"no-store"}]
+    },
+    {
       "source": "/",
       "headers": [
         {
@@ -134,6 +138,7 @@
   ],
   "buildCommand": "node scripts/build-creative-apps.mjs",
   "outputDirectory": "dist",
+  "functions": {"api/studio.mjs":{"maxDuration":60}},
   "rewrites": [
     {
       "source": "/apps/engines/:engine/editor",

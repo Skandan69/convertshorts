@@ -6,6 +6,10 @@ on:
       - 'scripts/**'
       - 'tests/creative-apps*'
       - 'vercel.json'
+      - 'api/**'
+      - 'server/**'
+      - 'tests/studio-*'
+      - 'package.json'
       - '.github/workflows/creative-apps.yml'
 permissions:
   contents: read
@@ -20,14 +24,17 @@ jobs:
           node-version: '24'
       - run: node scripts/build-creative-apps.mjs
       - run: node tests/creative-apps.mjs
+      - run: node tests/studio-api.mjs
       - name: Install browser test runtime
         run: |
           npm install --prefix tests --no-save --package-lock=false --ignore-scripts playwright@1.62.1
           tests/node_modules/.bin/playwright install --with-deps chromium
+          sudo apt-get install -y ffmpeg
       - name: Check browser workspaces
         run: |
           python tests/serve.py > /tmp/convertshorts-server.log 2>&1 &
           node tests/creative-apps-browser.cjs
+          node tests/studio-browser.cjs
       - name: Save browser screenshots and startup results
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

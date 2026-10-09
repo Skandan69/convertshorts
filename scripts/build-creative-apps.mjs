@@ -74,6 +74,16 @@ for(let offset=0;offset+512<=tar.length;){
 if(wanted.size)throw new Error('Missing Three.js files: '+[...wanted].join(', '));
 console.log('Verified and installed Three.js '+three.version+' with MIT license.');
 
+// Pinned MIT Spark renderer, installed without package scripts.
+const spark=JSON.parse(await fs.readFile(path.join(root,'apps/studio/spark-lock.json'),'utf8'));
+const sparkArchive=path.join(cache,`spark-${spark.version}.tgz`);
+let sparkBytes;try{sparkBytes=await fs.readFile(sparkArchive);}catch{sparkBytes=await download(spark.url);await fs.writeFile(sparkArchive,sparkBytes);}
+if('sha512-'+createHash('sha512').update(sparkBytes).digest('base64')!==spark.integrity)throw new Error('Spark checksum mismatch');
+const sparkTar=gunzipSync(sparkBytes),sparkFiles=new Set(spark.files),sparkDir=path.join(root,'apps/studio/vendor/spark');
+await fs.rm(sparkDir,{recursive:true,force:true});
+for(let offset=0;offset+512<=sparkTar.length;){const h=sparkTar.subarray(offset,offset+512),name=h.subarray(0,100).toString().split('\0')[0];if(!name)break;const size=parseInt(h.subarray(124,136).toString().replace(/\0/g,'').trim()||'0',8);if(!Number.isFinite(size)||size<0||offset+512+size>sparkTar.length)throw new Error('Invalid Spark archive');const rel=name.replace(/^package\//,'');if(name.startsWith('package/')&&sparkFiles.has(rel)){const target=path.join(sparkDir,rel);await fs.mkdir(path.dirname(target),{recursive:true});await fs.writeFile(target,sparkTar.subarray(offset+512,offset+512+size));sparkFiles.delete(rel);}offset+=512+Math.ceil(size/512)*512;}
+if(sparkFiles.size)throw new Error('Missing Spark files');console.log('Verified and installed Spark '+spark.version+' with MIT license.');
+
 // Self-contained static output retains every existing converter and tool.
 const output = path.join(root, 'dist');
 await fs.rm(output, { recursive: true, force: true });
@@ -91,4 +101,4 @@ for (const entry of await fs.readdir(root, { withFileTypes: true })) {
     await fs.cp(path.join(root, entry.name), path.join(output, entry.name), { recursive: true });
   }
 }
-console.log('Built dist with all existing tools and six local creative engines.');
+console.log('Built dist with all existing tools and seven local creative engines.');

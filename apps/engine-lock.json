@@ -64,5 +64,16 @@
     "url": "https://github.com/storytold/designcraft/releases/download/v0.4.0/designcraft-web-0.4.0.zip",
     "bytes": 17564720,
     "sha256": "9fb8b1416c16757e7f54b429d3fe29577cf838a8be1b64afd14e55574a02dfec"
+  },
+  {
+    "id": "filmcraft",
+    "version": "0.4.0",
+    "commit": "5231852443363f001c3f6b396dd9b1e6461ae2be",
+    "source": "https://github.com/storytold/filmcraft",
+    "release": "https://github.com/storytold/filmcraft/releases/tag/v0.4.0",
+    "name": "filmcraft-web-0.4.0.zip",
+    "url": "https://github.com/storytold/filmcraft/releases/download/v0.4.0/filmcraft-web-0.4.0.zip",
+    "bytes": 14800117,
+    "sha256": "0dec892acec8e65e2af0177e96f958877f50e2aea0f0e6385128322b679519d9"
   }
 ]

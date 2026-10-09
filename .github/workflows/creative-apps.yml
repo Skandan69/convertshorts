@@ -25,16 +25,25 @@ jobs:
       - run: node scripts/build-creative-apps.mjs
       - run: node tests/creative-apps.mjs
       - run: node tests/studio-api.mjs
+      - run: node tests/studio-services.mjs
       - name: Install browser test runtime
         run: |
           npm install --prefix tests --no-save --package-lock=false --ignore-scripts playwright@1.62.1
           tests/node_modules/.bin/playwright install --with-deps chromium
           sudo apt-get install -y ffmpeg
-      - name: Check browser workspaces
-        run: |
-          python tests/serve.py > /tmp/convertshorts-server.log 2>&1 &
-          node tests/creative-apps-browser.cjs
-          node tests/studio-browser.cjs
+      - name: Start browser fixture server
+        run: python tests/serve.py > /tmp/convertshorts-server.log 2>&1 &
+      - name: Verify seven browser engines
+        run: node tests/creative-apps-browser.cjs
+      - name: Verify base studio
+        if: ${{ !cancelled() && success() }}
+        run: node tests/studio-browser.cjs
+      - name: Verify advanced studio workflows
+        if: ${{ !cancelled() }}
+        run: node tests/studio-advanced-browser.cjs
+      - name: Verify cloud lifecycle
+        if: ${{ !cancelled() }}
+        run: node tests/studio-cloud-browser.cjs
       - name: Save browser screenshots and startup results
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

@@ -1,5 +1,6 @@
 import {timingSafeEqual} from 'node:crypto';
 import {MODELS,StudioError,prepareGeneration,signJob,verifyJob,validateQueueURL,normalizeMedia} from '../server/studio-core.mjs';
+import {WORLD_MODELS} from '../server/world-models.mjs';
 export const maxDuration=60;
 const headers={'Cache-Control':'no-store','Content-Type':'application/json; charset=utf-8','X-Content-Type-Options':'nosniff'};
 const reply=(data,status=200)=>Response.json(data,{status,headers});
@@ -19,10 +20,10 @@ async function provider(url,key,method='GET',body){
     throw new StudioError(message,status);
   }return data;
 }
-async function readBody(request){if(Number(request.headers.get('content-length'))>3200000)throw new StudioError('The reference image is too large.',413);const text=await request.text();if(text.length>3200000)throw new StudioError('The reference image is too large.',413);try{return JSON.parse(text);}catch{throw new StudioError('Send a JSON request.');}}
+async function readBody(request){if(Number(request.headers.get('content-length'))>4200000)throw new StudioError('The reference image is too large.',413);const text=await request.text();if(text.length>4200000)throw new StudioError('The reference image is too large.',413);try{return JSON.parse(text);}catch{throw new StudioError('Send a JSON request.');}}
 async function handle(request,action){
   try{sameOrigin(request);const url=new URL(request.url);
-    if(action==='GET'&&url.searchParams.get('action')==='config')return reply({models:MODELS,personalKeySupported:true,sharedProviderConfigured:!!(process.env.FAL_KEY&&process.env.STUDIO_ACCESS_TOKEN),storage:'this-browser'});
+    if(action==='GET'&&url.searchParams.get('action')==='config')return reply({models:MODELS.concat(WORLD_MODELS),personalKeySupported:true,sharedProviderConfigured:!!(process.env.FAL_KEY&&process.env.STUDIO_ACCESS_TOKEN),storage:'local-and-optional-cloud'});
     const key=credential(request);
     if(action==='POST'){
       const body=await readBody(request),generation=prepareGeneration(body);

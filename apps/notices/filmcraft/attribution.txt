@@ -1,0 +1,5 @@
+FilmCraft 0.4.0 browser distribution, Storytold contributors.
+Upstream: https://github.com/storytold/filmcraft
+Unmodified official web distribution, SHA-256 pinned in engine-lock.json.
+ConvertShorts is an independent host. FilmCraft branding belongs to its owners.
+Distributed under MIT / Apache-2.0 with the original license and NOTICE files.

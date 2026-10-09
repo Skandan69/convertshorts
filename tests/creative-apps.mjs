@@ -10,7 +10,7 @@ const lock=JSON.parse(await fs.readFile(path.join(root,'apps/engine-lock.json'),
 const require=createRequire(import.meta.url);
 const Zip=require('../studio/vendor/jszip.min.js');
 assert.equal(APPS.length,7);
-assert.equal(lock.length,6);
+assert.equal(lock.length,7);
 const cache=process.env.CREATIVE_APPS_CACHE || path.join(root,'.creative-cache');
 for(const engine of lock){
   const archive=await fs.readFile(path.join(cache,engine.name));
@@ -50,4 +50,9 @@ for(const file of ['build/three.module.js','build/three.core.js','examples/jsm/c
 assert.ok(cfg.rewrites.some(r=>r.source==='/apps/engines/:engine/editor'&&r.destination==='/apps/engines/:engine'));
 if(cfg.cleanUrls) assert.ok(cfg.rewrites.every(r=>!r.source.endsWith('.html')&&!r.destination.endsWith('.html')),'cleanUrls requires extensionless rewrite paths');
 assert.ok(cfg.headers.some(h=>h.source==='/apps/:path*'&&h.headers.some(v=>v.key==='Cross-Origin-Embedder-Policy'&&v.value==='require-corp')));
+const threeLock=JSON.parse(await fs.readFile(path.join(root,'apps/studio/three-lock.json'),'utf8'));
+for(const file of threeLock.files.filter(f=>f.endsWith('.js'))){const full=path.join(root,'dist/apps/studio/vendor/three',file),text=await fs.readFile(full,'utf8');for(const m of text.matchAll(/from\s+['"](\.[^'"]+)['"]/g))await fs.access(path.resolve(path.dirname(full),m[1]));}
+const sparkModule=await fs.readFile(path.join(root,'dist/apps/studio/vendor/spark/dist/spark.module.js'),'utf8');for(const m of sparkModule.matchAll(/from\s+['"]three\/addons\/([^'"]+)['"]/g))await fs.access(path.join(root,'dist/apps/studio/vendor/three/examples/jsm',m[1]));
+for(const file of ['LICENSE','dist/spark.module.js'])await fs.access(path.join(root,'dist/apps/studio/vendor/spark',file));
+for(const name of ['world.js','scene.js']){const source=await fs.readFile(path.join(root,'apps/studio',name),'utf8');for(const m of source.matchAll(/['"](\.\/vendor\/[^'"]+)['"]/g))await fs.access(path.join(root,'dist/apps/studio',m[1]));}
 console.log('PASS seven studio routes, preserved tools and hosting configuration');

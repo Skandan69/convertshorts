@@ -1,6 +1,7 @@
-import {all,get,put,uid,referenceData,downloadBlob} from './storage.js';
+import {scopedStorage,all,get,put,uid,referenceData,downloadBlob} from './storage.js';
 import {escape as esc,icon} from './icons.js';
 export async function mountProjects(view,{toast,assetURL,onReference}){
+ const {all,get,put}=scopedStorage();
  let projects=(await all('projects')).filter(p=>!p.deleted),active=projects.find(p=>p.id===localStorage.getItem('convertshorts-current-project'))||projects[0];
  const assets=(await all('assets')).filter(a=>!a.deleted);let timer;
  async function save(){if(!active)return;await put('projects',active);toast('Project saved.');}
@@ -20,6 +21,7 @@ export async function mountProjects(view,{toast,assetURL,onReference}){
  render();return ()=>{clearTimeout(timer);if(active)put('projects',active).catch(e=>toast(e.message));view.onclick=view.oninput=null;};
 }
 export async function mountCharacters(view,{toast}){
+ const {all,get,put}=scopedStorage();
  let chars=(await all('characters')).filter(c=>!c.deleted),editing=null,refs=[];
  function render(){view.innerHTML=`<div class="page"><div class="page-head"><div><h1>Character identities</h1><p>Keep a character’s appearance and references consistent across your prompts.</p></div></div><div class="settings-grid"><section class="panel"><h2 id="character-form-title">${editing?'Edit character':'New character'}</h2><form id="character-form"><label>Name<input id="character-name" required maxlength="80" value="${esc(editing?.name||'')}"></label><label>Identity description<textarea id="character-description" rows="4" placeholder="Appearance, outfit, distinguishing details…">${esc(editing?.description||'')}</textarea></label><label>Reference portraits (up to 6)<input id="character-images" type="file" multiple accept="image/*"></label><div id="character-previews" class="references-row">${refs.map(r=>`<img width="72" height="72" src="${esc(r)}" alt="Character reference">`).join('')}</div><div class="row"><button class="primary-button">Save character</button><button id="reset-character" type="button" class="outline-button">New</button></div></form></section><section class="panel"><h2>Your characters</h2><div class="character-list">${chars.map(c=>`<article class="character-card">${c.references?.[0]?`<img src="${esc(c.references[0])}" alt="${esc(c.name)}">`:icon('image',35)}<div><h3>${esc(c.name)}</h3><p>${esc(c.description||'')}</p><button data-edit-character="${c.id}" class="outline-button">Edit</button><button data-delete-character="${c.id}" class="outline-button">Archive</button></div></article>`).join('')||'<p>No identities saved yet. Add a character and use it from any image or video composer.</p>'}</div></section></div></div>`;
  const el=id=>view.querySelector('#'+id);el('character-images').onchange=async e=>{try{for(const f of [...e.target.files].slice(0,6-refs.length))refs.push(await referenceData(f));el('character-previews').innerHTML=refs.map(r=>`<img width="72" height="72" src="${esc(r)}" alt="Character reference">`).join('');}catch(e){toast(e.message);}};

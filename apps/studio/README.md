@@ -36,7 +36,7 @@ Stripe webhook URL: `https://chrfgzbecjvjazdovmyk.supabase.co/functions/v1/conve
 
 Customers can use their own funded Fal/World Labs keys immediately. Keys stay in tab memory. The initial Fal shared-server option remains gated by both `FAL_KEY` and `STUDIO_ACCESS_TOKEN` on Vercel. Large media references use private Supabase uploads and temporary signed URLs, or public HTTPS URLs supplied by the user.
 
-Google login remains inactive until an owner configures the correct Google/Supabase OAuth callbacks and allows the ConvertShorts return URL, then sets `CONVERTSHORTS_GOOGLE_AUTH=true` on Vercel. Existing shared-project Auth settings are not changed automatically. Confirmation/recovery email templates must provide their verification token for the in-app token forms; users can also follow their configured email link and return to sign in.
+Google login remains inactive until an owner configures the correct Google/Supabase OAuth callbacks and allows the ConvertShorts return URL, then sets `CONVERTSHORTS_GOOGLE_AUTH=true` on Vercel. Existing shared-project Auth settings are not changed automatically. Confirmation/recovery forms accept the full Supabase verification link copied from an email, or its code. This works with existing email templates without changing the shared project’s redirect settings; users can also follow their configured confirmation link and return to sign in.
 
 ## Reference-specific limitations
 

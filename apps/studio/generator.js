@@ -1,9 +1,10 @@
 import {icon,escape as esc} from './icons.js';
-import {all,put,uid,referenceData} from './storage.js';
+import {scopedStorage,all,put,uid,referenceData} from './storage.js';
 import {uploadReference} from './cloud.js';
 function shape(s){return s.anyOf?.find(v=>v.type!=='null')||s.oneOf?.find(v=>v.type!=='null')||s;}
 const label=k=>k.replaceAll('_',' ').replace(/\b\w/g,c=>c.toUpperCase());
 export async function mountGenerator(view,{kind,models,ready,toast,draft={},onSubmit,onDraft,renderJobs,renderResults}){
+ const {all,get,put}=scopedStorage();
  const choices=models.filter(m=>m.kind===kind||(kind==='vfx'&&m.kind==='video'));
  let refs=draft.references|| (draft.reference?[draft.reference]:[]),names=draft.referenceNames||[draft.referenceName||'Reference'],input=draft.input||{};
  const presets=await all('presets'),characters=await all('characters');

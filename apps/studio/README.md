@@ -18,7 +18,7 @@ and the existing studio routes, with their separate notices.
 - Three.js scene editor: orbit camera, translate/rotate/scale gizmos, transform
   inspector, primitives, GLB/OBJ imports, alpha-image planes, material color,
   camera presets/FOV, lighting, stage/grid controls, duplicate/remove,
-  automatic local project save, PNG capture, GLB export/reimport.
+  automatic local project save, saved-project reopening, PNG capture, GLB export/reimport.
 - PhotoCraft and the existing ConvertShorts video timeline open in the studio
   without a separate placeholder introduction. Export in the embedded engine
   before leaving; imported library assets are not automatically opened there.

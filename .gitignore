@@ -4,4 +4,7 @@ tests/results/
 
 .creative-cache/
 apps/engines/
+apps/studio/vendor/three/
+.env.local
+.env.*.local
 dist/

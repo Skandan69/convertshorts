@@ -1,0 +1,34 @@
+import assert from 'node:assert/strict';
+import {MODELS,prepareGeneration,signJob,verifyJob,normalizeMedia} from '../server/studio-core.mjs';
+import {GET,POST,DELETE} from '../api/studio.mjs';
+const base='https://convertshorts.com/api/studio',key='test-provider-key-never-a-real-credential';
+const request=(method,body,token)=>new Request(base+(token?'?token='+encodeURIComponent(token):''),{method,headers:{'Content-Type':'application/json','X-Provider-Key':key,Origin:'https://convertshorts.com'},body:body?JSON.stringify(body):undefined});
+assert.equal(MODELS.length,10);
+assert.throws(()=>prepareGeneration({model:'unknown',prompt:'test'}));
+assert.throws(()=>prepareGeneration({model:'flux-fast',prompt:''}));
+const image='data:image/png;base64,iVBORw0KGgo=';
+assert.equal(prepareGeneration({model:'nano-banana',prompt:'test',reference:image}).endpoint,'fal-ai/nano-banana-2/edit');
+assert.equal(prepareGeneration({model:'kling',prompt:'test',reference:image,duration:10}).endpoint,'fal-ai/kling-video/v2.6/pro/image-to-video');
+assert.equal(prepareGeneration({model:'stable-audio',prompt:'test',duration:30}).input.seconds_total,30);
+assert.throws(()=>prepareGeneration({model:'kling',prompt:'test',duration:7}));
+assert.throws(()=>prepareGeneration({model:'trellis',reference:'file:///etc/passwd'}));
+assert.throws(()=>prepareGeneration({model:'hunyuan-world',reference:image}));
+const statusURL='https://queue.fal.run/fal-ai/flux/requests/request123/status';
+const token=signJob({request_id:'request123',status_url:statusURL,response_url:statusURL.replace('/status',''),cancel_url:statusURL.replace('/status','/cancel'),kind:'image'},key);
+assert.equal(verifyJob(token,key).request_id,'request123');assert.throws(()=>verifyJob(token,'another-key'));
+assert.throws(()=>verifyJob(signJob({status_url:'https://evil.example/steal'},key),key));
+assert.equal(normalizeMedia({audio:'https://fal.media/test.wav'})[0].type,'audio');
+assert.equal(normalizeMedia({model_glb:{url:'https://fal.media/test.glb'}})[0].type,'model');
+assert.throws(()=>normalizeMedia({images:[{url:'javascript:alert(1)'}]}));
+const original=globalThis.fetch;let calls=0,phase='submit';globalThis.fetch=async(url,options)=>{calls++;assert.equal(options.headers.Authorization,'Key '+key);if(phase==='submit'){assert.equal(url,'https://queue.fal.run/fal-ai/flux/schnell');assert.equal(JSON.parse(options.body).prompt,'A test scene');return Response.json({request_id:'request123',status:'IN_QUEUE',status_url:statusURL,response_url:statusURL.replace('/status',''),cancel_url:statusURL.replace('/status','/cancel')});}if(phase==='status')return Response.json({status:'IN_PROGRESS',queue_position:2});if(phase==='done')return Response.json(String(url).endsWith('/status')?{status:'COMPLETED'}:{images:[{url:'https://fal.media/result.png',file_name:'result.png'}]});if(phase==='cancel'){assert.equal(options.method,'PUT');return Response.json({status:'CANCELLATION_REQUESTED'});}throw Error('unexpected phase');};
+try{
+ const config=await GET(new Request(base+'?action=config'));assert.equal(config.status,200);assert.equal((await config.json()).models.length,10);
+ const denied=await POST(new Request(base,{method:'POST',body:JSON.stringify({model:'flux-fast',prompt:'test'})}));assert.equal(denied.status,401);assert.equal(calls,0);
+ const cross=await POST(new Request(base,{method:'POST',headers:{Origin:'https://evil.example','X-Provider-Key':key},body:'{}'}));assert.equal(cross.status,403);assert.equal(calls,0);
+ const submitted=await POST(request('POST',{model:'flux-fast',prompt:'A test scene'}));assert.equal(submitted.status,202);const job=await submitted.json();assert.ok(job.token);assert.ok(!JSON.stringify(job).includes(key));
+ phase='status';const status=await GET(request('GET',null,job.token));assert.equal((await status.json()).status,'IN_PROGRESS');
+ phase='done';const done=await GET(request('GET',null,job.token));assert.deepEqual((await done.json()).media.map(m=>m.type),['image']);
+ phase='cancel';const cancelled=await DELETE(request('DELETE',null,job.token));assert.equal((await cancelled.json()).status,'CANCELLATION_REQUESTED');
+ const tampered=await GET(request('GET',null,job.token+'tampered'));assert.equal(tampered.status,403);
+}finally{globalThis.fetch=original;}
+console.log('PASS model inputs, tenant-bound signed jobs, credential/origin gates, submission, polling, result normalization and cancellation (provider HTTP mocked; no paid generation).');

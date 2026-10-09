@@ -11,7 +11,7 @@ const output=path.join(__dirname,'results/creative-apps');
   const page=await context.newPage();
   const errors=[];
   page.on('pageerror',e=>errors.push(String(e)));
-  await page.goto(BASE+'/apps/');
+  await page.goto(BASE+'/apps/editors/');
   await page.waitForSelector('.app-card');
   assert.equal(await page.locator('.app-card').count(),7);
   await page.locator('[data-filter="image"]').click();

@@ -8,3 +8,5 @@ apps/studio/vendor/three/
 .env.local
 .env.*.local
 dist/
+
+apps/studio/vendor/spark/

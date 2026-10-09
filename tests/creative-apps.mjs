@@ -10,7 +10,7 @@ const lock=JSON.parse(await fs.readFile(path.join(root,'apps/engine-lock.json'),
 const require=createRequire(import.meta.url);
 const Zip=require('../studio/vendor/jszip.min.js');
 assert.equal(APPS.length,7);
-assert.equal(lock.length,6);
+assert.equal(lock.length,7);
 const cache=process.env.CREATIVE_APPS_CACHE || path.join(root,'.creative-cache');
 for(const engine of lock){
   const archive=await fs.readFile(path.join(cache,engine.name));

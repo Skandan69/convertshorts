@@ -18,7 +18,7 @@ const output=path.join(__dirname,'results/creative-apps');
   assert.equal(await page.locator('.app-card').count(),2);
   await page.locator('[data-filter="all"]').click();
   await page.locator('#app-search').fill('keyframe');
-  assert.equal(await page.locator('.app-card').count(),1);
+  assert.equal(await page.locator('.app-card').count(),2);
   await page.locator('#app-search').fill('');
   await page.locator('[data-favorite="photo"]').click();
   await page.locator('[data-filter="favorites"]').click();
@@ -33,7 +33,7 @@ const output=path.join(__dirname,'results/creative-apps');
   await page.screenshot({path:path.join(output,'hub-mobile.png'),fullPage:true});
   await page.setViewportSize({width:1440,height:1000});
   const results=[];
-  for(const [id,engine] of [['photo','photocraft'],['vector','vectorcraft'],['light','lightcraft'],['pdf','pdfcraft'],['motion','effectcraft'],['layout','designcraft']]){
+  for(const [id,engine] of [['photo','photocraft'],['vector','vectorcraft'],['light','lightcraft'],['pdf','pdfcraft'],['motion','effectcraft'],['layout','designcraft'],['video','filmcraft']]){
     const tab=await context.newPage();
     const runtimeErrors=[];
     tab.on('pageerror',e=>runtimeErrors.push(String(e)));
@@ -43,6 +43,7 @@ const output=path.join(__dirname,'results/creative-apps');
     const frame=tab.frames().find(f=>f.url().includes('/engines/')) || await new Promise(resolve=>tab.once('framenavigated',resolve));
     await frame.waitForSelector('canvas',{timeout:90000});
     await frame.waitForFunction(engine=>{
+      if(engine==='filmcraft')return Number.isFinite(window.filmcraftLoad?.readyMs)&&!window.filmcraftLoad?.error&&!window.filmcraftLoad?.fatal;
       if(engine==='effectcraft')return Number.isFinite(window.effectcraftLoad?.readyMs)&&!window.effectcraftLoad?.error;
       if(engine==='lightcraft')return !!window.lightcraft&&(!document.getElementById('lightcraft_loading')||getComputedStyle(document.getElementById('lightcraft_loading')).display==='none');
       if(!window.wasmBindings)return false;
@@ -50,6 +51,7 @@ const output=path.join(__dirname,'results/creative-apps');
       const canvas=document.querySelector('canvas');
       return (!loading||getComputedStyle(loading).display==='none')&&canvas.width>0&&canvas.height>0;
     },engine,{timeout:90000});
+    if(engine==='filmcraft'){const result=await frame.evaluate(()=>filmcraft.inspect());assert.ok(result && typeof result==='object');}
     if(engine==='lightcraft'){
       const result=await frame.evaluate(async()=>JSON.parse(await lightcraft.command('library.info','{}')));
       assert.ok(result && typeof result==='object');
@@ -63,13 +65,8 @@ const output=path.join(__dirname,'results/creative-apps');
     results.push({id,engine,initialized:true,errors:runtimeErrors});
     await tab.close({runBeforeUnload:false});
   }
-  const video=await context.newPage();
-  await video.goto(`${BASE}/apps/video/`);await video.locator('#open-editor').click();
-  await video.frameLocator('iframe').locator('#workspace').waitFor();
-  assert.equal(await video.frameLocator('iframe').locator('main').count(),1);
-  await video.close({runBeforeUnload:false});
   assert.equal(errors.length,0,errors.join('; '));
   await fs.writeFile(path.join(output,'startup-results.json'),JSON.stringify({results,hubChecks:'passed',videoEditorMounted:true},null,2));
   await browser.close();
-  console.log('PASS hub search/filter/favorites/mobile, six engine startups and existing video editor');
+  console.log('PASS hub search/filter/favorites/mobile, seven engine startups including FilmCraft');
 })().catch(async e=>{console.error(e);process.exit(1);});

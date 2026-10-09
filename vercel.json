@@ -2,7 +2,12 @@
   "headers": [
     {
       "source": "/api/:path*",
-      "headers": [{"key":"Cache-Control","value":"no-store"}]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
     },
     {
       "source": "/",
@@ -138,7 +143,20 @@
   ],
   "buildCommand": "node scripts/build-creative-apps.mjs",
   "outputDirectory": "dist",
-  "functions": {"api/studio.mjs":{"maxDuration":60}},
+  "functions": {
+    "api/studio.mjs": {
+      "maxDuration": 60
+    },
+    "api/worlds.mjs": {
+      "maxDuration": 60
+    },
+    "api/cloud.mjs": {
+      "maxDuration": 10
+    },
+    "api/billing.mjs": {
+      "maxDuration": 15
+    }
+  },
   "rewrites": [
     {
       "source": "/apps/engines/:engine/editor",

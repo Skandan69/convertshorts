@@ -1,0 +1,9 @@
+{
+  "version": "2.3.1",
+  "url": "https://registry.npmjs.org/@sparkjsdev/spark/-/spark-2.3.1.tgz",
+  "integrity": "sha512-K+SyIbkO/dx1TLLudK8Jp3/noS13z/kdNPo6OK2waxQaGy81HBmKGnNBT/t/K9Ew3dsIXmWqsJXxGfmAu1T5Jg==",
+  "files": [
+    "LICENSE",
+    "dist/spark.module.js"
+  ]
+}

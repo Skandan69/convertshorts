@@ -4,7 +4,26 @@ let dbPromise,namespace='';
 export async function setNamespace(name=''){if(dbPromise)(await dbPromise).close();dbPromise=null;namespace=name;}
 export function currentNamespace(){return namespace;}
 export function database(){if(!dbPromise)dbPromise=new Promise((resolve,reject)=>{const request=indexedDB.open('convertshorts-creative-studio'+(namespace?'-'+namespace:''),2);request.onupgradeneeded=()=>{for(const name of STORES)if(!request.result.objectStoreNames.contains(name))request.result.createObjectStore(name,{keyPath:'id'});};request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);});return dbPromise;}
-export async function put(store,value,options={}){if(!options.remote)value={...value,updated:Date.now(),_dirty:true};const db=await database();return new Promise((resolve,reject)=>{const tx=db.transaction(store,'readwrite');tx.objectStore(store).put(value);tx.oncomplete=()=>{if(!options.remote)window.dispatchEvent(new CustomEvent('studio-storage-changed',{detail:{store,id:value.id}}));resolve(value);};tx.onerror=()=>reject(tx.error);});}
+export async function put(store,value,options={}){
+ const db=await database();return new Promise((resolve,reject)=>{
+  const tx=db.transaction(store,'readwrite'),records=tx.objectStore(store);let saved=value;
+  if(options.remote)records.put(saved);else{
+   const lookup=records.get(value.id);lookup.onsuccess=()=>{
+    const prior=lookup.result,selfUploaded=prior&&value._lastSavedAt===prior.updated;
+    saved={...value,updated:Date.now(),_dirty:true};
+    if(prior&&!isExpired(prior)){
+     for(const key of ['_blobPath','_expiresAt','_remoteExpires'])if(saved[key]===undefined)saved[key]=prior[key];
+     if(saved._revision===undefined||selfUploaded)saved._revision=prior._revision;
+    }
+    saved._lastSavedAt=saved.updated;
+    // Editors retain this baseline. A self-upload can advance it; a newer edit
+    // from another device retains the old revision and produces a conflict copy.
+    Object.assign(value,saved);records.put(saved);
+   };
+  }
+  tx.oncomplete=()=>{if(!options.remote)window.dispatchEvent(new CustomEvent('studio-storage-changed',{detail:{store,id:value.id}}));resolve(saved);};tx.onerror=()=>reject(tx.error);
+ });
+}
 export async function remove(store,id){const value=await get(store,id);if(value)await put(store,{...value,deleted:true});}
 export async function all(store){const db=await database();return new Promise((resolve,reject)=>{const req=db.transaction(store).objectStore(store).getAll();req.onsuccess=()=>resolve(req.result.filter(i=>!isExpired(i)));req.onerror=()=>reject(req.error);});}
 export async function get(store,id){const db=await database();return new Promise((resolve,reject)=>{const req=db.transaction(store).objectStore(store).get(id);req.onsuccess=()=>resolve(isExpired(req.result)?undefined:req.result);req.onerror=()=>reject(req.error);});}

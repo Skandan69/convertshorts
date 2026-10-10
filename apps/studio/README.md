@@ -59,7 +59,7 @@ Generate the Razorpay ID/secret in **Dashboard → Account & Settings → API Ke
 
 Razorpay webhook URL:
 
-`https://chrfgzbecjvjazdovmyk.supabase.co/functions/v1/convertshorts-billing?action=webhook`
+`https://yttbbgsgjxemftjwyzdd.supabase.co/functions/v1/convertshorts-billing?action=webhook`
 
 Subscribe to `payment.captured` and `order.paid`. Configure automatic payment capture. The backend verifies HMAC over the exact raw request body, then fetches the payment from Razorpay and checks the stored order, INR amount, capture state and absence of refunds. Customer callbacks also verify `order_id|payment_id` with the API secret. Both paths use the same row-locked, idempotent SQL transaction, so replay or a callback plus webhook cannot award balance twice. The order owner comes from verified Supabase Auth and the server's stored order; client-submitted amounts and credit counts are ignored.
 
@@ -73,7 +73,11 @@ Confirmed generation failures return the reserved balance idempotently. Uncertai
 
 Customer key forms are removed. Only the authenticated hosted billing route is used for customer AI generation. Legacy own-provider endpoints remain compatibility adapter code and are not invoked by the current UI. Large media references use private Supabase uploads and temporary signed URLs, or public HTTPS URLs.
 
-Google login remains inactive until an owner configures the correct Google/Supabase OAuth callbacks and allows the ConvertShorts return URL, then sets `CONVERTSHORTS_GOOGLE_AUTH=true` on Vercel. Existing shared-project Auth settings are not changed automatically. Confirmation/recovery forms accept the full Supabase verification link copied from an email, or its code. This works with existing email templates without changing the shared project’s redirect settings; users can also follow their configured confirmation link and return to sign in.
+ConvertShorts has a prepared dedicated backend in the restored LearnForge project (`yttbbgsgjxemftjwyzdd`). Devaichat's project (`chrfgzbecjvjazdovmyk`) must keep its own Auth configuration and data. See `docs/convertshorts-backend-separation.md` for the pending cutover. Existing LearnForge users and course data are preserved; this is separation from Devaichat, not a deletion of LearnForge data.
+
+Configure the dedicated project's Site URL as `https://convertshorts.com/apps/` and allow that exact Redirect URL. Signup and recovery requests explicitly pass that callback. Email templates must use `{{ .ConfirmationURL }}` (or a deliberately compatible callback), not a hardcoded Devaichat URL. A clicked recovery link is sanitized before the hash router starts, validated against Auth, and opens the new-password form. Reload preserves the recovery step; cloud workspace access starts after the password update. Invalid or expired links offer a fresh reset email. The unopened verification-link/code fallback remains available. Sessions are bound to their backend origin so the cutover cannot send old credentials to a different Supabase project.
+
+Google login remains inactive until its Google/Supabase OAuth callbacks are configured and `CONVERTSHORTS_GOOGLE_AUTH=true` is set on Vercel. Customer registration also needs a production SMTP provider for reliable delivery to public email addresses; do not disable email confirmation to work around delivery limits.
 
 ## Reference-specific limitations
 

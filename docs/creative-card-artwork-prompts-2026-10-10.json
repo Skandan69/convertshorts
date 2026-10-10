@@ -1,0 +1,214 @@
+{
+  "generator": "built-in image_gen",
+  "use": "Original illustrative workflow artwork, not application screenshots or verified hosted-model outputs.",
+  "assets": [
+    {
+      "id": "image-generation",
+      "files": [
+        {
+          "file": "assets/creative/cards/image-generation-384.webp",
+          "width": 384,
+          "bytes": 13970
+        },
+        {
+          "file": "assets/creative/cards/image-generation-768.webp",
+          "width": 768,
+          "bytes": 39030
+        }
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: individual landscape website feature-card artwork for ConvertShorts Creative Studio.\nPrimary request: An exquisite translucent lavender glass iris flower on a warm ivory plinth, sculptural folded petals and a chrome reflective sphere, one floating photographic frame behind it showing the same flower. The beautiful generated visual is the hero; refined editorial still-life photography.\nStyle/medium: luxurious cinematic editorial product photography with physically realistic 3D materials, high-end creative software campaign, exceptionally polished and bespoke.\nComposition/framing: wide landscape 3:2. One coherent composition, subject centered within the middle 70%, full image designed to crop nicely at 16:9. Close enough to recognize on a small website card. No collage or multiple separate image panels except physical items explicitly described.\nScene/backdrop: continuous deep charcoal studio backdrop (#15151c), subtle rich violet atmosphere, never plain flat black.\nLighting/mood: soft directional studio light, restrained amber highlights and lavender rim light, rich shadows and premium tactile texture.\nColor palette: charcoal, lavender, pale ivory, chrome and restrained warm amber, consistent cohesive ConvertShorts branding.\nConstraints: Original concept illustration, not an actual screenshot or proof of software capability. No readable text, letters, words, logos, watermarks, interface chrome, labels, badges, borders or card container. No toy-like cheap plastic, cartoon emoji or generic stock illustration. Let the art fill the canvas."
+    },
+    {
+      "id": "video-generation",
+      "files": [
+        {
+          "file": "assets/creative/cards/video-generation-384.webp",
+          "width": 384,
+          "bytes": 16148
+        },
+        {
+          "file": "assets/creative/cards/video-generation-768.webp",
+          "width": 768,
+          "bytes": 48232
+        }
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: individual landscape website feature-card artwork for ConvertShorts Creative Studio.\nPrimary request: A cinematic close view of an elegant graphite film camera and one curling strip of film, with tiny golden desert landscapes visible in the film frames. A warm miniature sunset glow illuminates the camera lens. Elegant and visually coherent, no controls or software UI.\nStyle/medium: luxurious cinematic editorial product photography with physically realistic 3D materials, high-end creative software campaign, exceptionally polished and bespoke.\nComposition/framing: wide landscape 3:2. One coherent composition, subject centered within the middle 70%, full image designed to crop nicely at 16:9. Close enough to recognize on a small website card. No collage or multiple separate image panels except physical items explicitly described.\nScene/backdrop: continuous deep charcoal studio backdrop (#15151c), subtle rich violet atmosphere, never plain flat black.\nLighting/mood: soft directional studio light, restrained amber highlights and lavender rim light, rich shadows and premium tactile texture.\nColor palette: charcoal, lavender, pale ivory, chrome and restrained warm amber, consistent cohesive ConvertShorts branding.\nConstraints: Original concept illustration, not an actual screenshot or proof of software capability. No readable text, letters, words, logos, watermarks, interface chrome, labels, badges, borders or card container. No toy-like cheap plastic, cartoon emoji or generic stock illustration. Let the art fill the canvas."
+    },
+    {
+      "id": "music-generation",
+      "files": [
+        {
+          "file": "assets/creative/cards/music-generation-384.webp",
+          "width": 384,
+          "bytes": 14972
+        },
+        {
+          "file": "assets/creative/cards/music-generation-768.webp",
+          "width": 768,
+          "bytes": 43896
+        }
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: individual landscape website feature-card artwork for ConvertShorts Creative Studio.\nPrimary request: A premium smoked-glass turntable with a black vinyl disc, chrome tone arm, sculptural lavender sound waves flowing gracefully above it and warm amber rim lighting. A tactile elegant album-art still life, rich physical detail.\nStyle/medium: luxurious cinematic editorial product photography with physically realistic 3D materials, high-end creative software campaign, exceptionally polished and bespoke.\nComposition/framing: wide landscape 3:2. One coherent composition, subject centered within the middle 70%, full image designed to crop nicely at 16:9. Close enough to recognize on a small website card. No collage or multiple separate image panels except physical items explicitly described.\nScene/backdrop: continuous deep charcoal studio backdrop (#15151c), subtle rich violet atmosphere, never plain flat black.\nLighting/mood: soft directional studio light, restrained amber highlights and lavender rim light, rich shadows and premium tactile texture.\nColor palette: charcoal, lavender, pale ivory, chrome and restrained warm amber, consistent cohesive ConvertShorts branding.\nConstraints: Original concept illustration, not an actual screenshot or proof of software capability. No readable text, letters, words, logos, watermarks, interface chrome, labels, badges, borders or card container. No toy-like cheap plastic, cartoon emoji or generic stock illustration. Let the art fill the canvas."
+    },
+    {
+      "id": "canvas-editing",
+      "files": [
+        {
+          "file": "assets/creative/cards/canvas-editing-384.webp",
+          "width": 384,
+          "bytes": 12774
+        },
+        {
+          "file": "assets/creative/cards/canvas-editing-768.webp",
+          "width": 768,
+          "bytes": 38572
+        }
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: individual landscape website feature-card artwork for ConvertShorts Creative Studio.\nPrimary request: Three floating translucent image layers containing a beautiful lavender iris flower and abstract brush strokes, with a slim graphite stylus drawing a curved lilac stroke across the foremost layer. Clear illustration of layered creative image editing, sophisticated physical materials.\nStyle/medium: luxurious cinematic editorial product photography with physically realistic 3D materials, high-end creative software campaign, exceptionally polished and bespoke.\nComposition/framing: wide landscape 3:2. One coherent composition, subject centered within the middle 70%, full image designed to crop nicely at 16:9. Close enough to recognize on a small website card. No collage or multiple separate image panels except physical items explicitly described.\nScene/backdrop: continuous deep charcoal studio backdrop (#15151c), subtle rich violet atmosphere, never plain flat black.\nLighting/mood: soft directional studio light, restrained amber highlights and lavender rim light, rich shadows and premium tactile texture.\nColor palette: charcoal, lavender, pale ivory, chrome and restrained warm amber, consistent cohesive ConvertShorts branding.\nConstraints: Original concept illustration, not an actual screenshot or proof of software capability. No readable text, letters, words, logos, watermarks, interface chrome, labels, badges, borders or card container. No toy-like cheap plastic, cartoon emoji or generic stock illustration. Let the art fill the canvas."
+    },
+    {
+      "id": "world-viewing",
+      "files": [
+        {
+          "file": "assets/creative/cards/world-viewing-384.webp",
+          "width": 384,
+          "bytes": 12428
+        },
+        {
+          "file": "assets/creative/cards/world-viewing-768.webp",
+          "width": 768,
+          "bytes": 40564
+        }
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: individual landscape website feature-card artwork for ConvertShorts Creative Studio.\nPrimary request: A beautiful miniature architectural landscape on a floating circular stone island: a tall ivory circular arch, tiny cypress trees, reflective pool, steps and warm desert terrain. A subtle fine violet wireframe traces one edge to suggest 3D scene composition. Luxurious architectural diorama.\nStyle/medium: luxurious cinematic editorial product photography with physically realistic 3D materials, high-end creative software campaign, exceptionally polished and bespoke.\nComposition/framing: wide landscape 3:2. One coherent composition, subject centered within the middle 70%, full image designed to crop nicely at 16:9. Close enough to recognize on a small website card. No collage or multiple separate image panels except physical items explicitly described.\nScene/backdrop: continuous deep charcoal studio backdrop (#15151c), subtle rich violet atmosphere, never plain flat black.\nLighting/mood: soft directional studio light, restrained amber highlights and lavender rim light, rich shadows and premium tactile texture.\nColor palette: charcoal, lavender, pale ivory, chrome and restrained warm amber, consistent cohesive ConvertShorts branding.\nConstraints: Original concept illustration, not an actual screenshot or proof of software capability. No readable text, letters, words, logos, watermarks, interface chrome, labels, badges, borders or card container. No toy-like cheap plastic, cartoon emoji or generic stock illustration. Let the art fill the canvas."
+    },
+    {
+      "id": "planning-organizing",
+      "files": [
+        {
+          "file": "assets/creative/cards/planning-organizing-384.webp",
+          "width": 384,
+          "bytes": 18682
+        },
+        {
+          "file": "assets/creative/cards/planning-organizing-768.webp",
+          "width": 768,
+          "bytes": 58380
+        }
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: individual landscape website feature-card artwork for ConvertShorts Creative Studio.\nPrimary request: A tasteful creative moodboard arranged on a charcoal surface: six overlapping photographic prints of desert architecture, a lavender glass flower and an abstract fabric detail, ivory color swatches, a contact sheet and a small lavender paper tab. Premium design studio editorial flat lay, harmonious restrained arrangement.\nStyle/medium: luxurious cinematic editorial product photography with physically realistic 3D materials, high-end creative software campaign, exceptionally polished and bespoke.\nComposition/framing: wide landscape 3:2. One coherent composition, subject centered within the middle 70%, full image designed to crop nicely at 16:9. Close enough to recognize on a small website card. No collage or multiple separate image panels except physical items explicitly described.\nScene/backdrop: continuous deep charcoal studio backdrop (#15151c), subtle rich violet atmosphere, never plain flat black.\nLighting/mood: soft directional studio light, restrained amber highlights and lavender rim light, rich shadows and premium tactile texture.\nColor palette: charcoal, lavender, pale ivory, chrome and restrained warm amber, consistent cohesive ConvertShorts branding.\nConstraints: Original concept illustration, not an actual screenshot or proof of software capability. No readable text, letters, words, logos, watermarks, interface chrome, labels, badges, borders or card container. No toy-like cheap plastic, cartoon emoji or generic stock illustration. Let the art fill the canvas."
+    },
+    {
+      "id": "editor-photo",
+      "files": [
+        {
+          "file": "assets/creative/cards/editor-photo-384.webp",
+          "width": 384,
+          "bytes": 8224
+        },
+        {
+          "file": "assets/creative/cards/editor-photo-768.webp",
+          "width": 768,
+          "bytes": 22374
+        }
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: individual landscape website feature-card artwork for ConvertShorts Creative Studio.\nPrimary request: A professionally lit editorial portrait photograph of a woman with naturally curly dark hair and a lavender silk garment on a freestanding photographic panel. Two subtle translucent duplicate photo layers are offset behind it, a single elegant crop corner on the front. Fine photographic editing concept; natural features, no anatomy distortions.\nStyle/medium: luxurious cinematic editorial product photography with physically realistic 3D materials, high-end creative software campaign, exceptionally polished and bespoke.\nComposition/framing: wide landscape 3:2. One coherent composition, subject centered within the middle 70%, full image designed to crop nicely at 16:9. Close enough to recognize on a small website card. No collage or multiple separate image panels except physical items explicitly described.\nScene/backdrop: continuous deep charcoal studio backdrop (#15151c), subtle rich violet atmosphere, never plain flat black.\nLighting/mood: soft directional studio light, restrained amber highlights and lavender rim light, rich shadows and premium tactile texture.\nColor palette: charcoal, lavender, pale ivory, chrome and restrained warm amber, consistent cohesive ConvertShorts branding.\nConstraints: Original concept illustration, not an actual screenshot or proof of software capability. No readable text, letters, words, logos, watermarks, interface chrome, labels, badges, borders or card container. No toy-like cheap plastic, cartoon emoji or generic stock illustration. Let the art fill the canvas."
+    },
+    {
+      "id": "editor-vector",
+      "files": [
+        {
+          "file": "assets/creative/cards/editor-vector-384.webp",
+          "width": 384,
+          "bytes": 8650
+        },
+        {
+          "file": "assets/creative/cards/editor-vector-768.webp",
+          "width": 768,
+          "bytes": 23028
+        }
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: individual landscape website feature-card artwork for ConvertShorts Creative Studio.\nPrimary request: A sculptural lilac ribbon loop and warm ivory geometric forms on a graphite pedestal, with a few fine luminous violet Bezier curves and small control-point handles elegantly tracing the ribbon. Premium vector design concept, clean geometry, beautiful tactile 3D render.\nStyle/medium: luxurious cinematic editorial product photography with physically realistic 3D materials, high-end creative software campaign, exceptionally polished and bespoke.\nComposition/framing: wide landscape 3:2. One coherent composition, subject centered within the middle 70%, full image designed to crop nicely at 16:9. Close enough to recognize on a small website card. No collage or multiple separate image panels except physical items explicitly described.\nScene/backdrop: continuous deep charcoal studio backdrop (#15151c), subtle rich violet atmosphere, never plain flat black.\nLighting/mood: soft directional studio light, restrained amber highlights and lavender rim light, rich shadows and premium tactile texture.\nColor palette: charcoal, lavender, pale ivory, chrome and restrained warm amber, consistent cohesive ConvertShorts branding.\nConstraints: Original concept illustration, not an actual screenshot or proof of software capability. No readable text, letters, words, logos, watermarks, interface chrome, labels, badges, borders or card container. No toy-like cheap plastic, cartoon emoji or generic stock illustration. Let the art fill the canvas."
+    },
+    {
+      "id": "editor-video",
+      "files": [
+        {
+          "file": "assets/creative/cards/editor-video-384.webp",
+          "width": 384,
+          "bytes": 13190
+        },
+        {
+          "file": "assets/creative/cards/editor-video-768.webp",
+          "width": 768,
+          "bytes": 39566
+        }
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: individual landscape website feature-card artwork for ConvertShorts Creative Studio.\nPrimary request: Three cinematic landscape film frames arranged horizontally at a slight perspective, each showing a distant ivory desert arch from a different camera angle. Beneath them three physical thin graphite strips with small lavender and amber segments suggest a editing timeline. Premium cinematic product render, no readable UI or text.\nStyle/medium: luxurious cinematic editorial product photography with physically realistic 3D materials, high-end creative software campaign, exceptionally polished and bespoke.\nComposition/framing: wide landscape 3:2. One coherent composition, subject centered within the middle 70%, full image designed to crop nicely at 16:9. Close enough to recognize on a small website card. No collage or multiple separate image panels except physical items explicitly described.\nScene/backdrop: continuous deep charcoal studio backdrop (#15151c), subtle rich violet atmosphere, never plain flat black.\nLighting/mood: soft directional studio light, restrained amber highlights and lavender rim light, rich shadows and premium tactile texture.\nColor palette: charcoal, lavender, pale ivory, chrome and restrained warm amber, consistent cohesive ConvertShorts branding.\nConstraints: Original concept illustration, not an actual screenshot or proof of software capability. No readable text, letters, words, logos, watermarks, interface chrome, labels, badges, borders or card container. No toy-like cheap plastic, cartoon emoji or generic stock illustration. Let the art fill the canvas."
+    },
+    {
+      "id": "editor-raw",
+      "files": [
+        {
+          "file": "assets/creative/cards/editor-raw-384.webp",
+          "width": 384,
+          "bytes": 14592
+        },
+        {
+          "file": "assets/creative/cards/editor-raw-768.webp",
+          "width": 768,
+          "bytes": 42444
+        }
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: individual landscape website feature-card artwork for ConvertShorts Creative Studio.\nPrimary request: A premium graphite camera lens in foreground, with a photographic landscape print of an ivory arch at sunset behind it and a restrained narrow gradient strip of amber and lavender color swatches. Beautiful editorial studio photography conveying RAW photo development and natural color detail.\nStyle/medium: luxurious cinematic editorial product photography with physically realistic 3D materials, high-end creative software campaign, exceptionally polished and bespoke.\nComposition/framing: wide landscape 3:2. One coherent composition, subject centered within the middle 70%, full image designed to crop nicely at 16:9. Close enough to recognize on a small website card. No collage or multiple separate image panels except physical items explicitly described.\nScene/backdrop: continuous deep charcoal studio backdrop (#15151c), subtle rich violet atmosphere, never plain flat black.\nLighting/mood: soft directional studio light, restrained amber highlights and lavender rim light, rich shadows and premium tactile texture.\nColor palette: charcoal, lavender, pale ivory, chrome and restrained warm amber, consistent cohesive ConvertShorts branding.\nConstraints: Original concept illustration, not an actual screenshot or proof of software capability. No readable text, letters, words, logos, watermarks, interface chrome, labels, badges, borders or card container. No toy-like cheap plastic, cartoon emoji or generic stock illustration. Let the art fill the canvas."
+    },
+    {
+      "id": "editor-pdf",
+      "files": [
+        {
+          "file": "assets/creative/cards/editor-pdf-384.webp",
+          "width": 384,
+          "bytes": 10394
+        },
+        {
+          "file": "assets/creative/cards/editor-pdf-768.webp",
+          "width": 768,
+          "bytes": 28816
+        }
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: individual landscape website feature-card artwork for ConvertShorts Creative Studio.\nPrimary request: A small stack of immaculate ivory paper pages floating over a charcoal surface, one page featuring a geometric lavender illustration and tiny nonverbal grey layout lines. A graphite binder clip and thin violet page-edge accents. Premium polished document editing still life, not a software screen.\nStyle/medium: luxurious cinematic editorial product photography with physically realistic 3D materials, high-end creative software campaign, exceptionally polished and bespoke.\nComposition/framing: wide landscape 3:2. One coherent composition, subject centered within the middle 70%, full image designed to crop nicely at 16:9. Close enough to recognize on a small website card. No collage or multiple separate image panels except physical items explicitly described.\nScene/backdrop: continuous deep charcoal studio backdrop (#15151c), subtle rich violet atmosphere, never plain flat black.\nLighting/mood: soft directional studio light, restrained amber highlights and lavender rim light, rich shadows and premium tactile texture.\nColor palette: charcoal, lavender, pale ivory, chrome and restrained warm amber, consistent cohesive ConvertShorts branding.\nConstraints: Original concept illustration, not an actual screenshot or proof of software capability. No readable text, letters, words, logos, watermarks, interface chrome, labels, badges, borders or card container. No toy-like cheap plastic, cartoon emoji or generic stock illustration. Let the art fill the canvas."
+    },
+    {
+      "id": "editor-motion",
+      "files": [
+        {
+          "file": "assets/creative/cards/editor-motion-384.webp",
+          "width": 384,
+          "bytes": 11234
+        },
+        {
+          "file": "assets/creative/cards/editor-motion-768.webp",
+          "width": 768,
+          "bytes": 31292
+        }
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: individual landscape website feature-card artwork for ConvertShorts Creative Studio.\nPrimary request: A polished chrome sphere tracing a graceful arc around a translucent lavender glass ring, captured with elegant long-exposure amber and violet light trails. Sleek kinetic sculptural composition expressing motion graphics, realistic reflections, dynamic but uncluttered.\nStyle/medium: luxurious cinematic editorial product photography with physically realistic 3D materials, high-end creative software campaign, exceptionally polished and bespoke.\nComposition/framing: wide landscape 3:2. One coherent composition, subject centered within the middle 70%, full image designed to crop nicely at 16:9. Close enough to recognize on a small website card. No collage or multiple separate image panels except physical items explicitly described.\nScene/backdrop: continuous deep charcoal studio backdrop (#15151c), subtle rich violet atmosphere, never plain flat black.\nLighting/mood: soft directional studio light, restrained amber highlights and lavender rim light, rich shadows and premium tactile texture.\nColor palette: charcoal, lavender, pale ivory, chrome and restrained warm amber, consistent cohesive ConvertShorts branding.\nConstraints: Original concept illustration, not an actual screenshot or proof of software capability. No readable text, letters, words, logos, watermarks, interface chrome, labels, badges, borders or card container. No toy-like cheap plastic, cartoon emoji or generic stock illustration. Let the art fill the canvas."
+    },
+    {
+      "id": "editor-layout",
+      "files": [
+        {
+          "file": "assets/creative/cards/editor-layout-384.webp",
+          "width": 384,
+          "bytes": 12020
+        },
+        {
+          "file": "assets/creative/cards/editor-layout-768.webp",
+          "width": 768,
+          "bytes": 36172
+        }
+      ],
+      "prompt": "Use case: stylized-concept\nAsset type: individual landscape website feature-card artwork for ConvertShorts Creative Studio.\nPrimary request: An open premium editorial magazine on a charcoal tabletop, its spread filled with carefully aligned abstract lavender and ivory blocks, a photograph of desert architecture and restrained grey placeholder lines, with one translucent layout grid hovering softly above the spread. Refined publishing studio still life.\nStyle/medium: luxurious cinematic editorial product photography with physically realistic 3D materials, high-end creative software campaign, exceptionally polished and bespoke.\nComposition/framing: wide landscape 3:2. One coherent composition, subject centered within the middle 70%, full image designed to crop nicely at 16:9. Close enough to recognize on a small website card. No collage or multiple separate image panels except physical items explicitly described.\nScene/backdrop: continuous deep charcoal studio backdrop (#15151c), subtle rich violet atmosphere, never plain flat black.\nLighting/mood: soft directional studio light, restrained amber highlights and lavender rim light, rich shadows and premium tactile texture.\nColor palette: charcoal, lavender, pale ivory, chrome and restrained warm amber, consistent cohesive ConvertShorts branding.\nConstraints: Original concept illustration, not an actual screenshot or proof of software capability. No readable text, letters, words, logos, watermarks, interface chrome, labels, badges, borders or card container. No toy-like cheap plastic, cartoon emoji or generic stock illustration. Let the art fill the canvas."
+    }
+  ]
+}

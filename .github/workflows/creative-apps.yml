@@ -42,6 +42,9 @@ jobs:
       - name: Verify composer prices
         if: ${{ !cancelled() }}
         run: node tests/studio-pricing-browser.cjs
+      - name: Verify visible controls and guided canvas
+        if: ${{ !cancelled() }}
+        run: node tests/studio-controls-browser.cjs
       - name: Verify advanced studio workflows
         if: ${{ !cancelled() }}
         run: node tests/studio-advanced-browser.cjs

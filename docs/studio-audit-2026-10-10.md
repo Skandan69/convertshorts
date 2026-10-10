@@ -21,7 +21,34 @@ The live public configuration before this update reported 77 model adapters, pri
 
 The seven engines are integrated from their separately licensed browser releases. ArtCraft's web platform and private backend are not reused. Engine-specific browser limitations include PhotoCraft's native recovery/server-document features, FilmCraft's thread-dependent proxies/render previews/Project Manager/mask tracking, LightCraft's unwired preset-file picker and platform-specific codecs, PDF features still incomplete upstream, and native font/automation or external plugin workflows.
 
-Exact reference capabilities still missing include Suno's licensed music/remix/sound/sample service, Midjourney partner access, Beeble SwitchX relighting/replacement, ArtCraft's private identity-transfer service, certain latest model versions, Marble's dedicated recaption toggle, and the reference's model-family/variant selection interface. Adapters are not a one-for-one model count comparison.
+Exact reference capabilities still missing include Suno's licensed music/remix/sound/sample service, Midjourney partner access, Beeble SwitchX relighting/replacement, ArtCraft's private identity-transfer service, newer model versions not yet integrated and verified, Marble's dedicated recaption toggle, and the reference's model-family/variant selection interface. Adapters are not a one-for-one model count comparison.
+
+## Visible controls and first-use fixes
+
+The follow-up audit found a real ACE-Step mapping bug: the main composer wrote a generic prompt while the adapter required `tags`. The composer now sends music style as `tags`, and lyrics, numeric duration and instrumental selection as their documented inputs. New audio composers start with ACE-Step. MiniMax has visible lyrics and style, while its model-selected length is stated explicitly. Speech shows text, voice and speed; sound effects show supported duration. Audio no longer shows an image aspect ratio. Compatible song models preserve lyrics when switching; local route changes retain duration drafts.
+
+Video duration is visible before opening More settings, using each adapter's actual enum or numeric range. Hunyuan 3D input-image references and video start/end references are mapped to their endpoint-specific fields. Required media uploads remain usable through reference images; the form does not force a duplicate raw URL. VFX results stay associated with their workflow, and an unrelated completed job no longer replaces the current generator's result list.
+
+Vocal preference and excluded styles for ACE-Step/MiniMax are added as **prompt guidance**. Their schemas have no hard singer-gender or negative-style field, so these preferences are not guaranteed. MiniMax's description/schema disagree on the maximum style length; the UI uses the conservative 300-character limit. ACE-Step accepts 5–240 seconds; MiniMax music has no duration parameter. Native audio playback on asset cards shows the actual decoded length.
+
+Canvas is a transparent drawing surface, not a pre-generated scene. Its empty state now offers image import, a code-drawn editable example, drawing steps and mask instructions. The import/export toolbar remains visible while scrolling. Completed drawing actions save immediately, so a fast reload does not rely on the previous half-second save timer. Empty export/AI actions are disabled, and masked AI editing asks for a painted mask. The example, undo/redo, persistence, mobile fit and PNG workflow are covered by browser checks. A paid AI canvas output is still not certified.
+
+The Quick guide now covers 20 workflows with input, action and output steps, and the individual tools have expandable guidance. The guide distinguishes local editing, provider AI and signed-in cloud sync.
+
+| User-facing workflow | Compared with ArtCraft | Remaining limitation |
+| --- | --- | --- |
+| Image creation and AI editing | Prompts, references, model settings, results/library | Midjourney/private identity transfer and newer unintegrated model versions |
+| Video creation | Visible duration, model-specific settings, image references and playback | ArtCraft's newer default Seedance 2.5 and its family/variant picker are not integrated |
+| Music / speech / effects | Explicit lyrics, style and supported duration; vocal/exclusion guidance; output playback | Suno music/remix/sample services; guaranteed gender/exclusions are not supported by current song endpoints |
+| AI canvas | Layered composition, imported images, masks and AI handoff | Independently implemented; model-dependent AI quality remains untested live |
+| 3D object / scene / worlds | Generation adapters, import/view, transforms, poses, cameras and exports | Paid 3D/world generation not run in this audit; reference native/private platform features are separate |
+| Video background / VFX / timeline | Local chroma key, AI mask contracts, compositing and actual media exports | SwitchX relighting is not replicated; AI video transforms require compatible source media and provider access |
+| Moodboard / frames / assets / projects | Local workflows, persistence, PNG/ZIP exports, reuse and cloud interfaces | All real multi-user sync and invitation scenarios are not certified |
+| Seven Crafting Apps | Browser engine startup and representative real export checks | Native automation, codecs, plugins and upstream browser restrictions listed above remain separate |
+
+Verification combines real browser drawing/WebGL/media exports with mocked provider/cloud contracts. The new composer checks validate submitted bodies with the actual server adapters, check every configured video duration, and exercise song/speech/effect controls. No claim of universal live provider success is made.
+
+Primary references: [ACE-Step API](https://fal.ai/models/fal-ai/ace-step/api), [MiniMax Music API](https://fal.ai/models/fal-ai/minimax-music/v2/api), [ArtCraft audio request builder](https://github.com/storytold/artcraft/blob/main/frontend/libs/omni-gen/src/lib/omni-gen-audio.ts), [ArtCraft video composer](https://github.com/storytold/artcraft/blob/main/frontend/libs/components/promptbox/src/lib/PromptBoxVideo.tsx). ArtCraft's public audio composer exposes style/instrumental controls but not every requested song parameter; the explicit lyrics and guidance controls here extend that behavior using supported providers.
 
 ## Pricing prepared in this update
 

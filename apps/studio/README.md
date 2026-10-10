@@ -8,6 +8,11 @@ Customer provider-key entry has been removed. Free editors and email/password ac
 
 ## Implemented workflows
 
+- Visual Workflow Builder: typed prompt/reference/image/video connections, cinematic/product/three-shot templates, drag/pan/zoom and mobile List view, model controls and a free guided prompt builder. Workflows share the `projects` store with a `recordType: workflow` discriminator, so private workspace sync, 30-day retention and full workspace backups apply without a schema migration. Shot lists filter out workflow records.
+- Workflow runs review a total budget, preflight the wallet and use the existing server-priced generation API. Independent branches are limited to two submissions at once. Dependent steps wait for their image output; confirmed failures stop future submissions. Pausing or leaving the tool stops future steps, while accepted jobs continue. Resume reuses recorded jobs and completed outputs. Browser Web Locks prevent the same workflow running in two tabs; they do not coordinate different devices.
+- Portable workflow ZIPs contain the graph, reference files and completed outputs, with 150 MB per file / 300 MB total limits. Imports receive fresh workflow/media IDs and never transfer paid job state or credentials. Free planning is available now; AI generation retains the existing coming-soon gates.
+
+
 - Image, video, audio, object and world generation: 77 documented model adapters, including 63 schema-driven Fal models, 10 initial Fal adapters and four World Labs Marble models. Adapter coverage is not a claim that all models are available in the hosted launch. The composer exposes the provider's supported parameters, image references, start/end frames, multiview inputs, audio/video reference uploads, resolution, duration, seed and other model-specific controls.
 - PhotoCraft image editing; AI composition canvas with layers, brushes, erasing, shapes, text, masks and undo; guided generation and masked AI erasing.
 - FilmCraft 0.4.0 browser editor: multi-track timeline, trimming, effects, transitions, grading, keyframes, audio mixing, captions, recovery and H.264 export. Library import and export retrieval are connected to the surrounding studio. The original quick timeline remains at `#quick-video`.
@@ -96,4 +101,12 @@ Each owner has a 500 MB cloud media allowance across owned workspaces, with 150 
 
 The home paints before account/billing requests. Catalog loading blocks composers only; native engines load on demand. Cloud sync transfers metadata and batched short-lived URLs instead of downloading every blob. Editors refresh expired signed URLs on demand. Library lists initially render 24 items and video/audio previews do not preload their media. The large upstream native editor downloads remain a first-use cost; exact app performance must be measured on customer devices.
 
-Public SEO pages: `/creative-studio`, `/creative-studio-pricing`, `/ai-image-generator`, `/ai-video-generator`, `/ai-music-generator`. They contain static copy, canonical URLs, unique metadata, Open Graph/Twitter art, truthful structured data, internal links and sitemap entries. Build with `scripts/build-studio-pages.mjs`.
+Public SEO pages: `/creative-studio`, `/creative-studio-pricing`, `/ai-image-generator`, `/ai-video-generator`, `/ai-music-generator`, `/ai-workflow-builder`. They contain static copy, canonical URLs, unique metadata, Open Graph/Twitter art, truthful structured data, internal links and sitemap entries. Build with `scripts/build-studio-pages.mjs`.
+
+## Workflow Builder verification and scope
+
+`tests/studio-workflow.mjs` verifies price totals using the shared 20% policy, typed edges and cycle rejection, dependency ordering, two-job concurrency, failure handling, pause/resume and uncertain submissions. `tests/studio-workflow-browser.cjs` exercises the actual customer UI, controls, archive round-trip, mobile layout, private sync, library outputs, server-quote matching and wallet preflight using HTTP fixtures. It does not spend provider credits or certify live merchant checkout.
+
+The runner lives in the browser. Leaving the tool stops future submissions; reopening provides Check jobs / Resume. It is not an unattended server scheduler. A reload during an ambiguous submission requires review and never automatically resubmits. Each generation uses the existing individual atomic credit reservation; the whole workflow is not reserved as one transaction. A second device can intentionally start its own run, so cloud job orchestration/idempotency across devices remains future work.
+
+Prompt guidance is a free form helper, not an LLM rewriting service. The first workflow generation models are FLUX Schnell, Nano Banana 2 generate/edit and Kling 2.6. Kie.ai, new model providers, and local Codex subscription routing are not added. The implementation is original code informed by a review of [HeliosGen](https://github.com/SegFault42/HeliosGen); no source files from that repository are copied.

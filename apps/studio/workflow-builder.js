@@ -16,7 +16,7 @@ export async function mountWorkflowBuilder(view,{toast,assetURL,isActive=()=>tru
  if(!store.isCurrent()||!isActive())return ()=>{};
  const params=new URLSearchParams(location.hash.split('?')[1]||'');
  let active=workflows.find(f=>f.id===params.get('id'))||workflows[0],selected='',config=unavailableBilling();
- let disposed=false,busy=false,stopRequested=false,saving=Promise.resolve(),saveTimer,drag,connectFrom='',pan={x:0,y:0,zoom:1},list=matchMedia('(max-width:760px)').matches;
+ let disposed=false,busy=false,changing=false,stopRequested=false,saving=Promise.resolve(),saveTimer,drag,connectFrom='',pan={x:0,y:0,zoom:1},list=matchMedia('(max-width:760px)').matches;
  if(!document.getElementById('workflow-styles')){const link=document.createElement('link');link.id='workflow-styles';link.rel='stylesheet';link.href='/apps/studio/workflow.css';link.onload=()=>{if(!disposed&&store.isCurrent()&&isActive())fit();};document.head.append(link);}
  if(params.get('asset')&&assets.some(a=>a.id===params.get('asset')&&a.type==='image')){active=makeWorkflow('product');active.nodes.find(n=>n.type==='reference').assetId=params.get('asset');workflows.unshift(active);await store.put('projects',active);history.replaceState(null,'',location.pathname+'#workflow?id='+active.id);}
  if(!active){active=makeWorkflow();workflows.unshift(active);await store.put('projects',active);}
@@ -61,7 +61,7 @@ export async function mountWorkflowBuilder(view,{toast,assetURL,isActive=()=>tru
  }
  function controls(){
   if(!alive()||!el('wf-review'))return;
-  for(const n of view.querySelectorAll('#wf-project-bar input,.wf-project-bar input,.wf-project-bar button,.wf-project-bar select,[data-wf-add],#wf-templates,#wf-review,#wf-resume,#wf-check'))n.disabled=busy;
+  for(const n of view.querySelectorAll('#wf-project-bar input,.wf-project-bar input,.wf-project-bar button,.wf-project-bar select,[data-wf-add],#wf-templates,#wf-review,#wf-resume,#wf-check,#wf-node-form input,#wf-node-form select,#wf-node-form textarea,#wf-node-form button'))n.disabled=busy||changing;
   el('wf-pause').hidden=!busy;el('wf-pause').disabled=stopRequested;
   el('wf-resume').hidden=!active.run||active.run.status==='complete';
   if(active.run?.status==='needs-review')el('wf-resume').disabled=true;
@@ -151,7 +151,7 @@ export async function mountWorkflowBuilder(view,{toast,assetURL,isActive=()=>tru
   el('wf-delete-step').onclick=()=>{active.nodes=active.nodes.filter(a=>a!==n);active.edges=active.edges.filter(e=>e.source!==n.id&&e.target!==n.id);delete active.run;connectFrom='';selected='';schedule();drawCanvas();drawInspector();budget();controls();};
   el('wf-duplicate-step').onclick=()=>{if(active.nodes.length>=40)return toast('A workflow supports up to 40 steps.');active.nodes.push({...n,id:uid(),name:n.name+' copy',x:Math.min(5000,n.x+45),y:Math.min(4000,n.y+260)});delete active.run;selected=active.nodes.at(-1).id;schedule();drawCanvas();drawInspector();budget();controls();};
  }
- async function create(template){if(busy||!alive())return;await save();if(!alive())return;active=makeWorkflow(template);workflows.unshift(active);selected='';await save();layout();fit();}
+ async function create(template){if(busy||changing||!alive())return;changing=true;controls();try{await save();if(!alive())return;active=makeWorkflow(template);workflows.unshift(active);selected='';await save();layout();fit();}finally{changing=false;controls();}}
  function showTemplates(){const d=el('wf-dialog');d.innerHTML=`<div class="wf-dialog-head"><div><span class="eyebrow">A FASTER FIRST STEP</span><h2>Start with a workflow.</h2></div><button class="icon-button" data-wf-close aria-label="Close templates">×</button></div><div class="wf-template-grid">${WORKFLOW_TEMPLATES.map((t,i)=>`<button class="wf-template" data-wf-template="${t.id}"><span class="wf-template-number">0${i+1}</span>${icon(i===2?'frame':i===1?'image':'video',27)}<strong>${esc(t.name)}</strong><p>${esc(t.description)}</p><span>Create editable workflow ${icon('arrow',14)}</span></button>`).join('')}</div><p class="wf-note">Planning is free. AI generation uses your balance after launch.</p>`;d.showModal();}
  function showPromptBuilder(){
   const d=el('wf-dialog'),target=selectedNode();d.innerHTML=`<div class="wf-dialog-head"><div><span class="eyebrow">FREE GUIDED PROMPT BUILDER</span><h2>Give your idea more detail.</h2></div><button class="icon-button" data-wf-close aria-label="Close prompt builder">×</button></div><form id="wf-prompt-form" class="wf-prompt-form">${[['subject','Subject / product',target.prompt||''],['action','Action / movement',''],['setting','Setting / background',''],['style','Visual style',''],['lighting','Lighting',''],['camera','Camera / composition',''],['exclude','Things to avoid','']].map(([name,label,value])=>`<label>${label}<input name="${name}" value="${esc(value)}" maxlength="1200"></label>`).join('')}<p class="wf-note">This helper combines your instructions. It does not call a paid AI model. Avoidance instructions are guidance, not guaranteed exclusions.</p><button class="primary-button">Use this prompt</button></form>`;d.showModal();el('wf-prompt-form').onsubmit=async e=>{e.preventDefault();try{target.prompt=buildPrompt(Object.fromEntries(new FormData(e.target)));delete active.run;await save();d.close();drawCanvas();drawInspector();budget();controls();}catch(e){toast(e.message);}};
@@ -173,7 +173,7 @@ export async function mountWorkflowBuilder(view,{toast,assetURL,isActive=()=>tru
  }
  async function review(resume){
   try{
-   if(busy)return;await save();await reloadAssets();const snapshot=normalizeWorkflow(active);validateReady(snapshot,assets);
+   if(busy||changing)return;await save();await reloadAssets();const snapshot=normalizeWorkflow(active);validateReady(snapshot,assets);
    const estimate=estimateWorkflow(snapshot,config.usdInr),old=resume?active.run:null;
    if(resume&&!old)throw Error('There is no paused run to resume.');
    if(old&&Object.values(old.steps).some(s=>['failed','uncertain','submitting'].includes(s.status)))throw Error('Check submitted jobs and resolve the flagged steps before resuming.');

@@ -2,3 +2,18 @@
 @media(max-width:1000px){header,main,footer{padding-left:25px;padding-right:25px}.hero h1{font-size:53px}.hero-art{height:350px}.tools{grid-template-columns:repeat(2,minmax(0,1fr))}.pricing{grid-template-columns:repeat(2,minmax(0,1fr))}.editors{grid-template-columns:repeat(3,minmax(0,1fr))}.editor:last-child{grid-column:span 1}header nav{gap:17px}.section-intro{gap:28px}.storage{gap:30px;padding:26px}}
 @media(max-width:650px){header{height:76px;gap:12px}.brand{font-size:18px}.brand-mark{font-size:30px}header nav{display:none}.nav-actions>a:first-child{display:none}.nav-actions .button{font-size:10px;padding:9px 12px;min-height:39px}.hero{padding:39px 0 30px}.hero h1{font-size:41px;letter-spacing:-1.7px}.hero>p{font-size:13px}.hero-art{height:280px}.hero-art figcaption{padding:20px;flex-direction:column;align-items:start;gap:7px}.hero-art figcaption strong{font-size:19px}.hero .micro{font-size:9px}.section-intro{display:block;margin-top:28px}.section-intro h2{font-size:30px}.section-intro p{margin-top:18px}.tools,.pricing,.storage,.flow{grid-template-columns:1fr}.tool{min-height:170px}.editors{grid-template-columns:repeat(2,minmax(0,1fr))}.flow{gap:15px}.flow .step{font-size:28px}.storage{padding:25px;gap:15px}.final-cta h2{font-size:31px}footer{flex-direction:column}.launch-strip{font-size:10px}.section{padding:26px 0}.plan{padding:25px}.hero-actions .button{font-size:11px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+/* Original workflow artwork: reserved image space prevents layout shifts. */
+.tool,.editor{padding:0;overflow:hidden;display:flex;flex-direction:column}
+.tool-content{padding:23px 24px 25px;display:flex;flex-direction:column;flex:1}
+.tool h3{margin:14px 0 10px}
+.tool .status{align-self:flex-start;margin-top:auto;position:relative;top:0}
+.tool p{margin-bottom:20px}
+.card-art{margin:0;aspect-ratio:8/5;width:100%;overflow:hidden;background:#15151c;border-bottom:1px solid #34303d}
+.card-art img{width:100%;height:100%;object-fit:cover;transition:transform .45s ease}
+.tool:hover .card-art img,.editor:hover .card-art img{transform:scale(1.035)}
+.editor-content{padding:18px 18px 20px;flex:1}
+.editor:last-child{grid-column:span 1}
+.editor:hover{border-color:#6c5b83;background:#211e2a}
+.art-note{font-size:10px;color:#827b90;margin:15px 0 0}
+@media(max-width:650px){.tool-content{padding:21px}.editor-content{padding:15px 12px 17px}.editor .card-art{aspect-ratio:7/5}}
+@media(prefers-reduced-motion:reduce){.card-art img{transition:none}.tool:hover .card-art img,.editor:hover .card-art img{transform:none}}

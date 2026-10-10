@@ -17,7 +17,7 @@ The live public configuration before this update reported 77 model adapters, pri
 | Video tools | Advanced FilmCraft timeline, quick editor, local chroma key and AI mask compositing, audio-preserving WebM, individual/burst frame extraction | Real H.264/AAC and WebM export checks; actual frame pixel checks and ZIP contents. Segmentation/compositing does not provide SwitchX's exact relighting service. |
 | Assets/workflows | Library, Unfoldered filter, folders, tags, favorites/trash, bulk ZIPs, moodboards, projects/shot lists, characters, prompt presets, backup/restore | Browser persistence, PNGs, ZIPs and workspace restoration tested. Character references do not guarantee identity consistency. |
 | Accounts/cloud | Email accounts, confirmation/recovery, private media/project sync, invitation links, roles, conflicts and sign-out isolation | Cloud lifecycle and authorization tested with fixtures; production RLS inspected. All real multi-user scenarios and Google OAuth are not certified. |
-| Commerce | Stripe checkout/portal/webhooks, idempotent grants/refunds, credit reservation, server-recomputed generation quotes | HTTP fixtures cover price mismatches, stale/tampered quotes, replay and failed requests. Actual Stripe checkout and owner-funded generation await merchant/provider setup. |
+| Commerce | Razorpay prepaid checkout/webhooks, idempotent grants/refunds, credit reservation, server-recomputed generation quotes | HTTP fixtures cover price mismatches, stale/tampered quotes, replay and failed requests. Actual Razorpay checkout and owner-funded generation await merchant/provider setup. |
 
 The seven engines are integrated from their separately licensed browser releases. ArtCraft's web platform and private backend are not reused. Engine-specific browser limitations include PhotoCraft's native recovery/server-document features, FilmCraft's thread-dependent proxies/render previews/Project Manager/mask tracking, LightCraft's unwired preset-file picker and platform-specific codecs, PDF features still incomplete upstream, and native font/automation or external plugin workflows.
 
@@ -50,33 +50,29 @@ Verification combines real browser drawing/WebGL/media exports with mocked provi
 
 Primary references: [ACE-Step API](https://fal.ai/models/fal-ai/ace-step/api), [MiniMax Music API](https://fal.ai/models/fal-ai/minimax-music/v2/api), [ArtCraft audio request builder](https://github.com/storytold/artcraft/blob/main/frontend/libs/omni-gen/src/lib/omni-gen-audio.ts), [ArtCraft video composer](https://github.com/storytold/artcraft/blob/main/frontend/libs/components/promptbox/src/lib/PromptBoxVideo.tsx). ArtCraft's public audio composer exposes style/instrumental controls but not every requested song parameter; the explicit lyrics and guidance controls here extend that behavior using supported providers.
 
-## Pricing prepared in this update
+## Pricing update: basic prepaid balance
 
-ArtCraft's app pricing selector showed promotional monthly Basic $10, Pro $35 and Max $60. Its public marketing page showed annual effective rates $8/$28/$48, charged $96/$336/$576 yearly, with 1,000/3,750/6,600 monthly credits. Offers can change. Competitor credits are not equivalent to ConvertShorts credits.
+The earlier proposed USD subscriptions were replaced at the owner's request. Free local tools and own-key generation stay available. The site now offers one-time **₹100, ₹500 and ₹1,000** top-ups, no automatic renewal and no expiry. One internal credit represents ₹0.01; customers see rupees.
 
-| ConvertShorts offer | USD price | ConvertShorts credits |
+| Generation | Reviewed Fal cost (USD) | ConvertShorts price before INR rounding (USD) |
 | --- | --- | --- |
-| Free local tools | $0 | Own-key AI uses the user's provider balance |
-| Starter | $7/month | 700/month |
-| Creator | $24/month | 2,400/month |
-| Studio | $42/month | 4,200/month |
-| Credit pack | $5 once | 500, no expiry |
+| FLUX Schnell 1024 × 1024 | $0.006 (two rounded-up MP) | $0.0072 |
+| Nano Banana 2 1K / 2K / 4K | $0.08 / $0.12 / $0.16 | $0.096 / $0.144 / $0.192 |
+| Kling 2.6 5s without audio | $0.35 | $0.42 |
+| Kling 2.6 5s with audio | $0.70 | $0.84 |
+| Kling 2.6 10s with audio | $1.40 | $1.68 |
+| ACE-Step 60s music | $0.012 | $0.0144 |
+| MiniMax Music 2 song | $0.03 | $0.036 |
 
-Monthly allowances expire at the end of their grant period. One ConvertShorts credit represents $0.01 of retail generation value. These lower subscription prices also include lower retail allowances; they are not a promise of equivalent ArtCraft generation volume.
+The formula is Fal cost × **1.20**, then daily USD/INR conversion and one final round-up to the next paise. Cheap requests no longer have a whole-US-cent credit minimum. The hosted allowlist now includes the two priced song models. Other models still require a customer key. Current rate availability and actual business credentials gate live checkout/generation.
 
-Own-key generation earns no ConvertShorts generation markup. Hosted credits use the business's server-side Fal key and a 25% provider-cost markup, then round the complete request up to whole credits. This corresponds to approximately 20% gross margin before payment/FX fees, hosting/storage, support, taxes, refunds and customer acquisition. It is not net profit. Low-cost image rounding and conservatively costed FLUX presets can have different margins. Actual provider invoices and business costs must be monitored.
+A 20% markup leaves a 16.67% gross margin on selling price before expenses, not 20% net profit. At standard Razorpay 2% plus GST on its fee, ₹100 provider cost sold for ₹120 leaves about ₹17.17 after payment processing, before FX, hosting and other business/tax costs. Own-key generation earns no generation markup.
 
-The launch hosted allowlist covers FLUX Schnell, Nano Banana 2 generation/editing and Kling 2.6 Pro text/image-to-video. Other adapters remain own-key only until their parameter-dependent costs are verified. Examples: Nano Banana 1K/2K/4K costs 10/15/20 credits per image; Kling 5 seconds costs 44 without audio or 88 with audio, and 10 seconds with audio costs 175. Batch, resolution, duration and audio changes update the composer quote. A fresh server quote is checked before submission; the backend rejects a stale quote before reserving credits.
+Razorpay orders are priced server-side, tied to the authenticated account and kept in a server-only RLS table. The browser callback and raw-body signed webhook both fetch/check a captured, unrefunded INR payment before a row-locked, idempotent credit transaction. Test payments award no live credits and disable hosted generation. The standalone checkout page avoids media-engine isolation headers.
 
-## Activation checklist
+Local HTTP tests validate fixed order amounts, account ownership, signature rejection, capture/currency/amount checks, callback/webhook replay and isolated test mode. Database transaction verification rolls back all fixtures. CI also checks the payment UI, precise composer quotes and mobile layout. Real purchases and funded Fal outputs are not certified without merchant/provider setup. Purchase refunds require owner reconciliation; full chargeback/debt automation is not included.
 
-1. Use a dedicated, funded business Fal key as `CONVERTSHORTS_FAL_KEY` in the existing billing Edge Function's secret settings. Do not expose the key in client code or chat.
-2. Create Stripe USD monthly prices of $7/$24/$42 and a one-time $5 pack. Add only their price IDs to `CONVERTSHORTS_STRIPE_PLANS` using the four documented offer IDs. Checkout checks amount, currency and recurrence.
-3. Configure `CONVERTSHORTS_STRIPE_SECRET_KEY`, `CONVERTSHORTS_STRIPE_WEBHOOK_SECRET`, the documented webhook events and the Stripe customer portal. Review the account's payment/FX costs and applicable checkout/tax configuration.
-4. Keep `CONVERTSHORTS_HOSTED_ENABLED` off until the business funds and tests the launch flow; set it to `true` when ready. Checkout requires hosted generation and merchant configuration. No paid test request or purchase is made by this audit.
-5. World Labs credentials and Google OAuth are separate optional integrations. They are not activated by a Fal key or by Stripe setup.
-
-See [studio setup](../apps/studio/README.md) for secret names and webhook URL. Provider submission timeouts may leave reserved credits for owner review; confirmed failures are refunded idempotently.
+Activation instructions, exact secret names and webhook URL are in [studio setup](../apps/studio/README.md#simple-prepaid-pricing-and-razorpay-activation). Razorpay merchant secrets and the funded business Fal key have not been supplied, so live payments remain disabled.
 
 ## Primary references
 
@@ -85,4 +81,6 @@ See [studio setup](../apps/studio/README.md) for secret names and webhook URL. P
 - [FLUX Schnell cost](https://fal.ai/models/fal-ai/flux/schnell)
 - [Nano Banana 2 cost](https://fal.ai/models/fal-ai/nano-banana-2), [edit cost](https://fal.ai/models/fal-ai/nano-banana-2/edit)
 - [Kling text-to-video cost](https://fal.ai/models/fal-ai/kling-video/v2.6/pro/text-to-video), [image-to-video cost](https://fal.ai/models/fal-ai/kling-video/v2.6/pro/image-to-video)
-- [Stripe India pricing](https://stripe.com/in/pricing)
+- [Razorpay fees](https://razorpay.com/pricing/), [checkout verification](https://razorpay.com/docs/payments/payment-gateway/web-integration/standard/integration-steps/), [webhook signatures](https://razorpay.com/docs/webhooks/validate-test/)
+- [ACE-Step pricing](https://fal.ai/models/fal-ai/ace-step), [MiniMax Music 2 pricing](https://fal.ai/models/fal-ai/minimax-music/v2)
+- [Frankfurter daily FX API](https://frankfurter.dev/)

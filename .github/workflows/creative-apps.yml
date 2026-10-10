@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'apps/**'
+      - 'payments/**'
       - 'scripts/**'
       - 'tests/creative-apps*'
       - 'vercel.json'
@@ -27,6 +28,7 @@ jobs:
       - run: node tests/studio-api.mjs
       - run: node tests/studio-services.mjs
       - run: node tests/studio-pricing.mjs
+      - run: node tests/studio-payments.mjs
       - name: Install browser test runtime
         run: |
           npm install --prefix tests --no-save --package-lock=false --ignore-scripts playwright@1.62.1
@@ -42,6 +44,9 @@ jobs:
       - name: Verify composer prices
         if: ${{ !cancelled() }}
         run: node tests/studio-pricing-browser.cjs
+      - name: Verify prepaid payment UI
+        if: ${{ !cancelled() }}
+        run: node tests/studio-payments-browser.cjs
       - name: Verify visible controls and guided canvas
         if: ${{ !cancelled() }}
         run: node tests/studio-controls-browser.cjs

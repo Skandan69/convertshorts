@@ -8,3 +8,5 @@
 .canvas-page .canvas-layout{grid-template-columns:230px minmax(0,1fr)}@media(max-width:760px){.canvas-page .canvas-layout{display:grid;grid-template-columns:minmax(0,1fr)}.canvas-page .canvas-area{grid-row:1;padding:16px;overflow:hidden}.canvas-page .scene-side{grid-row:2;max-height:none}.canvas-welcome{width:100%;margin:0}.canvas-page .scene-side h3{margin-top:16px}.canvas-page .scene-side [data-canvas-tool]{display:inline-block;width:auto;margin:4px}.canvas-page .scene-side>label{max-width:300px}}
 
 .generation-page[data-kind=audio] .generation-stage{min-height:0;flex:0;padding-bottom:14px}.generation-page[data-kind=audio] .empty-state{min-height:90px;padding:12px;gap:6px}.generation-page[data-kind=audio] .empty-state>svg{display:none}.generation-page[data-kind=audio] .prompt-examples{margin-top:4px}.generation-page[data-kind=video] .generation-stage{min-height:210px}.generation-page[data-kind=video] .empty-state{min-height:200px}
+/* Keep the wide cost comparison inside its scroll region on narrow screens. */
+.billing-details,.billing-details>.panel{min-width:0}

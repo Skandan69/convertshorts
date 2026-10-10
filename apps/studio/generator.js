@@ -1,11 +1,11 @@
 import {icon,escape as esc} from './icons.js';
 import {scopedStorage,uid,referenceData} from './storage.js';
 import {uploadReference} from './cloud.js';
-import {quoteDraft} from './pricing.js';
+import {quoteDraft,formatINR} from './pricing.js';
 import {schemaShape as shape,audioCapabilities,musicStyle} from './generation-controls.js';
 const label=k=>({lyrics:'Lyrics',lyrics_prompt:'Lyrics',duration:'Duration (seconds)',duration_seconds:'Duration (seconds)',seconds_total:'Duration (seconds)',generate_audio:'Include generated audio',voice:'Voice'}[k]||k.replaceAll('_',' ').replace(/\b\w/g,c=>c.toUpperCase()));
 const audioName=m=>m.id==='stable-audio'?'Stable Audio 2.5 · instrumentals / sounds':m.endpoint==='fal-ai/ace-step'?'ACE-Step · songs / instrumentals':m.endpoint==='fal-ai/minimax-music/v2'?'MiniMax Music · songs with lyrics':m.name;
-export async function mountGenerator(view,{kind,models,ready,modeForModel=()=>ready()?'own':'connect',toast,draft={},onSubmit,onDraft,renderJobs,renderResults}){
+export async function mountGenerator(view,{kind,models,ready,modeForModel=()=>ready()?'own':'connect',pricingRate=()=>null,toast,draft={},onSubmit,onDraft,renderJobs,renderResults}){
  const {all,put}=scopedStorage();
  const choices=models.filter(m=>m.kind===kind||(kind==='vfx'&&m.kind==='video'));
  const defaultModel=draft.model||(kind==='audio'?choices.find(m=>m.endpoint==='fal-ai/ace-step')?.id:undefined);
@@ -61,7 +61,7 @@ export async function mountGenerator(view,{kind,models,ready,modeForModel=()=>re
  }
  function state(){return {prompt:el('generation-prompt').value,model:model().id,ratio:el('generation-ratio').value,references:refs,referenceNames:names,count:el('generation-count').value,resolution:el('generation-resolution')?.value,duration:el('generation-duration')?.value,seed:el('generation-seed')?.value,negative:el('generation-negative')?.value,audio:!!el('generation-audio')?.checked,labels_fg1:el('labels_fg1')?.value,labels_fg2:el('labels_fg2')?.value,classes:el('classes')?.value,input:model().schema?parameterInput():{},guidance:{vocal:el('music-vocals')?.value||'',exclude:el('music-excludes')?.value||''}};}
  function updatePrice(){const m=model();if(!m)return;const mode=modeForModel(m);let text=mode==='own'?'Your provider account is billed when you submit. ':mode==='signin'?'Sign in to generate with ConvertShorts credits. ':m.provider==='worldlabs'?'Connect your World Labs key in Settings. ':'Connect your Fal key in Settings to generate. ';let suffix='';
-  if(mode==='hosted'||mode==='signin')try{const q=quoteDraft(m,{...state(),reference:refs[0]});text=q.credits+' ConvertShorts credits · $'+q.retailUsd.toFixed(2)+' for this request. '+(mode==='signin'?'Sign in to use credits. ':'');suffix=' · '+q.credits+' credits';}catch(e){text=e.message+' ';}
+  if(mode==='hosted'||mode==='signin')try{const q=quoteDraft(m,{...state(),reference:refs[0]},pricingRate());if(!q.credits)throw Error('A current INR price is unavailable.');text=formatINR(q.retailInr)+' for this request · Fal cost + 20%. '+(mode==='signin'?'Sign in to use your prepaid balance. ':'');suffix=' · '+formatINR(q.retailInr);}catch(e){text=e.message+' ';}
   el('model-hint').innerHTML=esc(text)+(mode==='signin'?'<a href="#account">Sign in</a> · ':'')+'<a href="#billing">Pricing & credits</a> · '+`<a href="${m.provider==='worldlabs'?'https://docs.worldlabs.ai/api':'https://fal.ai/models/'+esc(m.endpoint)}" target="_blank" rel="noopener">Model documentation & current pricing ↗</a>`;
   const b=el('generate');if(!b.disabled)b.innerHTML=icon('background',16)+' Generate'+suffix;
  }

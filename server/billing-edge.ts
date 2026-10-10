@@ -1,5 +1,5 @@
 import {prepareGeneration,MODELS,StudioError,validateQueueURL,normalizeMedia} from './studio-core.mjs';
-import {CREDIT_PLANS,PRICING_VERSION,MARKUP_PERCENT,quoteCredits,supportsHostedPricing} from '../apps/studio/pricing.js';
+import {CREDIT_PLANS,PRICING_VERSION,MARKUP_PERCENT,CUSTOMER_CREDIT_INR,quoteCredits,supportsHostedPricing} from '../apps/studio/pricing.js';
 import {getExchangeRate} from './billing-fx.mjs';
 // Supabase Edge Function. Private payment/provider secrets never reach the browser.
 const env=(k:string)=>Deno.env.get(k)||'';
@@ -30,7 +30,7 @@ export async function handleBilling(req:Request){try{
  if(new URL(req.url).searchParams.get('action')==='config'){
   let fx=null;try{fx=await getExchangeRate(env);}catch{}
   const generationEnabled=hostedEnabled()&&!!fx,enabled=merchantConfigured()&&(testMode()||generationEnabled);
-  return reply(req,{enabled,generationEnabled,paymentProvider:'razorpay',testMode:testMode(),currency:'INR',markupPercent:MARKUP_PERCENT,pricingVersion:PRICING_VERSION,usdInr:fx?.rate||null,fxDate:fx?.date||null,fxSource:fx?.source||null,hostedModels:MODELS.filter(supportsHostedPricing).map(m=>m.id),plans:CREDIT_PLANS.map(p=>({...p,available:enabled}))});
+  return reply(req,{enabled,generationEnabled,paymentProvider:'razorpay',testMode:testMode(),currency:'INR',customerCreditInr:CUSTOMER_CREDIT_INR,markupPercent:MARKUP_PERCENT,pricingVersion:PRICING_VERSION,usdInr:fx?.rate||null,fxDate:fx?.date||null,fxSource:fx?.source||null,hostedModels:MODELS.filter(supportsHostedPricing).map(m=>m.id),plans:CREDIT_PLANS.map(p=>({...p,available:enabled}))});
  }
  if(new URL(req.url).searchParams.get('action')==='webhook'){
   const key=env('CONVERTSHORTS_RAZORPAY_WEBHOOK_SECRET');if(!key)return reply(req,{error:'Webhook not configured'},503);
@@ -52,7 +52,7 @@ export async function handleBilling(req:Request){try{
    let media;try{media=normalizeMedia(await result.json(),MODELS.find(m=>m.id===job.model)?.kind);}catch{await db('rpc/convertshorts_refund_generation','POST',{j:id});return reply(req,{error:'Generation produced no media. Workspace credits refunded.'},422);}await db('convertshorts_generation_requests?id=eq.'+id,'PATCH',{status:'COMPLETED'});return reply(req,{status:'COMPLETED',media});
   }if(['FAILED','CANCELLED','ERROR'].includes(d.status)){await db('rpc/convertshorts_refund_generation','POST',{j:id});return reply(req,{error:'Generation failed. Workspace credits refunded.'},422);}return reply(req,{status:d.status,queuePosition:d.queue_position});
  }
- if(req.method==='GET'){const grants=await db('convertshorts_credit_grants?user_id=eq.'+user.id+'&valid_from=lte.'+encodeURIComponent(new Date().toISOString()));const credits=grants.filter((g:any)=>!g.expires_at||Date.parse(g.expires_at)>Date.now()).reduce((n:number,g:any)=>n+g.remaining,0);return reply(req,{plan:account?.plan||'Free',credits,balanceInr:credits/100,currency:'INR'});}
+ if(req.method==='GET'){const grants=await db('convertshorts_credit_grants?user_id=eq.'+user.id+'&valid_from=lte.'+encodeURIComponent(new Date().toISOString()));const credits=grants.filter((g:any)=>!g.expires_at||Date.parse(g.expires_at)>Date.now()).reduce((n:number,g:any)=>n+g.remaining,0);return reply(req,{plan:account?.plan||'Free',credits,generationCredits:credits/100/CUSTOMER_CREDIT_INR,balanceInr:credits/100,customerCreditInr:CUSTOMER_CREDIT_INR,currency:'INR'});}
  const raw=await req.text();if(raw.length>4200000)return reply(req,{error:'Request too large'},413);const body=JSON.parse(raw);
  if(body.action==='quote'||body.action==='generate'){
   if(!hostedEnabled())return reply(req,{error:'AI generation is coming soon. Your local editors and account are available.'},503);const generation=prepareGeneration(body.generation);let quote;try{quote=quoteCredits(generation.endpoint,generation.input,(await getExchangeRate(env)).rate);}catch(e){throw new StudioError(e instanceof Error?e.message:'This model is not priced.');}

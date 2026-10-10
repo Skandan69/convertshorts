@@ -43,7 +43,9 @@ returns boolean language sql stable security definer set search_path='' as $$
 $$;
 revoke all on function convertshorts_private.can_access(uuid,boolean) from public, anon;
 grant execute on function convertshorts_private.can_access(uuid,boolean) to authenticated;
-create policy cs_workspace_read on public.convertshorts_workspaces for select to authenticated using(convertshorts_private.can_access(id));
+-- Read the inserted row's owner directly: the stable membership lookup cannot
+-- see a workspace that is still being created by INSERT ... RETURNING.
+create policy cs_workspace_read on public.convertshorts_workspaces for select to authenticated using(owner_id=(select auth.uid()) or convertshorts_private.can_access(id));
 create policy cs_workspace_create on public.convertshorts_workspaces for insert to authenticated with check(owner_id=(select auth.uid()));
 create policy cs_workspace_update on public.convertshorts_workspaces for update to authenticated using(owner_id=(select auth.uid())) with check(owner_id=(select auth.uid()));
 create policy cs_member_read on public.convertshorts_members for select to authenticated using(convertshorts_private.can_access(workspace_id));

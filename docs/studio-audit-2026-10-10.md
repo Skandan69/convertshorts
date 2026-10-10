@@ -4,14 +4,14 @@
 
 ConvertShorts has working browser editors and an independently implemented creative studio. It does not yet have complete ArtCraft platform parity. The owner's successful image-to-video generation confirms that paid provider path; it does not prove every model, merchant purchase or cloud collaboration scenario.
 
-The live public configuration before this update reported 77 model adapters, private cloud configuration enabled, Google login disabled, and both hosted generation and merchant checkout disabled. Six isolated `convertshorts_` tables had row-level security enabled. The existing billing Edge Function was active. User-funded Fal generation and owner-funded credit generation are separate paths.
+The live public configuration before this update reported 77 model adapters, private cloud configuration enabled, Google login disabled, and both hosted generation and merchant checkout disabled. Six isolated `convertshorts_` tables had row-level security enabled. The existing billing Edge Function was active. The customer release now uses only merchant-funded, authenticated prepaid generation; customer key forms are removed. Legacy provider adapter contracts remain internal compatibility code.
 
 ## Coverage and evidence
 
 | Area | Implemented | Verification and limits |
 | --- | --- | --- |
 | Seven Crafting Apps | PhotoCraft, VectorCraft, FilmCraft, LightCraft, PdfCraft, EffectCraft and DesignCraft; pinned local browser distributions and license notices | Release/checksum/runtime checks; CI exercises browser startup and representative real exports. Native CLI/MCP workflows remain separate. |
-| Image/video/audio/3D/world AI | 77 adapters with model-specific inputs; own-key Fal and separate World Labs access | Input, request, polling, cancellation and response contracts tested with HTTP fixtures. Owner reports a successful real image-to-video request. Every paid model has not been run. |
+| Image/video/audio/3D/world AI | 77 adapters with model-specific inputs; reviewed hosted image/video/music launch; remaining model controls are planned previews | Input, request, polling, cancellation and response contracts tested with HTTP fixtures. Owner reports a successful real image-to-video request. Every paid model has not been run. |
 | Canvas | Layers, drawing, erasing, shapes, text, masks, undo, persisted composition and PNG export; AI actions | Browser workflows and persistence tested. Paid canvas generations still need a funded, compatible provider key. |
 | 3D and world studios | Mixed meshes, image planes, Gaussian environments, object/joint poses, cameras, scene persistence, PNG/mesh GLB export; PLY/SPLAT/SPZ/SOG/KSPLAT viewing | Browser tests use real WebGL, generated fixture splats and export/reimport. Gaussian assets remain separate from mesh GLB exports. |
 | Video tools | Advanced FilmCraft timeline, quick editor, local chroma key and AI mask compositing, audio-preserving WebM, individual/burst frame extraction | Real H.264/AAC and WebM export checks; actual frame pixel checks and ZIP contents. Segmentation/compositing does not provide SwitchX's exact relighting service. |
@@ -52,7 +52,7 @@ Primary references: [ACE-Step API](https://fal.ai/models/fal-ai/ace-step/api), [
 
 ## Pricing update: basic prepaid balance
 
-The earlier proposed USD subscriptions were replaced at the owner's request. Free local tools and own-key generation stay available. The site now offers one-time **₹100, ₹500 and ₹1,000** top-ups, no automatic renewal and no expiry. One internal credit represents ₹0.01; customers see rupees.
+The earlier proposed USD subscriptions were replaced at the owner's request. Free local tools stay available. Customer key entry has been removed and paid AI generation is marked Coming soon. The site now offers one-time **₹100, ₹500 and ₹1,000** top-ups, no automatic renewal and no expiry. One internal credit represents ₹0.01; customers see rupees.
 
 | Generation | Reviewed Fal cost (USD) | ConvertShorts price before INR rounding (USD) |
 | --- | --- | --- |
@@ -64,7 +64,7 @@ The earlier proposed USD subscriptions were replaced at the owner's request. Fre
 | ACE-Step 60s music | $0.012 | $0.0144 |
 | MiniMax Music 2 song | $0.03 | $0.036 |
 
-The formula is Fal cost × **1.20**, then daily USD/INR conversion and one final round-up to the next paise. Cheap requests no longer have a whole-US-cent credit minimum. The hosted allowlist now includes the two priced song models. Other models still require a customer key. Current rate availability and actual business credentials gate live checkout/generation.
+The formula is Fal cost × **1.20**, then daily USD/INR conversion and one final round-up to the next paise. Cheap requests no longer have a whole-US-cent credit minimum. The hosted allowlist now includes the two priced song models. Other models are disabled, planned previews. Current rate availability and actual business credentials gate live checkout/generation.
 
 A 20% markup leaves a 16.67% gross margin on selling price before expenses, not 20% net profit. At standard Razorpay 2% plus GST on its fee, ₹100 provider cost sold for ₹120 leaves about ₹17.17 after payment processing, before FX, hosting and other business/tax costs. Own-key generation earns no generation markup.
 
@@ -84,3 +84,28 @@ Activation instructions, exact secret names and webhook URL are in [studio setup
 - [Razorpay fees](https://razorpay.com/pricing/), [checkout verification](https://razorpay.com/docs/payments/payment-gateway/web-integration/standard/integration-steps/), [webhook signatures](https://razorpay.com/docs/webhooks/validate-test/)
 - [ACE-Step pricing](https://fal.ai/models/fal-ai/ace-step), [MiniMax Music 2 pricing](https://fal.ai/models/fal-ai/minimax-music/v2)
 - [Frankfurter daily FX API](https://frankfurter.dev/)
+
+## Current premium/customer release
+
+Rechecked `getartcraft.com/apps`, the live public ArtCraft navigation and `storytold/artcraft` main source. Seven browser editors are integrated, **not all 44 repositories in the Storytold organization**. Public ArtCraft navigation includes image/video/audio/object/world creation, image/3D/video editors, video background change, moodboard, frame extraction and asset folders. ConvertShorts has corresponding local workspace routes, but route presence does not establish paid AI feature parity.
+
+| Capability | ConvertShorts current status |
+| --- | --- |
+| Seven Crafting Apps listed on the public apps page | Browser engines integrated and separately attributed; existing CI exercises import/export contracts |
+| Image / image editing / text-to-video / image-to-video / music | Controls and credit backend implemented; coming soon until merchant credentials and real funded-output tests |
+| Lyrics / style / excluded styles / vocal preference | Visible song controls; exclusion and voice preference are model prompt guidance, not guarantees |
+| Video duration | Visible model-specific duration; first hosted Kling launch supports 5/10 seconds |
+| Canvas / moodboard / frame extractor | Local layers, masks, undo, reference guidance, PNG/ZIP exports; native AI mask models planned |
+| 3D scenes / worlds | Mesh and Gaussian viewing/composition, pose controls, cameras, file exports; world/object AI generation planned |
+| Background change | Local chroma key/compositing with audio-preserving WebM; AI segmentation/VFX planned |
+| Suno / Midjourney / SwitchX relighting | Missing; not advertised as included |
+| Angles / Storyboard / image and video watermark-removal modules in ArtCraft source | No one-for-one equivalents; ConvertShorts shot lists are a simpler planning workflow |
+| Native desktop integrations / full organization repository catalog | Not replicated |
+| Accounts / cloud library | Email/password, recovery, private workspace sync, 500 MB media allowance, 150 MB/file, immutable 30-day record deadline and scheduled physical cleanup |
+| Checkout | ₹100/500/1,000 prepaid balances, all same launch models; public purchases disabled while backend setup/testing continues |
+
+Original generated artwork, premium studio and static public marketing pages were added. Home no longer waits for account/billing bootstrap, full cloud blobs are no longer eagerly fetched, media has on-demand URL renewal and library lists are paginated. This verifies the loading dependency change, not a universal customer-device speed claim. First-time native engine downloads remain large.
+
+The 20% is a markup on generation cost, not net profit. Its gross margin is 16.67% of sales before processing fees, FX differences, storage, hosting and taxes. Free cloud storage has costs even for users who never buy AI balance; monitor usage before increasing the allowance.
+
+Primary references: [ArtCraft apps](https://getartcraft.com/apps), [live studio](https://app.getartcraft.com/), [Storytold repositories](https://github.com/orgs/storytold/repositories?type=all), [MainApp source](https://github.com/storytold/artcraft/blob/main/frontend/apps/artcraft/app/src/pages/MainApp.tsx).

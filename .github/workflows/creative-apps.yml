@@ -29,6 +29,8 @@ jobs:
       - run: node tests/studio-services.mjs
       - run: node tests/studio-pricing.mjs
       - run: node tests/studio-payments.mjs
+      - run: node tests/studio-retention.mjs
+      - run: python3 tests/seo-studio.py
       - name: Install browser test runtime
         run: |
           npm install --prefix tests --no-save --package-lock=false --ignore-scripts playwright@1.62.1
@@ -56,6 +58,9 @@ jobs:
       - name: Verify cloud lifecycle
         if: ${{ !cancelled() }}
         run: node tests/studio-cloud-browser.cjs
+      - name: Verify customer launch and marketing pages
+        if: ${{ !cancelled() }}
+        run: node tests/studio-customer-browser.cjs
       - name: Save browser screenshots and startup results
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

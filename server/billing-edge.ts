@@ -55,7 +55,7 @@ export async function handleBilling(req:Request){try{
  if(req.method==='GET'){const grants=await db('convertshorts_credit_grants?user_id=eq.'+user.id+'&valid_from=lte.'+encodeURIComponent(new Date().toISOString()));const credits=grants.filter((g:any)=>!g.expires_at||Date.parse(g.expires_at)>Date.now()).reduce((n:number,g:any)=>n+g.remaining,0);return reply(req,{plan:account?.plan||'Free',credits,balanceInr:credits/100,currency:'INR'});}
  const raw=await req.text();if(raw.length>4200000)return reply(req,{error:'Request too large'},413);const body=JSON.parse(raw);
  if(body.action==='quote'||body.action==='generate'){
-  if(!hostedEnabled())return reply(req,{error:'Hosted credits are not available yet. You can use your own provider key.'},503);const generation=prepareGeneration(body.generation);let quote;try{quote=quoteCredits(generation.endpoint,generation.input,(await getExchangeRate(env)).rate);}catch(e){throw new StudioError(e instanceof Error?e.message:'This model is not priced.');}
+  if(!hostedEnabled())return reply(req,{error:'AI generation is coming soon. Your local editors and account are available.'},503);const generation=prepareGeneration(body.generation);let quote;try{quote=quoteCredits(generation.endpoint,generation.input,(await getExchangeRate(env)).rate);}catch(e){throw new StudioError(e instanceof Error?e.message:'This model is not priced.');}
   if(body.action==='quote')return reply(req,quote);
   if(body.expectedCredits!==quote.credits||body.pricingVersion!==quote.version)return reply(req,{error:'The generation price changed. Review the current credits and submit again.',quote:{credits:quote.credits,version:quote.version}},409);
   const id=crypto.randomUUID();await db('rpc/convertshorts_reserve_credits','POST',{u:user.id,j:id,m:generation.model.id,amount:quote.credits});
@@ -70,7 +70,7 @@ export async function handleBilling(req:Request){try{
  }
  if(body.action==='checkout'){
   const p=CREDIT_PLANS.find(p=>p.id===body.plan);if(!p)return reply(req,{error:'Unknown top-up amount'},400);
-  if(!merchantConfigured()||(!testMode()&&!hostedEnabled()))return reply(req,{error:'Payments are not available yet. You can use your own Fal key.'},503);
+  if(!merchantConfigured()||(!testMode()&&!hostedEnabled()))return reply(req,{error:'Payments are coming soon. No purchase has been made.'},503);
   if(!testMode())await getExchangeRate(env);
   const order=await razorpay('orders',{amount:p.amountCents,currency:'INR',receipt:'cs_'+crypto.randomUUID().replaceAll('-',''),notes:{service:'convertshorts',pack:p.id,user:user.id}});
   if(!/^order_[a-zA-Z0-9]+$/.test(order.id||'')||order.amount!==p.amountCents||order.currency!=='INR')throw Error('The payment order could not be verified.');

@@ -2,14 +2,18 @@
 
 An independently implemented creative workspace at `/apps/`. The seven separately licensed Crafting Apps browser distributions retain their identities and attribution. ArtCraft's proprietary web application and backend source, branding and promotional assets are not copied.
 
-## Available workflows
+## Launch status
 
-- Image, video, audio, object and world generation: 77 documented model adapters, including 63 schema-driven Fal models, 10 initial Fal adapters and four World Labs Marble models. The composer exposes the provider's supported parameters, image references, start/end frames, multiview inputs, audio/video reference uploads, resolution, duration, seed and other model-specific controls.
+Customer provider-key entry has been removed. Free editors and email/password accounts are available now. Paid AI generation and ₹100/₹500/₹1,000 prepaid balances are **Coming soon** until merchant credentials and funded-provider end-to-end testing are completed. Only reviewed image/video/music models are included in the initial hosted launch; unpriced adapters remain disabled control previews.
+
+## Implemented workflows
+
+- Image, video, audio, object and world generation: 77 documented model adapters, including 63 schema-driven Fal models, 10 initial Fal adapters and four World Labs Marble models. Adapter coverage is not a claim that all models are available in the hosted launch. The composer exposes the provider's supported parameters, image references, start/end frames, multiview inputs, audio/video reference uploads, resolution, duration, seed and other model-specific controls.
 - PhotoCraft image editing; AI composition canvas with layers, brushes, erasing, shapes, text, masks and undo; guided generation and masked AI erasing.
 - FilmCraft 0.4.0 browser editor: multi-track timeline, trimming, effects, transitions, grading, keyframes, audio mixing, captions, recovery and H.264 export. Library import and export retrieval are connected to the surrounding studio. The original quick timeline remains at `#quick-video`.
 - 3D scenes: models, transparent image planes, Gaussian-splat environments, transforms, poseable mannequins/GLTF joints, camera bookmarks, scene undo, PNG/GLB export and saved project reopening. AI rendering can combine a camera composition with saved character portraits. GLB exports contain the mesh scene; Gaussian files remain separate assets referenced by scene projects.
 - World Studio: PLY/SPLAT/SPZ/SOG/KSPLAT loading through Spark, orbit and fly controls, scale, rotation, cameras, original-file export and image capture.
-- Video backgrounds: documented BiRefNet/Bria AI segmentation followed by image/color compositing; local chroma key; WebM export preserving source audio. Image removal/replacement tools remain at `#image-background`.
+- Video backgrounds: AI segmentation is planned separately; image/color compositing and local chroma key; WebM export preserving source audio. Image removal/replacement tools remain at `#image-background`.
 - Moodboards: boards, images, notes, colors, sections, ratings/search, paste/import, library references, grid/canvas/presentation modes and PNG export.
 - Frame extraction: precise individual frames, burst capture, library input and ZIP downloads.
 - Projects and shot lists, character references and prompt presets; generation history; library folders, tags, favorites, trash, bulk downloads and full workspace ZIP backup/restore.
@@ -28,7 +32,7 @@ The deployed `convertshorts-billing` Supabase Edge Function uses its runtime ser
 
 There are no subscriptions. The studio offers **₹100, ₹500 and ₹1,000** one-time top-ups, each awarding the same rupee amount of non-expiring generation balance. Internally, a credit is one INR paise (₹0.01). The earlier unused USD-cent ledger was empty when this currency change was verified and applied. `server/razorpay-schema.sql` refuses installation on a non-empty legacy ledger without an explicit currency migration.
 
-Generation costs the reviewed, published Fal cost **× 1.20**, converted to INR and rounded up once to the next paise. Quotes include duration, audio, output count, resolution and priced extras. Current hosted coverage is FLUX Schnell, Nano Banana 2 generation/editing, Kling 2.6 Pro text/image-to-video, ACE-Step and MiniMax Music 2. Other adapters remain own-key only. Fal rates are reviewed rates, not a claim of live provider-invoice synchronization. Update `apps/studio/pricing.js` and the deployed billing function when provider prices change. No arbitrary unpriced model is charged to the business key.
+Generation costs the reviewed, published Fal cost **× 1.20**, converted to INR and rounded up once to the next paise. Quotes include duration, audio, output count, resolution and priced extras. Current hosted coverage is FLUX Schnell, Nano Banana 2 generation/editing, Kling 2.6 Pro text/image-to-video, ACE-Step and MiniMax Music 2. Other adapters are planned previews and cannot submit customer generation requests. Fal rates are reviewed rates, not a claim of live provider-invoice synchronization. Update `apps/studio/pricing.js` and the deployed billing function when provider prices change. No arbitrary unpriced model is charged to the business key.
 
 USD/INR comes from Frankfurter's daily reference-rate API, cached for six hours. Rates older than seven days or unavailable rates disable new hosted quotes and live checkout. An optional merchant rate override uses both `CONVERTSHORTS_USD_INR` and `CONVERTSHORTS_USD_INR_DATE` (YYYY-MM-DD), and also expires after seven days. Reference FX is a midpoint, so actual bank/provider conversion fees remain business expenses.
 
@@ -42,7 +46,7 @@ Set these **ConvertShorts-specific** secrets in the [existing Supabase Edge Func
 | `CONVERTSHORTS_FAL_KEY` | Dedicated, funded business Fal API key. |
 | `CONVERTSHORTS_HOSTED_ENABLED` | `true` after the live merchant and provider flow is ready. |
 
-Generate the Razorpay ID/secret in **Dashboard → Account & Settings → API Keys**, selecting the intended Live or Test mode. Complete Razorpay account activation before live payments. These credentials are separate from customers' own Fal keys. A merchant API key alone cannot fund generation; the business Fal account must also be funded.
+Generate the Razorpay ID/secret in **Dashboard → Account & Settings → API Keys**, selecting the intended Live or Test mode. Complete Razorpay account activation before live payments. Customers never enter a Fal key. A merchant API key alone cannot fund generation; the business Fal account must also be funded.
 
 Razorpay webhook URL:
 
@@ -54,11 +58,11 @@ Checkout opens at `/payments/checkout`, outside the media editors' cross-origin 
 
 For a **real Razorpay test checkout**, use `rzp_test_…` and its matching secret plus `CONVERTSHORTS_BILLING_TEST_MODE=true`. Test mode never awards spendable balance and always disables hosted Fal generation; it cannot fund live requests. Remove test mode and use Live keys only after verification. No live purchase or paid generation is made automatically by CI or audits.
 
-A 20% markup is a 16.67% gross margin on selling price before costs. At Razorpay's standard domestic 2% fee plus 18% GST on that fee (2.36% effective), ₹100 provider cost sells for ₹120, incurs about ₹2.83 payment fees, and leaves about ₹17.17 before FX, hosting, taxes on the service, refunds and other costs. Actual fee schedules and tax treatment depend on the merchant account. The top-up amount shown is the charged checkout total; any business tax liability must be accounted for within that revenue. Own-key generation earns no hosted-generation markup.
+A 20% markup is a 16.67% gross margin on selling price before costs. At Razorpay's standard domestic 2% fee plus 18% GST on that fee (2.36% effective), ₹100 provider cost sells for ₹120, incurs about ₹2.83 payment fees, and leaves about ₹17.17 before FX, hosting, taxes on the service, refunds and other costs. Actual fee schedules and tax treatment depend on the merchant account. The top-up amount shown is the charged checkout total; any business tax liability must be accounted for within that revenue. Customer-funded key generation is no longer offered.
 
 Confirmed generation failures return the reserved balance idempotently. Uncertain submission timeouts require owner review to avoid duplicate paid requests. Refunds of prepaid purchases are handled by the owner: reconcile the remaining balance before issuing a Razorpay refund; refunded payments cannot be newly fulfilled. Full chargeback/refund-debt automation is not part of this initial integration.
 
-Customers can use their own funded Fal/World Labs keys immediately. Keys stay in tab memory. The initial Fal shared-server option remains gated by both `FAL_KEY` and `STUDIO_ACCESS_TOKEN` on Vercel. Large media references use private Supabase uploads and temporary signed URLs, or public HTTPS URLs supplied by the user.
+Customer key forms are removed. Only the authenticated hosted billing route is used for customer AI generation. Legacy own-provider endpoints remain compatibility adapter code and are not invoked by the current UI. Large media references use private Supabase uploads and temporary signed URLs, or public HTTPS URLs.
 
 Google login remains inactive until an owner configures the correct Google/Supabase OAuth callbacks and allows the ConvertShorts return URL, then sets `CONVERTSHORTS_GOOGLE_AUTH=true` on Vercel. Existing shared-project Auth settings are not changed automatically. Confirmation/recovery forms accept the full Supabase verification link copied from an email, or its code. This works with existing email templates without changing the shared project’s redirect settings; users can also follow their configured confirmation link and return to sign in.
 
@@ -81,3 +85,11 @@ Run `node scripts/build-creative-apps.mjs`, `node tests/creative-apps.mjs`, `nod
 GitHub Actions runs the browser suites with Playwright and FFmpeg: all seven engine startups, mobile layout, persisted assets, projects/characters/canvas, synthetic Gaussian-splat import, mixed scenes, actual frame pixels, burst ZIPs, video/audio compositing, workspace backup/restore, a real FilmCraft H.264 export, cloud push/restore and signed-out isolation. API/cloud billing HTTP tests use fixtures; they do not incur provider charges. `server/cloud-verify.sql` and `server/credit-verify.sql` verify database permissions and transaction behavior with rollback.
 
 `server/razorpay-verify.sql` tests the real SQL grant/replay/spending/refund transaction inside a rollback. `tests/studio-payments-browser.cjs` verifies the prepaid UI, separate checkout page, SDK callback → authenticated verification flow, disabled commerce and mobile layout using fixtures. A live merchant capture and real funded generation still require the credentials above.
+
+## Account storage and loading
+
+Each owner has a 500 MB cloud media allowance across owned workspaces, with 150 MB per file. Files and synced records expire 30 days from upload/first save; editing preserves the original record deadline. Private Storage SELECT/UPDATE policies deny expired media. A ConvertShorts-scoped hourly `pg_cron` job calls the `convertshorts-retention` Edge Function using a token held in Vault; the server verifies the token, deletes physical objects through the Storage API, then prunes expired records. Account and credit tables are untouched. See `server/storage-retention.sql`, `server/storage-retention.ts`, and rollback verification.
+
+The home paints before account/billing requests. Catalog loading blocks composers only; native engines load on demand. Cloud sync transfers metadata and batched short-lived URLs instead of downloading every blob. Editors refresh expired signed URLs on demand. Library lists initially render 24 items and video/audio previews do not preload their media. The large upstream native editor downloads remain a first-use cost; exact app performance must be measured on customer devices.
+
+Public SEO pages: `/creative-studio`, `/creative-studio-pricing`, `/ai-image-generator`, `/ai-video-generator`, `/ai-music-generator`. They contain static copy, canonical URLs, unique metadata, Open Graph/Twitter art, truthful structured data, internal links and sitemap entries. Build with `scripts/build-studio-pages.mjs`.

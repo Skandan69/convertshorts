@@ -1,9 +1,26 @@
 import assert from 'node:assert/strict';
-import {CREDIT_PLANS,quoteCredits,quoteDraft,PRICING_VERSION,MARKUP_PERCENT} from '../apps/studio/pricing.js';
+import {CREDIT_PLANS,quoteCredits,quoteDraft,PRICING_VERSION,MARKUP_PERCENT,CUSTOMER_CREDIT_INR,retailFromProvider,formatCredits} from '../apps/studio/pricing.js';
+import {MODEL_PRICE_CATALOG} from '../apps/studio/price-catalog.js';
 import {prepareGeneration,MODELS} from '../server/studio-core.mjs';
 import {handleBilling} from '../server/billing-edge.ts';
-for(const plan of CREDIT_PLANS){assert.equal(plan.currency,'inr');assert.equal(plan.mode,'payment');assert.equal(plan.amountCents,plan.credits,'Every top-up preserves its INR paise value');}
+for(const plan of CREDIT_PLANS){assert.equal(plan.currency,'inr');assert.equal(plan.mode,'payment');assert.equal(plan.amountCents,plan.credits,'Every top-up preserves its INR paise value');assert.equal(plan.generationCredits,plan.amountCents/100,'Public credits are rupees, not internal paise units');}
 assert.equal(MARKUP_PERCENT,20);
+assert.equal(CUSTOMER_CREDIT_INR,1);
+assert.equal(formatCredits(1000),'1,000 credits');
+assert.equal(formatCredits(.72),'0.72 credits');
+assert.equal(retailFromProvider(200),240);
+assert.equal(1000-retailFromProvider(200),760);
+assert.throws(()=>retailFromProvider(NaN));
+assert.equal(MODEL_PRICE_CATALOG.length,74);
+const pricedEndpoints=new Set(MODEL_PRICE_CATALOG.map(m=>m.endpoint));
+assert.equal(pricedEndpoints.size,74);
+for(const m of MODELS)assert.ok(pricedEndpoints.has(m.endpoint),'Missing price audit: '+m.endpoint);
+for(const row of MODEL_PRICE_CATALOG){assert.equal(row.source,'https://fal.ai/models/'+row.endpoint);for(const rate of row.rates){assert.ok(rate.providerUsd>0);assert.ok(Math.abs(retailFromProvider(rate.providerUsd)-rate.providerUsd*1.2)<1e-10);}}
+const seedance=MODEL_PRICE_CATALOG.find(m=>m.endpoint==='fal-ai/bytedance/seedance/v1.5/pro/text-to-video');
+assert.equal(seedance.status,'metered');
+assert.ok(Math.abs(retailFromProvider(seedance.rates.find(r=>r.unit==='estimated clip').providerUsd)-.312)<1e-10);
+assert.throws(()=>quoteCredits(seedance.endpoint,{duration:5,resolution:'720p',generate_audio:true},100),'Unit rate preview must not allow unverified exact-job charging');
+assert.equal(MODEL_PRICE_CATALOG.find(m=>m.endpoint==='fal-ai/birefnet/v2/video').rates.length,0,'Unverified zero-rate AI must not be sold as free');
 for(const count of [1,2,3,4])for(const [resolution,credits] of [['1K',960],['2K',1440],['4K',1920]]) {
   const body={model:'nano-banana',prompt:'A garden',count,resolution},prepared=prepareGeneration(body);
   assert.equal(quoteDraft(prepared.model,body,100).credits,credits*count);
@@ -19,6 +36,7 @@ assert.throws(()=>quoteCredits('fal-ai/flux/schnell',{image_size:{width:8192,hei
 assert.throws(()=>quoteCredits('fal-ai/trellis-2',{}));
 assert.throws(()=>quoteCredits('fal-ai/nano-banana-2',{num_images:999}));
 assert.equal(quoteCredits('fal-ai/ace-step',{duration:60},100).credits,144);
+assert.equal(quoteCredits('fal-ai/ace-step',{duration:60},100).generationCredits,1.44);
 assert.equal(quoteCredits('fal-ai/minimax-music/v2',{},100).credits,360);
 for(const size of ['square','portrait_4_3','portrait_16_9','landscape_4_3','landscape_16_9'])assert.equal(quoteCredits('fal-ai/flux/schnell',{image_size:size},100).credits,36);
 assert.throws(()=>quoteCredits('fal-ai/nano-banana-2',{limit_generations:false},100));

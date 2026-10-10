@@ -5,7 +5,7 @@ const BASE=process.env.BASE_URL||'http://localhost:4173';
  const browser=await chromium.launch(),context=await browser.newContext({viewport:{width:1440,height:1000}}),errors=[];
  const info={enabled:true,generationEnabled:true,paymentProvider:'razorpay',usdInr:100,fxDate:'2026-10-10',fxSource:'Fixture reference rate',pricingVersion:PRICING_VERSION,plans:CREDIT_PLANS.map(p=>({...p,available:true})),hostedModels:['flux-fast','nano-banana','nano-edit','kling']};
  let orders=0,verifications=0,providerRequests=0;
- await context.addInitScript(()=>localStorage.setItem('convertshorts-auth',JSON.stringify({access_token:'test-token',refresh_token:'test-refresh',expires_at:Math.floor(Date.now()/1000)+3600,user:{id:'11111111-1111-4111-8111-111111111111',email:'fixture@example.invalid'}})));
+ await context.addInitScript(()=>localStorage.setItem('convertshorts-auth',JSON.stringify({authOrigin:'https://fixture.supabase.co',access_token:'test-token',refresh_token:'test-refresh',expires_at:Math.floor(Date.now()/1000)+3600,user:{id:'11111111-1111-4111-8111-111111111111',email:'fixture@example.invalid'}})));
  await context.route('**/api/cloud',r=>r.fulfill({contentType:'application/json',body:JSON.stringify({enabled:true,url:'https://fixture.supabase.co',publishableKey:'public-fixture',bucket:'fixture'})}));
  await context.route('**/api/billing**',r=>r.fulfill({contentType:'application/json',body:JSON.stringify(info)}));
  await context.route('**/api/studio**',r=>{if(r.request().method()!=='GET')providerRequests++;return r.fulfill({contentType:'application/json',body:JSON.stringify({models:MODELS,sharedProviderConfigured:false})});});

@@ -1,6 +1,6 @@
 import {workflowGuide,workflowHelp} from './workflows.js';
 import {icon,escape as esc} from './icons.js';
-import {initializeCloud,mountAccount,cloudState,uploadReference,cloudRequest} from './cloud.js';
+import {initializeCloud,mountAccount,cloudState,uploadReference,cloudRequest,receiveAuthCallback} from './cloud.js';
 import {mountProjects,mountCharacters,exportWorkspace,importWorkspace} from './projects.js';
 import {mountBilling} from './billing.js';
 import {supportsHostedPricing} from './pricing.js';
@@ -71,7 +71,7 @@ document.addEventListener('change',async e=>{if(e.target.dataset.folder){const a
 el('global-upload').onchange=async e=>{const namespace=currentNamespace();try{for(const file of e.target.files){if(namespace!==currentNamespace())return;await importFile(file);}if(namespace!==currentNamespace())return;await render();toast('Assets imported into this browser’s library.');}catch(error){toast(error.message);}};
 el('menu-button').onclick=()=>el('sidebar').classList.toggle('open');document.querySelectorAll('[data-icon]').forEach(a=>a.insertAdjacentHTML('afterbegin',icon(a.dataset.icon,18)));
 dialog.addEventListener('close',()=>{dialog.querySelectorAll('video,audio').forEach(m=>m.pause());});
-window.addEventListener('hashchange',()=>{window.scrollTo({top:0,left:0,behavior:'instant'});render();});
+window.addEventListener('hashchange',async()=>{await receiveAuthCallback();window.scrollTo({top:0,left:0,behavior:'instant'});render();});
 const catalogReady=(async()=>{try{const response=await fetch('/apps/studio/model-catalog.json',{signal:AbortSignal.timeout(12000)});if(response.ok)models=FALLBACK_MODELS.concat(await response.json());}catch{}})();
 // Paint local tools immediately; billing, authentication and media sync run in parallel.
 connection();await render();

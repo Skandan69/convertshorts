@@ -104,7 +104,7 @@ grant execute on function public.convertshorts_finish_retention(integer) to serv
 -- Remove physical bytes through the Storage API, never by deleting object rows.
 select cron.schedule('convertshorts-30-day-retention','17 * * * *',$cron$
  select net.http_post(
-  url:='https://chrfgzbecjvjazdovmyk.supabase.co/functions/v1/convertshorts-retention',
+  url:='https://yttbbgsgjxemftjwyzdd.supabase.co/functions/v1/convertshorts-retention',
   headers:=jsonb_build_object('Content-Type','application/json','x-retention-token',(select decrypted_secret from vault.decrypted_secrets where name='convertshorts_retention_token')),
   body:='{}'::jsonb,timeout_milliseconds:=15000);
 $cron$);

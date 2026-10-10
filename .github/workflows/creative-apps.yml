@@ -31,6 +31,7 @@ jobs:
       - run: node tests/studio-workflow.mjs
       - run: node tests/studio-payments.mjs
       - run: node tests/studio-retention.mjs
+      - run: node tests/studio-auth.mjs
       - run: python3 tests/seo-studio.py
       - name: Install browser test runtime
         run: |
@@ -59,6 +60,9 @@ jobs:
       - name: Verify cloud lifecycle
         if: ${{ !cancelled() }}
         run: node tests/studio-cloud-browser.cjs
+      - name: Verify email and password recovery
+        if: ${{ !cancelled() }}
+        run: node tests/studio-auth-browser.cjs
       - name: Verify customer launch and marketing pages
         if: ${{ !cancelled() }}
         run: node tests/studio-customer-browser.cjs
@@ -68,6 +72,30 @@ jobs:
         with:
           name: creative-apps-results
           path: tests/results/creative-apps/
+          retention-days: 7
+
+  auth:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - run: node tests/studio-auth.mjs
+      - name: Install account browser runtime
+        run: |
+          npm install --prefix tests --no-save --package-lock=false --ignore-scripts playwright@1.62.1
+          tests/node_modules/.bin/playwright install --with-deps chromium
+      - name: Start account fixture server
+        run: python tests/serve.py > /tmp/convertshorts-auth-server.log 2>&1 &
+      - run: node tests/studio-auth-browser.cjs
+      - name: Save password recovery verification
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: creative-auth-results
+          path: tests/results/creative-apps/auth/
           retention-days: 7
 
   workflow:

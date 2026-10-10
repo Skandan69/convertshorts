@@ -47,9 +47,10 @@ const BASE=process.env.BASE_URL||'http://localhost:4173';
  }
  await page.locator('#generation-model').selectOption('fal:fal-ai/veo3.1');await page.locator('#generation-prompt').fill('A gentle ocean wave');await page.locator('[data-param=duration]').selectOption('6s');req=await submit();assert.equal(req.prepared.input.duration,'6s');
  await page.locator('#generation-model').selectOption('fal:fal-ai/bytedance/seedance/v1.5/pro/image-to-video');
- const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/l9sAAAAASUVORK5CYII=','base64');
+ const png=Buffer.from(await page.evaluate(()=>{const c=document.createElement('canvas');c.width=256;c.height=256;const ctx=c.getContext('2d');ctx.fillStyle='#7a93f0';ctx.fillRect(0,0,256,256);return c.toDataURL('image/png').split(',')[1];}),'base64');
  await page.locator('#reference-file').setInputFiles({name:'reference.png',mimeType:'image/png',buffer:png});await page.locator('.reference-tile').waitFor();await page.locator('[data-param=duration]').selectOption('7');req=await submit();assert.equal(req.prepared.input.duration,'7');assert.ok(req.prepared.input.image_url.startsWith('data:image/'),'Image references satisfy required media inputs');
  await page.screenshot({path:path.join(output,'video-controls.png'),fullPage:true});
+ await page.goto(BASE+'/apps/#create-object');await page.locator('#generation-model').selectOption('fal:fal-ai/hunyuan-3d/v3.1/rapid/image-to-3d');await page.locator('#reference-file').setInputFiles({name:'object.png',mimeType:'image/png',buffer:png});await page.locator('.reference-tile').waitFor();req=await submit();assert.ok(req.prepared.input.input_image_url.startsWith('data:image/'),'3D image references populate Hunyuan input_image_url');
  // Test the actual first-use canvas, example layers, mask guard and persistence.
  await page.goto(BASE+'/apps/#canvas');await page.locator('#canvas-welcome').waitFor();assert.equal(await page.locator('#canvas-generate').isDisabled(),true);
  await page.locator('#canvas-example').click();assert.equal(await page.locator('#canvas-layers button').count(),4);assert.equal(await page.locator('#canvas-welcome').isVisible(),false);

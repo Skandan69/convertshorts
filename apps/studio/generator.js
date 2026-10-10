@@ -56,7 +56,7 @@ export async function mountGenerator(view,{kind,models,ready,modeForModel=()=>re
   if(caps.instrumental&&el('music-vocals').value==='instrumental')out[caps.lyricsKey]='[instrumental]';
   if(properties.num_images)out.num_images=Number(el('generation-count').value);
   if(properties.aspect_ratio)out.aspect_ratio=el('generation-ratio').value;
-  if(refs.length){if(properties.image_urls&&!out.image_urls)out.image_urls=refs;if(properties.image_url&&!out.image_url)out.image_url=refs[0];if(properties.start_image_url&&!out.start_image_url)out.start_image_url=refs[0];if(properties.end_image_url&&!out.end_image_url&&refs[1])out.end_image_url=refs[1];if(properties.front_image_url&&!out.front_image_url)out.front_image_url=refs[0];}
+  if(refs.length){if(properties.image_urls&&!out.image_urls)out.image_urls=refs;if(properties.reference_image_urls&&!out.reference_image_urls)out.reference_image_urls=refs;for(const k of ['image_url','input_image_url','start_image_url','front_image_url'])if(properties[k]&&!out[k])out[k]=refs[0];for(const k of ['end_image_url','tail_image_url'])if(properties[k]&&!out[k]&&refs[1])out[k]=refs[1];}
   return out;
  }
  function state(){return {prompt:el('generation-prompt').value,model:model().id,ratio:el('generation-ratio').value,references:refs,referenceNames:names,count:el('generation-count').value,resolution:el('generation-resolution')?.value,duration:el('generation-duration')?.value,seed:el('generation-seed')?.value,negative:el('generation-negative')?.value,audio:!!el('generation-audio')?.checked,labels_fg1:el('labels_fg1')?.value,labels_fg2:el('labels_fg2')?.value,classes:el('classes')?.value,input:model().schema?parameterInput():{},guidance:{vocal:el('music-vocals')?.value||'',exclude:el('music-excludes')?.value||''}};}

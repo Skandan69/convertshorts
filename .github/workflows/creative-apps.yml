@@ -26,6 +26,7 @@ jobs:
       - run: node tests/creative-apps.mjs
       - run: node tests/studio-api.mjs
       - run: node tests/studio-services.mjs
+      - run: node tests/studio-pricing.mjs
       - name: Install browser test runtime
         run: |
           npm install --prefix tests --no-save --package-lock=false --ignore-scripts playwright@1.62.1
@@ -38,6 +39,9 @@ jobs:
       - name: Verify base studio
         if: ${{ !cancelled() && success() }}
         run: node tests/studio-browser.cjs
+      - name: Verify composer prices
+        if: ${{ !cancelled() }}
+        run: node tests/studio-pricing-browser.cjs
       - name: Verify advanced studio workflows
         if: ${{ !cancelled() }}
         run: node tests/studio-advanced-browser.cjs

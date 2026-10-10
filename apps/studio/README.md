@@ -28,9 +28,11 @@ Set these **ConvertShorts-specific** Edge Function secrets to activate commerce 
 
 - `CONVERTSHORTS_STRIPE_SECRET_KEY`
 - `CONVERTSHORTS_STRIPE_WEBHOOK_SECRET`
-- `CONVERTSHORTS_STRIPE_PLANS`: a JSON array such as `[{"id":"pro-monthly","name":"Pro","mode":"subscription","price":"price_FROM_YOUR_ACCOUNT","credits":1000}]`. Use `mode:"payment"` for non-expiring credit packs. Annual recurring prices grant twelve monthly credit allotments, each with its own validity window.
+- `CONVERTSHORTS_STRIPE_PLANS`: a JSON array such as `[{"id":"starter-monthly","price":"price_FROM_YOUR_ACCOUNT"},{"id":"creator-monthly","price":"price_FROM_YOUR_ACCOUNT"},{"id":"studio-monthly","price":"price_FROM_YOUR_ACCOUNT"},{"id":"topup-5","price":"price_FROM_YOUR_ACCOUNT"}]`. The code controls the names, USD amounts and credit grants. Create monthly Stripe prices of $7/$24/$42 and a $5 one-time price, respectively. Checkout verifies the Stripe amount, currency and recurrence before redirecting. Do not use yearly prices for these monthly offers.
 - `CONVERTSHORTS_FAL_KEY`
-- `CONVERTSHORTS_MODEL_CREDITS`: a JSON object mapping supported model IDs to positive integer costs, for example `{"flux-fast":4}`. Set costs using the merchant's actual provider costs and pricing policy.
+- `CONVERTSHORTS_HOSTED_ENABLED=true`: explicitly enable owner-funded generation after funding the provider account and verifying the launch flow.
+
+`apps/studio/pricing.js` is shared by the browser and billing backend. One credit is $0.01 retail value. The first priced adapters are FLUX Schnell, Nano Banana 2 generation/editing and Kling 2.6 Pro text/image-to-video. Quotes account for output count, resolution, duration and audio with a 25% provider-cost markup and whole-credit rounding. Unsupported models remain own-key only. The backend recomputes the quote and rejects stale or tampered prices before reserving credits. Fixed `CONVERTSHORTS_MODEL_CREDITS` values are no longer used. Review actual provider invoices and current rates before activating prices. Monthly allowances are 700/2,400/4,200 credits; the 500-credit pack never expires. All hosted purchases remain unavailable while hosted generation is disabled.
 
 Stripe webhook URL: `https://chrfgzbecjvjazdovmyk.supabase.co/functions/v1/convertshorts-billing`. Subscribe to `checkout.session.completed`, `invoice.paid`, and `customer.subscription.deleted`. Configure the Stripe customer portal separately. Hosted generation can operate independently of Stripe when credits have been provisioned through the verified server flow.
 
@@ -52,6 +54,6 @@ This is not a claim of identical ArtCraft platform parity. The following require
 
 ## Verification
 
-Run `node scripts/build-creative-apps.mjs`, `node tests/creative-apps.mjs`, `node tests/studio-api.mjs` and `node tests/studio-services.mjs`.
+Run `node scripts/build-creative-apps.mjs`, `node tests/creative-apps.mjs`, `node tests/studio-api.mjs`, `node tests/studio-services.mjs` and `node tests/studio-pricing.mjs`.
 
 GitHub Actions runs the browser suites with Playwright and FFmpeg: all seven engine startups, mobile layout, persisted assets, projects/characters/canvas, synthetic Gaussian-splat import, mixed scenes, actual frame pixels, burst ZIPs, video/audio compositing, workspace backup/restore, a real FilmCraft H.264 export, cloud push/restore and signed-out isolation. API/cloud billing HTTP tests use fixtures; they do not incur provider charges. `server/cloud-verify.sql` and `server/credit-verify.sql` verify database permissions and transaction behavior with rollback.

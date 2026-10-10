@@ -1,7 +1,7 @@
 # ConvertShorts Creative Apps
 
 Seven studio entry points at `/apps/`: Photo, Vector, Video, Light, PDF, Motion and Layout.
-The six upstream web distributions are integrated as original, locally hosted applications;
+The seven upstream web distributions are integrated as original, locally hosted applications;
 the ConvertShorts hub and workspace shell are new. Existing converters and editors remain available.
 
 ## Scope and feature parity
@@ -10,7 +10,7 @@ the ConvertShorts hub and workspace shell are new. Existing converters and edito
 | --- | --- | --- | --- |
 | Photo | PhotoCraft 0.5.0 | Original browser build: layered image editing, masks, adjustments, brushes, type and PSD workflows | Native GPU, filesystem, platform-specific integrations and native automation |
 | Vector | VectorCraft 0.7.0 | Original browser build: illustration paths, shapes, appearance and SVG workflows | Native font/filesystem access and native automation |
-| Video | Existing ConvertShorts editor | Trim, split, reorder, framing, manual titles, music, MP4/WebM export | FilmCraft 0.4.0 full native timeline, scopes, codecs and professional audio are desktop downloads |
+| Video | FilmCraft 0.4.0 | Browser multi-track timeline, trimming, effects, grading, keyframes, captions, audio mixing, OPFS recovery and H.264 export; shared-library import/export | Single-threaded browser build; proxies, render previews, Project Manager and mask tracking remain native-only |
 | Light | LightCraft 0.4.0 | Original browser build: local catalog, RAW development, adjustments, masking and backup | Some model/preset integrations and native control channel |
 | PDF | PdfCraft 0.4.0 | Original browser PDF workbench | Native filesystem/integrations and automation differ |
 | Motion | EffectCraft 0.6.0 | Original browser composition and animation engine | Browser codec/render support differs; desktop export workflow remains separate |
@@ -18,7 +18,7 @@ the ConvertShorts hub and workspace shell are new. Existing converters and edito
 
 This is not a claim of complete desktop feature parity. The current upstream projects are early
 releases. No native desktop binary is executed by the website, and the site does not expose desktop
-CLI/MCP servers, accounts, cloud project syncing, payments or an automatic cross-app project format.
+CLI/MCP servers or an automatic cross-app project format. The surrounding ConvertShorts studio adds email accounts, private cloud workspaces and role-based sharing. Hosted generation and merchant payments are implemented but remain disabled until the owner supplies funded provider and payment credentials.
 
 ## Build
 
@@ -67,4 +67,4 @@ use the ArtCraft logo or wordmark. The original engine is credited on every work
 validation, runtime-relative links, notices, route packaging, existing tools and hosting settings.
 `tests/creative-apps-browser.cjs` exercises category search/favorites/mobile layout, opens each
 browser engine, checks initialization and records screenshots in CI. Existing export checks are
-retained. Passing packaging tests alone does not prove every upstream feature or browser export.
+retained. Passing packaging tests alone does not prove every upstream feature or browser export. See [the studio documentation](studio/README.md) and [the current audit](../docs/studio-audit-2026-10-10.md) for integration and parity limits.

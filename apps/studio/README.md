@@ -14,7 +14,7 @@ An independently implemented creative workspace at `/apps/`. The seven separatel
 - Frame extraction: precise individual frames, burst capture, library input and ZIP downloads.
 - Projects and shot lists, character references and prompt presets; generation history; library folders, tags, favorites, trash, bulk downloads and full workspace ZIP backup/restore.
 - Email/password accounts, confirmation and recovery; private cloud media and project sync; workspace invitation links with editor/viewer roles, expiry/revocation and optimistic conflict preservation.
-- Stripe checkout/portal, server-controlled prices, webhook verification/replay protection, monthly/annual credit grants, non-expiring packs, atomic generation credit reservations and idempotent failure refunds.
+- Razorpay checkout, server-controlled INR top-ups, raw-body webhook verification/replay protection, non-expiring prepaid balances, atomic generation credit reservations and idempotent failure refunds.
 
 ## Production configuration
 
@@ -22,19 +22,41 @@ Vercel publishes only `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` through `/ap
 
 `server/cloud-schema.sql`, `server/billing-schema.sql` and `server/credit-schema.sql` document the applied schema. Authenticated users can read their own records; controlled RPCs enforce workspace writes and revisions. Billing and spending RPCs require the `service_role` claim and are not executable by anonymous or authenticated clients.
 
-The deployed `convertshorts-billing` Supabase Edge Function uses its runtime service-role credential. Its JWT platform gate is disabled because the same endpoint receives Stripe webhooks. Every account operation independently verifies the user JWT with Supabase Auth; webhook requests independently verify the raw-body Stripe signature and timestamp.
+The deployed `convertshorts-billing` Supabase Edge Function uses its runtime service-role credential. Its JWT platform gate is disabled because the same endpoint receives Razorpay webhooks. Every account operation independently verifies the user JWT with Supabase Auth; webhook requests independently verify the raw-body Razorpay HMAC signature.
 
-Set these **ConvertShorts-specific** Edge Function secrets to activate commerce and hosted generation:
+## Simple prepaid pricing and Razorpay activation
 
-- `CONVERTSHORTS_STRIPE_SECRET_KEY`
-- `CONVERTSHORTS_STRIPE_WEBHOOK_SECRET`
-- `CONVERTSHORTS_STRIPE_PLANS`: a JSON array such as `[{"id":"starter-monthly","price":"price_FROM_YOUR_ACCOUNT"},{"id":"creator-monthly","price":"price_FROM_YOUR_ACCOUNT"},{"id":"studio-monthly","price":"price_FROM_YOUR_ACCOUNT"},{"id":"topup-5","price":"price_FROM_YOUR_ACCOUNT"}]`. The code controls the names, USD amounts and credit grants. Create monthly Stripe prices of $7/$24/$42 and a $5 one-time price, respectively. Checkout verifies the Stripe amount, currency and recurrence before redirecting. Do not use yearly prices for these monthly offers.
-- `CONVERTSHORTS_FAL_KEY`
-- `CONVERTSHORTS_HOSTED_ENABLED=true`: explicitly enable owner-funded generation after funding the provider account and verifying the launch flow.
+There are no subscriptions. The studio offers **₹100, ₹500 and ₹1,000** one-time top-ups, each awarding the same rupee amount of non-expiring generation balance. Internally, a credit is one INR paise (₹0.01). The earlier unused USD-cent ledger was empty when this currency change was verified and applied. `server/razorpay-schema.sql` refuses installation on a non-empty legacy ledger without an explicit currency migration.
 
-`apps/studio/pricing.js` is shared by the browser and billing backend. One credit is $0.01 retail value. The first priced adapters are FLUX Schnell, Nano Banana 2 generation/editing and Kling 2.6 Pro text/image-to-video. Quotes account for output count, resolution, duration and audio with a 25% provider-cost markup and whole-credit rounding. Unsupported models remain own-key only. The backend recomputes the quote and rejects stale or tampered prices before reserving credits. Fixed `CONVERTSHORTS_MODEL_CREDITS` values are no longer used. Review actual provider invoices and current rates before activating prices. Monthly allowances are 700/2,400/4,200 credits; the 500-credit pack never expires. All hosted purchases remain unavailable while hosted generation is disabled.
+Generation costs the reviewed, published Fal cost **× 1.20**, converted to INR and rounded up once to the next paise. Quotes include duration, audio, output count, resolution and priced extras. Current hosted coverage is FLUX Schnell, Nano Banana 2 generation/editing, Kling 2.6 Pro text/image-to-video, ACE-Step and MiniMax Music 2. Other adapters remain own-key only. Fal rates are reviewed rates, not a claim of live provider-invoice synchronization. Update `apps/studio/pricing.js` and the deployed billing function when provider prices change. No arbitrary unpriced model is charged to the business key.
 
-Stripe webhook URL: `https://chrfgzbecjvjazdovmyk.supabase.co/functions/v1/convertshorts-billing`. Subscribe to `checkout.session.completed`, `invoice.paid`, and `customer.subscription.deleted`. Configure the Stripe customer portal separately. Hosted generation can operate independently of Stripe when credits have been provisioned through the verified server flow.
+USD/INR comes from Frankfurter's daily reference-rate API, cached for six hours. Rates older than seven days or unavailable rates disable new hosted quotes and live checkout. An optional merchant rate override uses both `CONVERTSHORTS_USD_INR` and `CONVERTSHORTS_USD_INR_DATE` (YYYY-MM-DD), and also expires after seven days. Reference FX is a midpoint, so actual bank/provider conversion fees remain business expenses.
+
+Set these **ConvertShorts-specific** secrets in the [existing Supabase Edge Function secrets](https://supabase.com/dashboard/project/chrfgzbecjvjazdovmyk/settings/functions). Do not put private secrets in chat, Git, browser storage or the frontend:
+
+| Secret | Value / purpose |
+| --- | --- |
+| `CONVERTSHORTS_RAZORPAY_KEY_ID` | Dedicated Razorpay Key ID; `rzp_live_…` for live payments. Only this public identifier is sent to checkout. |
+| `CONVERTSHORTS_RAZORPAY_KEY_SECRET` | Private Razorpay API secret. |
+| `CONVERTSHORTS_RAZORPAY_WEBHOOK_SECRET` | A dedicated secret you choose when adding the webhook. |
+| `CONVERTSHORTS_FAL_KEY` | Dedicated, funded business Fal API key. |
+| `CONVERTSHORTS_HOSTED_ENABLED` | `true` after the live merchant and provider flow is ready. |
+
+Generate the Razorpay ID/secret in **Dashboard → Account & Settings → API Keys**, selecting the intended Live or Test mode. Complete Razorpay account activation before live payments. These credentials are separate from customers' own Fal keys. A merchant API key alone cannot fund generation; the business Fal account must also be funded.
+
+Razorpay webhook URL:
+
+`https://chrfgzbecjvjazdovmyk.supabase.co/functions/v1/convertshorts-billing?action=webhook`
+
+Subscribe to `payment.captured` and `order.paid`. Configure automatic payment capture. The backend verifies HMAC over the exact raw request body, then fetches the payment from Razorpay and checks the stored order, INR amount, capture state and absence of refunds. Customer callbacks also verify `order_id|payment_id` with the API secret. Both paths use the same row-locked, idempotent SQL transaction, so replay or a callback plus webhook cannot award balance twice. The order owner comes from verified Supabase Auth and the server's stored order; client-submitted amounts and credit counts are ignored.
+
+Checkout opens at `/payments/checkout`, outside the media editors' cross-origin isolation headers, so third-party checkout frames and payment popups can work. The payment page initializes account authentication without downloading/syncing a user's media workspace. Checkout cancellation retries the same stored order. A captured payment with an interrupted callback can be fulfilled by the signed webhook.
+
+For a **real Razorpay test checkout**, use `rzp_test_…` and its matching secret plus `CONVERTSHORTS_BILLING_TEST_MODE=true`. Test mode never awards spendable balance and always disables hosted Fal generation; it cannot fund live requests. Remove test mode and use Live keys only after verification. No live purchase or paid generation is made automatically by CI or audits.
+
+A 20% markup is a 16.67% gross margin on selling price before costs. At Razorpay's standard domestic 2% fee plus 18% GST on that fee (2.36% effective), ₹100 provider cost sells for ₹120, incurs about ₹2.83 payment fees, and leaves about ₹17.17 before FX, hosting, taxes on the service, refunds and other costs. Actual fee schedules and tax treatment depend on the merchant account. The top-up amount shown is the charged checkout total; any business tax liability must be accounted for within that revenue. Own-key generation earns no hosted-generation markup.
+
+Confirmed generation failures return the reserved balance idempotently. Uncertain submission timeouts require owner review to avoid duplicate paid requests. Refunds of prepaid purchases are handled by the owner: reconcile the remaining balance before issuing a Razorpay refund; refunded payments cannot be newly fulfilled. Full chargeback/refund-debt automation is not part of this initial integration.
 
 Customers can use their own funded Fal/World Labs keys immediately. Keys stay in tab memory. The initial Fal shared-server option remains gated by both `FAL_KEY` and `STUDIO_ACCESS_TOKEN` on Vercel. Large media references use private Supabase uploads and temporary signed URLs, or public HTTPS URLs supplied by the user.
 
@@ -50,10 +72,12 @@ This is not a claim of identical ArtCraft platform parity. The following require
 - Some exact reference model versions, especially the latest Seedance variants and newer proprietary endpoints, are not exposed by the verified public providers. Only verified endpoints are selectable.
 - FilmCraft's web build is single-threaded. Its upstream browser build reports thread-dependent proxies, render previews, Project Manager and mask tracking as unavailable. Desktop CLI/MCP automation remains a separate native workflow.
 - Character reference prompting is supported; it is not a guarantee of identity consistency or an implementation of ArtCraft's private identity-transfer service.
-- Paid provider generations and real Stripe purchases cannot be verified without funded provider and merchant credentials. No test charges are created automatically.
+- Paid provider generations and real Razorpay purchases cannot be verified without funded provider and merchant credentials. No test charges are created automatically.
 
 ## Verification
 
-Run `node scripts/build-creative-apps.mjs`, `node tests/creative-apps.mjs`, `node tests/studio-api.mjs`, `node tests/studio-services.mjs` and `node tests/studio-pricing.mjs`.
+Run `node scripts/build-creative-apps.mjs`, `node tests/creative-apps.mjs`, `node tests/studio-api.mjs`, `node tests/studio-services.mjs` `node tests/studio-pricing.mjs` and `node tests/studio-payments.mjs`.
 
 GitHub Actions runs the browser suites with Playwright and FFmpeg: all seven engine startups, mobile layout, persisted assets, projects/characters/canvas, synthetic Gaussian-splat import, mixed scenes, actual frame pixels, burst ZIPs, video/audio compositing, workspace backup/restore, a real FilmCraft H.264 export, cloud push/restore and signed-out isolation. API/cloud billing HTTP tests use fixtures; they do not incur provider charges. `server/cloud-verify.sql` and `server/credit-verify.sql` verify database permissions and transaction behavior with rollback.
+
+`server/razorpay-verify.sql` tests the real SQL grant/replay/spending/refund transaction inside a rollback. `tests/studio-payments-browser.cjs` verifies the prepaid UI, separate checkout page, SDK callback → authenticated verification flow, disabled commerce and mobile layout using fixtures. A live merchant capture and real funded generation still require the credentials above.

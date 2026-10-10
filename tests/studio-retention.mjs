@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+globalThis.Deno={env:{get:key=>key==='SUPABASE_URL'?'https://fixture.supabase.co':'service-fixture'}};
+const {handleRetention}=await import('../server/storage-retention.ts');
+const requests=[];let paths=[],failDelete=false;
+globalThis.fetch=async(url,options)=>{requests.push({url,options});if(url.includes('claim_retention'))return Response.json({claimed:true,paths});if(url.includes('/storage/'))return failDelete?new Response('error',{status:500}):Response.json([]);return new Response(null,{status:204});};
+const req=()=>new Request('https://example.invalid',{method:'POST',headers:{'x-retention-token':'a'.repeat(64)}});
+assert.equal((await handleRetention(new Request('https://example.invalid',{method:'POST'}))).status,401);assert.equal(requests.length,0);
+assert.equal((await handleRetention(req())).status,200);assert.ok(requests.at(-1).url.includes('finish_retention'));
+paths=['22222222-2222-4222-8222-222222222222/expired'];requests.length=0;
+assert.equal((await handleRetention(req())).status,200);const removal=requests.find(x=>x.options.method==='DELETE');assert.ok(removal.url.endsWith('/object/convertshorts-private'));assert.deepEqual(JSON.parse(removal.options.body).prefixes,paths);
+failDelete=true;requests.length=0;assert.equal((await handleRetention(req())).status,502);assert.ok(!requests.some(x=>x.url.includes('finish_retention')),'Failed byte cleanup must preserve metadata for retry');
+paths=['other-bucket/file'];requests.length=0;assert.equal((await handleRetention(req())).status,502);assert.equal(requests.length,1,'Reject invalid paths before deleting anything');
+console.log('PASS custom scheduler authentication, scoped physical deletion, failed-delete retry and path guard (HTTP fixtures).');

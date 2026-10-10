@@ -10,3 +10,6 @@ apps/studio/vendor/three/
 dist/
 
 apps/studio/vendor/spark/
+
+__pycache__/
+*.pyc

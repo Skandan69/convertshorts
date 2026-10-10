@@ -84,6 +84,8 @@ await fs.rm(sparkDir,{recursive:true,force:true});
 for(let offset=0;offset+512<=sparkTar.length;){const h=sparkTar.subarray(offset,offset+512),name=h.subarray(0,100).toString().split('\0')[0];if(!name)break;const size=parseInt(h.subarray(124,136).toString().replace(/\0/g,'').trim()||'0',8);if(!Number.isFinite(size)||size<0||offset+512+size>sparkTar.length)throw new Error('Invalid Spark archive');const rel=name.replace(/^package\//,'');if(name.startsWith('package/')&&sparkFiles.has(rel)){const target=path.join(sparkDir,rel);await fs.mkdir(path.dirname(target),{recursive:true});await fs.writeFile(target,sparkTar.subarray(offset+512,offset+512+size));sparkFiles.delete(rel);}offset+=512+Math.ceil(size/512)*512;}
 if(sparkFiles.size)throw new Error('Missing Spark files');console.log('Verified and installed Spark '+spark.version+' with MIT license.');
 
+await import('./build-studio-pages.mjs');
+
 // Self-contained static output retains every existing converter and tool.
 const output = path.join(root, 'dist');
 await fs.rm(output, { recursive: true, force: true });

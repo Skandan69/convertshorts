@@ -3,14 +3,44 @@ import {CREDIT_PLANS,PRICING_VERSION,MARKUP_PERCENT,CUSTOMER_CREDIT_INR,quoteCre
 import {getExchangeRate} from './billing-fx.mjs';
 // Supabase Edge Function. Private payment/provider secrets never reach the browser.
 const env=(k:string)=>Deno.env.get(k)||'';
+const paymentKeyId=()=>env('CONVERTSHORTS_RAZORPAY_KEY_ID').trim();
+const paymentKeySecret=()=>env('CONVERTSHORTS_RAZORPAY_KEY_SECRET').trim();
 const base=()=>env('SUPABASE_URL'),secret=()=>env('SUPABASE_SERVICE_ROLE_KEY');
 const cors=(req:Request)=>({'Access-Control-Allow-Origin':req.headers.get('origin')==='https://convertshorts.com'?'https://convertshorts.com':'null','Access-Control-Allow-Headers':'authorization, apikey, content-type','Access-Control-Allow-Methods':'GET, POST, OPTIONS','Cache-Control':'no-store'});
 const reply=(req:Request,value:unknown,status=200)=>Response.json(value,{status,headers:cors(req)});
-const testMode=()=>env('CONVERTSHORTS_RAZORPAY_KEY_ID').startsWith('rzp_test_');
+const testMode=()=>paymentKeyId().startsWith('rzp_test_');
 const hostedEnabled=()=>env('CONVERTSHORTS_HOSTED_ENABLED')==='true'&&!!env('CONVERTSHORTS_FAL_KEY')&&!testMode();
-const merchantConfigured=()=>!!(env('CONVERTSHORTS_RAZORPAY_KEY_SECRET')&&env('CONVERTSHORTS_RAZORPAY_WEBHOOK_SECRET'))&&(/^rzp_live_\w+$/.test(env('CONVERTSHORTS_RAZORPAY_KEY_ID'))||testMode()&&env('CONVERTSHORTS_BILLING_TEST_MODE')==='true');
+const merchantConfigured=()=>!!(paymentKeySecret()&&env('CONVERTSHORTS_RAZORPAY_WEBHOOK_SECRET'))&&(/^rzp_live_\w+$/.test(paymentKeyId())||testMode()&&env('CONVERTSHORTS_BILLING_TEST_MODE')==='true');
 async function db(path:string,method='GET',body?:unknown){const r=await fetch(base()+'/rest/v1/'+path,{method,headers:{apikey:secret(),Authorization:'Bearer '+secret(),'Content-Type':'application/json',Prefer:'return=representation'},body:body?JSON.stringify(body):undefined,signal:AbortSignal.timeout(15000)});const d=await r.json();if(!r.ok){if(d.message==='Insufficient workspace credits')throw new StudioError('Not enough balance. Add a small top-up in Pricing & credits.',402);throw Error('Billing data request failed');}return d;}
-async function razorpay(path:string,body?:unknown){const r=await fetch('https://api.razorpay.com/v1/'+path,{method:body?'POST':'GET',headers:{Authorization:'Basic '+btoa(env('CONVERTSHORTS_RAZORPAY_KEY_ID')+':'+env('CONVERTSHORTS_RAZORPAY_KEY_SECRET')),'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined,signal:AbortSignal.timeout(15000)});if(!r.ok)throw Error('Razorpay could not complete this request. Please retry.');return r.json();}
+class PaymentProviderError extends StudioError {
+ category:string;
+ constructor(category:string,message:string){super(message,503);this.category=category;}
+}
+async function razorpay(path:string,body?:unknown,timeout=15000){
+ let r:Response;
+ try{r=await fetch('https://api.razorpay.com/v1/'+path,{method:body?'POST':'GET',headers:{Authorization:'Basic '+btoa(paymentKeyId()+':'+paymentKeySecret()),'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined,signal:AbortSignal.timeout(timeout)});}
+ catch{throw new PaymentProviderError('unavailable','Razorpay is temporarily unreachable. Please retry shortly.');}
+ if(!r.ok){
+  const data=await r.json().catch(()=>null),description=data?.error?.description||'';
+  // Only a fixed category and HTTP status enter logs. Never log credentials,
+  // provider response bodies, payment references or customer details.
+  const category=r.status===401||/^Authentication failed\.?$/i.test(description)||/^The API <key\/secret> provided is invalid\.?$/i.test(description)?'invalid_credentials':r.status===403?'access_denied':r.status===429||r.status>=500?'unavailable':'invalid_request';
+  console.error(JSON.stringify({event:'razorpay_request_failed',operation:body?'create_order':'read_payment_service',status:r.status,category}));
+  throw new PaymentProviderError(category,category==='invalid_credentials'?'The payment service could not authenticate with Razorpay. Please contact ConvertShorts support.':category==='access_denied'?'Razorpay has restricted this payment service. Please contact ConvertShorts support.':category==='invalid_request'?'Razorpay rejected the payment request. Please contact ConvertShorts support.':'Razorpay is temporarily unavailable. Please retry shortly.');
+ }
+ return r.json();
+}
+let paymentHealth:{key:string,expires:number,result:Promise<string>}|undefined;
+async function paymentApiStatus(){
+ if(!merchantConfigured())return 'not_configured';
+ const key=paymentKeyId()+'\0'+paymentKeySecret();
+ if(!paymentHealth||paymentHealth.key!==key||paymentHealth.expires<Date.now()){
+  // Verify the actual key pair with a read-only call, not just secret presence.
+  // The response stays on the server; concurrent config requests share one check.
+  paymentHealth={key,expires:Date.now()+60000,result:razorpay('orders?count=1',undefined,5000).then(()=> 'ready',e=>e instanceof PaymentProviderError?e.category:'unavailable')};
+ }
+ return paymentHealth.result;
+}
 export async function verifyHmac(raw:string,signature:string,key:string){if(!key||! /^[0-9a-f]{64}$/.test(signature))return false;const cryptoKey=await crypto.subtle.importKey('raw',new TextEncoder().encode(key),{name:'HMAC',hash:'SHA-256'},false,['sign']);const digest=new Uint8Array(await crypto.subtle.sign('HMAC',cryptoKey,new TextEncoder().encode(raw)));const expected=Array.from(digest,b=>b.toString(16).padStart(2,'0')).join('');let difference=0;for(let i=0;i<expected.length;i++)difference|=signature.charCodeAt(i)^expected.charCodeAt(i);return difference===0;}
 async function checkoutOrder(id:string){if(!/^order_[a-zA-Z0-9]+$/.test(id||''))throw new StudioError('Invalid payment order.');const rows=await db('convertshorts_checkout_orders?id=eq.'+id);if(!rows[0])throw new StudioError('Payment order not found.',404);return rows[0];}
 async function confirmPayment(order:any,paymentId:string){
@@ -29,8 +59,8 @@ export async function handleBilling(req:Request){try{
  if(!['GET','POST'].includes(req.method))return reply(req,{error:'Unsupported method'},405);
  if(new URL(req.url).searchParams.get('action')==='config'){
   let fx=null;try{fx=await getExchangeRate(env);}catch{}
-  const generationEnabled=hostedEnabled()&&!!fx,enabled=merchantConfigured()&&(testMode()||generationEnabled);
-  return reply(req,{enabled,generationEnabled,paymentProvider:'razorpay',testMode:testMode(),currency:'INR',customerCreditInr:CUSTOMER_CREDIT_INR,markupPercent:MARKUP_PERCENT,pricingVersion:PRICING_VERSION,usdInr:fx?.rate||null,fxDate:fx?.date||null,fxSource:fx?.source||null,hostedModels:MODELS.filter(supportsHostedPricing).map(m=>m.id),plans:CREDIT_PLANS.map(p=>({...p,available:enabled}))});
+  const generationEnabled=hostedEnabled()&&!!fx,paymentStatus=await paymentApiStatus(),enabled=paymentStatus==='ready'&&(testMode()||generationEnabled);
+  return reply(req,{enabled,generationEnabled,paymentApiStatus:paymentStatus,paymentProvider:'razorpay',testMode:testMode(),currency:'INR',customerCreditInr:CUSTOMER_CREDIT_INR,markupPercent:MARKUP_PERCENT,pricingVersion:PRICING_VERSION,usdInr:fx?.rate||null,fxDate:fx?.date||null,fxSource:fx?.source||null,hostedModels:MODELS.filter(supportsHostedPricing).map(m=>m.id),plans:CREDIT_PLANS.map(p=>({...p,available:enabled}))});
  }
  if(new URL(req.url).searchParams.get('action')==='webhook'){
   const key=env('CONVERTSHORTS_RAZORPAY_WEBHOOK_SECRET');if(!key)return reply(req,{error:'Webhook not configured'},503);
@@ -65,7 +95,7 @@ export async function handleBilling(req:Request){try{
 
  if(body.action==='verify'){
   const order=await checkoutOrder(body.orderId);if(order.user_id!==user.id)return reply(req,{error:'Payment belongs to another account.'},403);
-  if(!await verifyHmac(order.id+'|'+body.paymentId,body.signature||'',env('CONVERTSHORTS_RAZORPAY_KEY_SECRET')))return reply(req,{error:'Invalid payment signature'},400);
+  if(!await verifyHmac(order.id+'|'+body.paymentId,body.signature||'',paymentKeySecret()))return reply(req,{error:'Invalid payment signature'},400);
   return reply(req,await confirmPayment(order,body.paymentId));
  }
  if(body.action==='checkout'){
@@ -75,7 +105,7 @@ export async function handleBilling(req:Request){try{
   const order=await razorpay('orders',{amount:p.amountCents,currency:'INR',receipt:'cs_'+crypto.randomUUID().replaceAll('-',''),notes:{service:'convertshorts',pack:p.id,user:user.id}});
   if(!/^order_[a-zA-Z0-9]+$/.test(order.id||'')||order.amount!==p.amountCents||order.currency!=='INR')throw Error('The payment order could not be verified.');
   await db('convertshorts_checkout_orders','POST',{id:order.id,user_id:user.id,pack:p.id,amount_paise:p.amountCents,test_mode:testMode()});
-  return reply(req,{provider:'razorpay',keyId:env('CONVERTSHORTS_RAZORPAY_KEY_ID'),orderId:order.id,amount:p.amountCents,currency:'INR',description:p.amountCents/100+' rupees of prepaid generation balance',testMode:testMode()});
+  return reply(req,{provider:'razorpay',keyId:paymentKeyId(),orderId:order.id,amount:p.amountCents,currency:'INR',description:p.amountCents/100+' rupees of prepaid generation balance',testMode:testMode()});
  }
  return reply(req,{error:'Unsupported billing action'},400);
  }catch(e){return reply(req,{error:e instanceof Error?e.message:'Billing request failed'},e instanceof StudioError?e.status:502);}}

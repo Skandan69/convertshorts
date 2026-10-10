@@ -188,7 +188,7 @@ export async function mountWorkflowBuilder(view,{toast,assetURL,isActive=()=>tru
      const run=old||{id:uid(),status:'running',started:Date.now(),steps:Object.fromEntries(snapshot.nodes.filter(generationNode).map(n=>[n.id,{status:'queued'}])),quotes:{}};
      for(const s of remaining)run.quotes[s.nodeId]=s.quote;run.status='running';
      await navigator.locks.request('convertshorts-workflow:'+scope+':'+active.id,{ifAvailable:true},async lock=>{
-      if(!lock)throw Error('This workflow is already running in another browser tab.');
+      if(!lock)throw Error('This workflow is running or finishing a pause. Wait a moment, then check jobs and try again.');
       if(!alive())return;d.close();active.run=run;busy=true;stopRequested=false;await save();drawCanvas();drawInspector();controls();budget();
       try{await executeWorkflow(snapshot,run,{
        shouldStop:()=>stopRequested||!alive(),

@@ -5,6 +5,7 @@ import {consumeAuthCallback,authReturnURL} from './auth-callback.js';
 const SESSION='convertshorts-auth';
 const callback=consumeAuthCallback(location,history);
 let recoveryError=callback?.error||'';
+let resolveReady;const ready=new Promise(resolve=>resolveReady=resolve);
 let config={},session=null,workspace=null,workspaces=[],syncing=false,syncTimer,refreshing=null,notify=()=>{},changed=()=>{},beforeSwitch=()=>{},generation=0,initialized=false;
 export const cloudState=()=>({enabled:config.enabled,user:session?.needsPasswordReset?null:session?.user,workspace,workspaces,syncing,loading:!initialized});
 export async function uploadReference(file){if(!session||!workspace)throw new Error('Sign in to upload a large media reference, or paste a public HTTPS URL.');if(file.size>150*1024*1024)throw new Error('Use media below 150 MB.');const path=workspace.id+'/'+uid();await cloudRequest('/storage/v1/object/'+config.bucket+'/'+path,{method:'POST',raw:true,body:file,headers:{'Content-Type':file.type||'application/octet-stream'}});const signed=await cloudRequest('/storage/v1/object/sign/'+config.bucket+'/'+path,{method:'POST',body:{expiresIn:7200}});return config.url+'/storage/v1'+signed.signedURL;}
@@ -64,11 +65,22 @@ export async function sync(){if(!session||session.needsPasswordReset||!workspace
  }}
  window.dispatchEvent(new Event('studio-cloud-synced'));
  }catch(e){notify('Cloud sync: '+e.message);}finally{syncing=false;}}
-export async function initializeCloud({toast,onChange,onBeforeSwitch,accountOnly=false}){notify=toast;changed=onChange;beforeSwitch=onBeforeSwitch||(()=>{});try{const r=await fetch('/api/cloud',{signal:AbortSignal.timeout(10000)});if(r.ok)config=await r.json();if(!config.enabled){initialized=true;changed();return;}
- try{const saved=JSON.parse(localStorage.getItem(SESSION));saveSession(callback?.access_token?callback:callback?.error?null:saved?.authOrigin===config.url?saved:null);}catch{saveSession(null);}
+async function validateSession(accountOnly=false){
  if(session){try{await accessToken();const user=await auth('user',null,true);saveSession({...session,user});if(!accountOnly&&!session.needsPasswordReset)await loadWorkspaces();}catch(e){const recovering=session?.needsPasswordReset;saveSession(null);if(recovering)recoveryError='Your recovery link is invalid or has expired. Request a new reset email below.';else notify('Sign in again to reconnect cloud sync.');}}
+}
+// Email links can also arrive as a hash navigation while the studio is open.
+// Sanitize immediately, then validate before any account or workspace is shown.
+export async function receiveAuthCallback(){
+ const next=consumeAuthCallback(location,history);if(!next)return false;
+ await ready;if(!config.enabled)return true;
+ initialized=false;await beforeSwitch();generation++;clearTimeout(syncTimer);workspace=null;workspaces=[];await setNamespace();
+ recoveryError=next.error||'';saveSession(next.access_token?next:null);await validateSession();initialized=true;changed();return true;
+}
+export async function initializeCloud({toast,onChange,onBeforeSwitch,accountOnly=false}){notify=toast;changed=onChange;beforeSwitch=onBeforeSwitch||(()=>{});try{const r=await fetch('/api/cloud',{signal:AbortSignal.timeout(10000)});if(r.ok)config=await r.json();if(!config.enabled){initialized=true;resolveReady();changed();return;}
+ try{const saved=JSON.parse(localStorage.getItem(SESSION));saveSession(callback?.access_token?callback:callback?.error?null:saved?.authOrigin===config.url?saved:null);}catch{saveSession(null);}
+ await validateSession(accountOnly);
  }catch{}
- initialized=true;changed();
+ initialized=true;resolveReady();changed();
  if(accountOnly){window.addEventListener('storage',e=>{if(e.key===SESSION){session=null;changed();}});return;}
  window.addEventListener('studio-storage-changed',()=>{clearTimeout(syncTimer);syncTimer=setTimeout(sync,1200);});setInterval(()=>{if(!document.hidden)sync();},30000);
  window.addEventListener('storage',async e=>{if(e.key!==SESSION)return;await beforeSwitch();generation++;session=null;workspace=null;await setNamespace();changed();});}

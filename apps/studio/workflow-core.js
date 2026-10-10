@@ -23,7 +23,7 @@ export function normalizeWorkflow(raw,{id=raw?.id}={}){
   if(n.type==='reference'){if(n.assetId&&!idOK(n.assetId))fail('Invalid reference image.');node.assetId=n.assetId||'';}
   else node.prompt=String(n.prompt||'').slice(0,10000);
   if(generationNode(n)){
-   Object.assign(node,{model:String(n.model|| (n.type==='video'?'kling':'nano-banana')),ratio:['1:1','16:9','9:16','4:3','3:4'].includes(n.ratio)?n.ratio:'16:9',resolution:['1K','2K','4K'].includes(n.resolution)?n.resolution:'1K',duration:[5,10].includes(Number(n.duration))?Number(n.duration):5,audio:n.audio===true,negative:String(n.negative||'').slice(0,2500)});
+   Object.assign(node,{model:String(n.model|| (n.type==='video'?'kling':'nano-banana')),ratio:(n.type==='video'?['1:1','16:9','9:16']:['1:1','16:9','9:16','4:3','3:4']).includes(n.ratio)?n.ratio:'16:9',resolution:['1K','2K','4K'].includes(n.resolution)?n.resolution:'1K',duration:[5,10].includes(Number(n.duration))?Number(n.duration):5,audio:n.audio===true,negative:String(n.negative||'').slice(0,2500)});
    workflowModel(node);
   }
   return node;
@@ -56,6 +56,7 @@ export function connectedNode(flow,node,input){const e=flow.edges.find(e=>e.targ
 export function nodePrompt(flow,node){const source=connectedNode(flow,node,'prompt');return (source?source.prompt:node.prompt)?.trim()||'';}
 export function workflowBody(flow,node,reference){
  const m=workflowModel(node),source=connectedNode(flow,node,'reference');
+ if(node.type==='video'&&!['1:1','16:9','9:16'].includes(node.ratio))fail('Kling video supports square, landscape or portrait aspect ratios.');
  if(source&&!m.reference)fail(m.name+' does not accept references. Choose Nano Banana 2.');
  if(m.kind==='edit'&&!source)fail('Connect a reference image to '+node.name+'.');
  return {model:m.id,prompt:nodePrompt(flow,node),ratio:node.ratio,count:1,resolution:node.resolution,duration:node.duration,audio:node.audio===true,negative:node.negative||'',...(source?{reference:reference||'https://workflow.invalid/reference.jpg'}:{})};

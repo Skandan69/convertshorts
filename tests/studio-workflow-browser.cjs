@@ -18,7 +18,7 @@ const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42
  assert.equal(await page.locator('[data-wf-node]').count(),4);
  await page.locator('#wf-name').fill('Reusable campaign');
  await page.locator('.wf-node.prompt').first().locator('.wf-node-title').click();
- await page.locator('#wf-prompt-builder').click();await page.locator('#wf-prompt-form [name=subject]').fill('A premium coffee cup');await page.locator('#wf-prompt-form [name=lighting]').fill('Soft morning light');await page.locator('#wf-prompt-form button').click();
+ await page.locator('#wf-prompt-builder').click();await page.locator('#wf-prompt-form [name=subject]').fill('A premium coffee cup');await page.locator('#wf-prompt-form [name=lighting]').fill('Soft morning light');await page.locator('#wf-prompt-form button').click();await page.locator('#wf-dialog').waitFor({state:'hidden'});
  assert.ok((await page.locator('[data-wf-field=prompt]').inputValue()).includes('Soft morning light'));
  await page.locator('.wf-node.video .wf-node-title').click();await page.locator('[data-wf-field=duration]').selectOption('10');await page.locator('[data-wf-field=audio]').check();
  assert.ok((await page.locator('#wf-total').textContent()).includes('177.6 credits'));

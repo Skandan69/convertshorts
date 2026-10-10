@@ -51,3 +51,5 @@ flow=makeWorkflow('cinematic',id);run=newRun(flow);f=fixture(flow,{pauseNode:flo
 flow=makeWorkflow('cinematic',id);run=newRun(flow);f=fixture(flow,{wrongType:'audio'});await executeWorkflow(flow,run,f.io);assert.equal(run.status,'needs-review');assert.equal(f.submitted.length,1);
 flow=makeWorkflow('cinematic',id);run=newRun(flow);run.steps[flow.nodes.find(n=>n.type==='image').id].status='submitting';f=fixture(flow);await executeWorkflow(flow,run,f.io);assert.equal(f.submitted.length,0);assert.equal(run.status,'needs-review','Reloading during submission cannot silently charge again');
 console.log('PASS workflow pricing, typed connections, dependency order, bounded parallel execution, failure guard, pause/resume and uncertain-submission protection.');
+
+const ratioFlow=makeWorkflow();ratioFlow.nodes.find(n=>n.type==='video').ratio='4:3';assert.throws(()=>estimateWorkflow(ratioFlow,100),/Kling video supports/);

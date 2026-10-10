@@ -14,7 +14,7 @@ class Handler(SimpleHTTPRequestHandler):
         path = self.path.split('?')[0]
         if path.startswith('/apps/engines/') and path.endswith('/editor'):
             self.path = path[:-len('editor')] + 'index.html'
-        if path in ['/studio', '/pdf', '/image-tools', '/pdf-tools', '/video-tools', '/design-studio', '/video-editor', '/payments/checkout', '/creative-studio', '/creative-studio-pricing', '/ai-image-generator', '/ai-video-generator', '/ai-music-generator']:
+        if path in ['/studio', '/pdf', '/image-tools', '/pdf-tools', '/video-tools', '/design-studio', '/video-editor', '/payments/checkout', '/creative-studio', '/creative-studio-pricing', '/ai-image-generator', '/ai-video-generator', '/ai-music-generator', '/ai-workflow-builder']:
             self.path = path + '.html'
         super().do_GET()
 ThreadingHTTPServer(('0.0.0.0', 4173), Handler).serve_forever()

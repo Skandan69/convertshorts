@@ -109,3 +109,5 @@ Original generated artwork, premium studio and static public marketing pages wer
 The 20% is a markup on generation cost, not net profit. Its gross margin is 16.67% of sales before processing fees, FX differences, storage, hosting and taxes. Free cloud storage has costs even for users who never buy AI balance; monitor usage before increasing the allowance.
 
 Primary references: [ArtCraft apps](https://getartcraft.com/apps), [live studio](https://app.getartcraft.com/), [Storytold repositories](https://github.com/orgs/storytold/repositories?type=all), [MainApp source](https://github.com/storytold/artcraft/blob/main/frontend/apps/artcraft/app/src/pages/MainApp.tsx).
+
+Cloud editor saves retain their local revision baseline and original expiry. A self-upload advances the held editor baseline without creating a false conflict; a newer remote edit keeps the older baseline so optimistic conflict preservation still applies. Cloud-only media is fetched on demand into workspace ZIP backups; short-lived URLs and expiry bookkeeping are excluded from offline backups. These flows have dedicated browser regression coverage.

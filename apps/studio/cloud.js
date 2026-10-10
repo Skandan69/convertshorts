@@ -53,7 +53,7 @@ export async function sync(){if(!session||!workspace||syncing)return;syncing=tru
 
  for(const store of STORES){for(const item of (await all(store)).filter(i=>i._dirty)){
   if(own!==generation)return;
-  const {blob,_dirty,_revision,_blobPath,_expiresAt,_remoteExpires,...payload}=item;delete payload.token;if(_blobPath)delete payload.remote; // Job credentials stay in their originating browser.
+  const {blob,_dirty,_revision,_blobPath,_expiresAt,_remoteExpires,_lastSavedAt,...payload}=item;delete payload.token;if(_blobPath)delete payload.remote; // Job credentials stay in their originating browser.
   let path=_blobPath||null;
   if(blob&&!path){path=w+'/'+uid();await cloudRequest('/storage/v1/object/'+config.bucket+'/'+path,{method:'POST',body:blob,raw:true,headers:{'Content-Type':blob.type||'application/octet-stream'}});}
   try{const saved=await rpc('convertshorts_save_record',{w,s:store,k:item.id,p:payload,b:path,expected:_revision||0});const latest=await get(store,item.id);if(own!==generation)return;if(latest.updated===item.updated)await put(store,{...latest,_dirty:false,_revision:saved.revision,_blobPath:path,_expiresAt:saved.expires_at||_expiresAt},{remote:true});else await put(store,{...latest,_revision:saved.revision,_blobPath:path,_expiresAt:saved.expires_at||_expiresAt},{remote:true});}

@@ -15,7 +15,7 @@ export async function exportWorkflow(flow){
   const path='media/'+id;zip.file(path,blob);files.push({id,name:item.name,type:item.type,mime:item.mime||blob.type,path});
  }
  zip.file('workflow.json',JSON.stringify({format:WORKFLOW_FORMAT,workflow:clean,files},null,2));
- const blob=await zip.generateAsync({type:'blob',compression:'STORE'});store.check();downloadBlob(blob,flow.name.replace(/[^\w-]/g,'-')+'.zip');
+ const blob=await zip.generateAsync({type:'blob',compression:'STORE'});if(blob.size>MAX_TOTAL)throw Error('The workflow ZIP exceeds 300 MB including its metadata. Export fewer media files.');store.check();downloadBlob(blob,flow.name.replace(/[^\w-]/g,'-')+'.zip');
 }
 export async function importWorkflow(file){
  const store=scopedStorage();if(file.size>MAX_TOTAL)throw Error('Choose a workflow ZIP smaller than 300 MB.');

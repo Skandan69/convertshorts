@@ -3,7 +3,8 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
 const {execFileSync}=require('node:child_process');
 const Zip=require('../studio/vendor/jszip.min.js');
 const BASE=process.env.BASE_URL||'http://localhost:4173',out=path.join(__dirname,'results/creative-apps/workflow');
-const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aEuoAAAAASUVORK5CYII=','base64');
+const png=execFileSync('ffmpeg',['-v','error','-f','lavfi','-i','color=c=0x8490ff:s=96x64','-frames:v','1','-f','image2pipe','-vcodec','png','-threads','1','pipe:1']);
+let activePage;
 (async()=>{
  await fs.mkdir(out,{recursive:true});const browser=await chromium.launch(),errors=[];
  const {prepareGeneration}=await import('../server/studio-core.mjs');
@@ -13,7 +14,7 @@ const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42
  await context.route('**/api/cloud',r=>r.fulfill({contentType:'application/json',body:'{"enabled":false}'}));
  await context.route('**/api/billing**',r=>r.fulfill({contentType:'application/json',body:JSON.stringify(config)}));
  await context.route('**/functions/v1/**',r=>{paidRequests++;return r.fulfill({status:503,contentType:'application/json',body:'{}'});});
- const page=await context.newPage();page.on('pageerror',e=>errors.push(String(e)));
+ const page=await context.newPage();activePage=page;page.on('pageerror',e=>errors.push(String(e)));
  await page.goto(BASE+'/apps/#workflow');await page.locator('#wf-total').waitFor();await page.waitForFunction(()=>document.querySelector('#wf-total').textContent.includes('51.6 credits'));
  assert.equal(await page.locator('[data-wf-node]').count(),4);
  await page.locator('#wf-name').fill('Reusable campaign');
@@ -67,10 +68,10 @@ const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42
   assert.equal(b.action,'generate');assert.equal(b.expectedCredits,q.credits);assert.equal(b.pricingVersion,q.version);assert.ok(wallet>=q.credits);
   wallet-=q.credits;charge+=q.credits;const id=require('node:crypto').randomUUID(),type=g.model.kind==='video'?'video':'image';jobs.set(id,{id,type,fail:failImage&&type==='image'});submissions.push({id,body:b.generation,quote:q});return r.fulfill({status:202,contentType:'application/json',body:JSON.stringify({cloudJobID:id,status:'IN_QUEUE'})});
  });
- const app=await account.newPage();app.on('pageerror',e=>errors.push(String(e)));await app.goto(BASE+'/apps/#account');await app.locator('#sign-in [name=email]').fill(user.email);await app.locator('#sign-in [name=password]').fill('fixture-password');await app.locator('#sign-in button').click();await app.locator('#workspace-select').waitFor();
+ const app=await account.newPage();activePage=app;app.on('pageerror',e=>errors.push(String(e)));await app.goto(BASE+'/apps/#account');await app.locator('#sign-in [name=email]').fill(user.email);await app.locator('#sign-in [name=password]').fill('fixture-password');await app.locator('#sign-in button').click();await app.locator('#workspace-select').waitFor();
  await app.goto(BASE+'/apps/#workflow');await app.waitForFunction(()=>document.querySelector('#wf-total')?.textContent.includes('51.6 credits'));await app.locator('#wf-name').fill('Private workflow');
  const run=async()=>{await app.locator('#wf-review').click();await app.locator('#wf-confirm-run').click();};
- await run();await app.waitForFunction(()=>document.querySelector('#wf-run-status')?.textContent.startsWith('Workflow complete'));
+ await run();await app.waitForFunction(()=>/Workflow (complete|needs review)/.test(document.querySelector('#wf-run-status')?.textContent));assert.ok((await app.locator('#wf-run-status').textContent()).startsWith('Workflow complete'),await app.locator('body').innerText());
  assert.equal(submissions.length,2);assert.equal(charge,5160);assert.ok(submissions[1].body.reference.startsWith('data:image/jpeg;'));
  const saved=await app.evaluate(async()=>{const {all}=await import('/apps/studio/storage.js');return {assets:(await all('assets')).map(a=>({type:a.type,workflowID:a.workflowID})),flow:(await all('projects')).find(p=>p.name==='Private workflow')};});assert.deepEqual(saved.assets.map(a=>a.type).sort(),['image','video']);assert.equal(saved.flow.run.status,'complete');assert.ok(saved.assets.every(a=>a.workflowID===saved.flow.id));
  await app.goto(BASE+'/apps/#account');await app.locator('#cloud-sync').click();await app.waitForFunction(()=>document.querySelector('#sync-state').textContent.includes('Last sync attempt'));assert.ok([...records.values()].some(r=>r.store==='projects'&&r.payload.recordType==='workflow'&&r.payload.name==='Private workflow'));
@@ -84,4 +85,4 @@ const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42
  await app.goto(BASE+'/apps/#account');await app.locator('#sign-out').click();await app.goto(BASE+'/apps/#workflow');await app.locator('#wf-name').waitFor();assert.notEqual(await app.locator('#wf-name').inputValue(),'Private workflow');
  assert.equal(errors.length,0,errors.join('\n'));await fs.writeFile(path.join(out,'verification.json'),JSON.stringify({planning:true,templates:true,promptBuilder:true,zipRoundTrip:true,mobile:true,privateSync:true,serverQuoteMatches:true,totalCostPlus20:true,resultsInLibrary:true,pauseResumeNoDoubleCharge:true,routeLeaveAndResume:true,failureStopsDependents:true,insufficientBalanceBlocked:true,accountIsolation:true,realProviderRequests:0,errors},null,2));
  await account.close();await browser.close();console.log('PASS visual workflow, archive round-trip, mobile, account isolation, mocked hosted generation, billing, failure and pause/resume. No real paid generation.');
-})().catch(e=>{console.error(e);process.exit(1);});
+})().catch(async e=>{console.error(e);if(activePage)try{console.error('WORKFLOW_FAILURE_STATE:'+JSON.stringify({url:activePage.url(),body:await activePage.locator('body').innerText()}));const shot=await activePage.screenshot({type:'jpeg',quality:55});console.log('WORKFLOW_FAILURE_IMAGE:'+shot.toString('base64'));}catch{}process.exit(1);});

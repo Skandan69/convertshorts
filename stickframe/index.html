@@ -23,7 +23,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="/stickframe/stickframe.css">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I turn text into a stickman video?","acceptedAnswer":{"@type":"Answer","text":"Type or paste your script and Stickframe turns it into an animated stick figure sequence using motion tracks, which you can then export as video."}},{"@type":"Question","name":"Is the text to video maker free?","acceptedAnswer":{"@type":"Answer","text":"Yes. It is free with no account, no credits system and no watermark on your exported video."}},{"@type":"Question","name":"Do I need any animation experience?","acceptedAnswer":{"@type":"Answer","text":"No. The motions are prepared for you, so you write what should happen and the animation is generated from that."}},{"@type":"Question","name":"Can I use the videos commercially?","acceptedAnswer":{"@type":"Answer","text":"Yes. What you create is yours, and nothing is watermarked."}},{"@type":"Question","name":"Does it upload my script to a server?","acceptedAnswer":{"@type":"Answer","text":"No. Stickframe runs in your browser, so your text and your video stay on your own device."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I turn text into a stickman video?","acceptedAnswer":{"@type":"Answer","text":"Type or paste your script and Stickframe turns it into an animated stick figure sequence using motion tracks, which you can then export as video."}},{"@type":"Question","name":"Is the text to video maker free?","acceptedAnswer":{"@type":"Answer","text":"Yes. It is free with no account, no credits system and no watermark on your exported video."}},{"@type":"Question","name":"Do I need any animation experience?","acceptedAnswer":{"@type":"Answer","text":"No. The motions are prepared for you, so you write what should happen and the animation is generated from that."}},{"@type":"Question","name":"Can I use the videos commercially?","acceptedAnswer":{"@type":"Answer","text":"Yes. What you create is yours, and nothing is watermarked."}},{"@type":"Question","name":"Does it upload my script to a server?","acceptedAnswer":{"@type":"Answer","text":"No. Stickframe runs in your browser, so your text and your video stay on your own device."}},{"@type":"Question","name":"Why was part of my sentence skipped?","acceptedAnswer":{"@type":"Answer","text":"No move in the library matched those words. The note that appears under the script box lists what was skipped. Try a plainer verb, search the CMU library for the action, or choose a move for that row in the timeline by hand."}},{"@type":"Question","name":"Will my work still be there tomorrow?","acceptedAnswer":{"@type":"Answer","text":"Yes, in the same browser. Your script, cast, timeline and look settings are saved in this browser as you work, and imported motion-capture moves are kept there too. Clearing site data or switching browsers starts you afresh."}},{"@type":"Question","name":"What resolution are the videos?","acceptedAnswer":{"@type":"Answer","text":"1280 × 720 for 16:9, 720 × 1280 for 9:16 and 1080 × 1080 for 1:1, at 24 or 30 frames per second. The file is MP4 when your browser can record MP4 and WebM when it cannot; the Save button shows the format and file size before you download."}}]}</script>
 </head>
 <body>
 <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:7px 16px;background:#fff;border-bottom:1px solid #e2e0db;font-family:Inter,system-ui,sans-serif;flex-wrap:wrap;">
@@ -207,6 +207,34 @@
     <p>Basic moves are drawn in code. Over 2,000 more are real human motion capture from the Carnegie Mellon University database, turned into stick-figure animation. You can also import your own BVH or ASF/AMC files.</p>
     <h3>Does it use AI?</h3>
     <p>No. Stickframe matches the words you write to its move library. If an action isn’t in the library, it tells you which part it skipped.</p>
+  </section>
+  <section class="seo" aria-labelledby="sf-guide">
+    <h2 id="sf-guide">How to use Stickframe, from cast to export</h2>
+    <ol>
+      <li>Set up the <strong>Cast</strong> first. Press <strong>+ Add character</strong> for up to four people, then give each a name, a colour and a start position. Your script has to use these exact names.</li>
+      <li>Write the scene in <strong>Direct it</strong> and press <strong>Build clip</strong>, or Ctrl+Enter, to replace the timeline. <strong>Add to end</strong> keeps what you have and adds the new beats after it. The example buttons under the box load a ready-made script to start from.</li>
+      <li>Fine-tune any beat in the <strong>Timeline</strong>. Each row has Who, Move, Toward (or direction), Face, Secs, Wait and Says, and <strong>+ Action</strong> adds another action to the same beat. Use ↑ and ↓ to reorder beats.</li>
+      <li>Browse the <strong>Move library</strong> tabs (Basic, Together, Real motion, CMU library and My moves). Clicking a move adds it for the character marked ●, as a new beat or into the last beat.</li>
+      <li>Choose a <strong>Scene</strong> and adjust <strong>Look</strong>: format, frame rate, line weight, head size, figure size, faces and solid heads.</li>
+      <li>Preview with ▶ or the Space bar, step a frame at a time with the arrow keys, then press <strong>● Record clip</strong> and <strong>Save</strong>.</li>
+    </ol>
+    <h2>Tips for better clips</h2>
+    <ul style="margin:0;padding-left:20px;display:grid;gap:4px">
+      <li><strong>Use timing words.</strong> “slowly” and “quickly” change the speed, “for 3 seconds” sets the length, and “twice” or “4 times” repeats a move. “left” and “right” set the direction of travel.</li>
+      <li><strong>Let feelings set the face.</strong> Words such as happily, angrily, scared, confused, sleepy or winks pick the expression. Left on Auto, the Face column chooses one to suit the move, so a punch looks angry and a high five laughs.</li>
+      <li><strong>Make things happen together.</strong> “while”, “meanwhile” and “at the same time” keep actions in one beat, and “they”, “both” or “everyone” applies a move to the whole cast.</li>
+      <li><strong>Stagger with Wait.</strong> Rather than adding a new beat, give one character a Wait of half a second so their reaction lands just after the other's action.</li>
+      <li><strong>Call up an exact mocap clip.</strong> Each CMU card shows a clip number such as 13_29. Writing that number in a sentence, as in “Meera does 13_29”, uses that clip directly.</li>
+      <li><strong>Use the Green screen scene for editing.</strong> Record against it and key the background out in your video editor to place the stickmen over other footage.</li>
+    </ul>
+    <h2>Privacy and limits</h2>
+    <p>The total shown in the Timeline header is also how long recording will take. Save this frame (PNG) grabs a still at the playhead, which works well as a thumbnail. Everything is drawn on your own device: scripts, uploaded backgrounds and imported BVH or ASF/AMC moves are not sent anywhere.</p>
+    <h3>Why was part of my sentence skipped?</h3>
+    <p>No move in the library matched those words. The note that appears under the script box lists what was skipped. Try a plainer verb, search the CMU library for the action, or choose a move for that row in the timeline by hand.</p>
+    <h3>Will my work still be there tomorrow?</h3>
+    <p>Yes, in the same browser. Your script, cast, timeline and look settings are saved in this browser as you work, and imported motion-capture moves are kept there too. Clearing site data or switching browsers starts you afresh.</p>
+    <h3>What resolution are the videos?</h3>
+    <p>1280 × 720 for 16:9, 720 × 1280 for 9:16 and 1080 × 1080 for 1:1, at 24 or 30 frames per second. The file is MP4 when your browser can record MP4 and WebM when it cannot; the Save button shows the format and file size before you download.</p>
   </section>
 </div>
 <script src="/stickframe/stickframe-data.js" defer></script>

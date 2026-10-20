@@ -24,7 +24,7 @@
 {"@type":"Question","name":"What data format do I need?","acceptedAnswer":{"@type":"Answer","text":"A simple table. The first column is the name, and every column after it is one step in time. Paste it in or upload a CSV exported from Excel or Google Sheets."}},
 {"@type":"Question","name":"Can I add photos to the bars?","acceptedAnswer":{"@type":"Answer","text":"Yes. Each row can have its own photo, which appears as a circular avatar at the end of that bar, and its own colour."}},
 {"@type":"Question","name":"Can I make a vertical bar chart race for Reels or Shorts?","acceptedAnswer":{"@type":"Answer","text":"Yes. Choose the 9:16 portrait size to export a vertical video sized for Instagram Reels, YouTube Shorts and TikTok. There is also 16:9 landscape and 1:1 square."}},
-{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The chart is drawn and recorded entirely in your browser, so your data and photos never leave your device."}}]}</script>
+{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The chart is drawn and recorded entirely in your browser, so your data and photos never leave your device."}},{"@type":"Question","name":"Why are my numbers landing in the wrong columns?","acceptedAnswer":{"@type":"Answer","text":"Usually because a comma-separated file contains thousands separators or text with commas inside it, which splits one cell into two. Remove the separators, or paste the table straight from Excel or Google Sheets so it arrives tab-separated."}},{"@type":"Question","name":"Can I load more rows than the chart shows?","acceptedAnswer":{"@type":"Answer","text":"Yes. Bars shown only sets how many rows are visible at once, from 4 to 14. Every row is still tracked, can climb into view when its value rises, and counts towards the running total, average and number of entries."}}]}</script>
 <link rel="stylesheet" href="/style.css">
 <style>
 .cr-wrap{max-width:1180px;margin:0 auto;padding:0 1.5rem 3rem;}
@@ -200,6 +200,36 @@ Srushti,3,100,309,509,709,940</textarea>
 
 <hr class="div">
 <section class="section">
+  <p class="eyebrow">Guide</p>
+  <h2>How to use the Bar Chart Race Maker</h2>
+  <ol style="padding-left:1.4rem;margin:1rem 0 2rem;line-height:1.7;">
+    <li>Choose a <strong>Chart type</strong> at the top of the panel. <strong>Racing bars</strong> is the classic overtaking leaderboard, <strong>Line chart</strong> traces each row's line forward as time passes, and <strong>Chess style</strong> draws smooth curves with the names stacked down the right-hand side.</li>
+    <li>Replace the example in <strong>Your data</strong> with your own table, or press <strong>Upload CSV</strong> to open a .csv, .tsv or .txt file. <strong>Sample CSV</strong> downloads a template to fill in.</li>
+    <li>Press <strong>Load data</strong> whenever you edit the text box. The line under the buttons confirms the rows, steps and video length, or a red message explains what went wrong.</li>
+    <li>In <strong>Rows, colours &amp; photos</strong>, click the colour square beside a name to recolour it, click <strong>Photo</strong> to attach an image, and use <strong>×</strong> to take the photo off again.</li>
+    <li>Under <strong>Look</strong>, add an optional title, pick the size, then set <strong>Bars shown</strong> (4 to 14) and <strong>Seconds/step</strong> (0.4 to 4 seconds per column). Switch the <strong>Big date label</strong> and <strong>Leader card</strong> to Show if you want them, and choose what the <strong>Corner stat</strong> displays.</li>
+    <li>Press <strong>Play</strong> to preview, or drag the slider under the chart to check any moment by hand.</li>
+    <li>Press <strong>Export video</strong>. The race plays once while it records, then the file downloads.</li>
+  </ol>
+
+  <h2>Tips for better results</h2>
+  <ul style="padding-left:1.4rem;margin:1rem 0 2rem;line-height:1.7;">
+    <li><strong>Leave thousands separators out of CSV files.</strong> In a comma-separated file, a value typed as 1,200 is split into two cells, shifting the rest of the row. Write 1200 instead. Tables pasted from a spreadsheet arrive tab-separated, so formatted numbers are fine there.</li>
+    <li><strong>Fill every cell.</strong> A blank or non-numeric cell is read as 0, so that bar collapses for one step and then shoots back up. For cumulative totals, repeat the previous value rather than leaving a gap.</li>
+    <li><strong>Keep names identical when you reload.</strong> Colours and photos are matched to rows by name, so you can fix a number and press Load data again without re-adding anything. Renaming a row starts it fresh.</li>
+    <li><strong>Use photos with the face in the centre.</strong> Each photo is cropped to a centred square and shown as a circle. <strong>Photo size</strong> balances the avatar against the bar.</li>
+    <li><strong>Control the length with Seconds/step.</strong> The video lasts roughly (number of steps − 1) × Seconds/step, plus a brief hold on the final frame. Thirteen columns at 1.6 seconds give about 20 seconds.</li>
+    <li><strong>Choose a corner stat that fits the story.</strong> <strong>Lead over 2nd</strong> suits a tight two-way contest, <strong>Current leader</strong> names whoever is on top and <strong>Nothing</strong> keeps the frame clean for your own captions.</li>
+    <li><strong>Chess style always shows the date and leader.</strong> In that chart type the big date label and the leader card stay on whatever the two dropdowns say; in the other types they appear only when set to Show.</li>
+  </ul>
+
+  <h2>What the exported video contains</h2>
+  <p style="margin:1rem 0;line-height:1.7;">Exports record at 30 frames per second at full resolution, whatever the preview size: 1920×1080 for 16:9, 1080×1920 for 9:16 and 1080×1080 for 1:1. The file is named after your title, or chart-race.webm when the title is empty. If an editor or platform you use does not accept WebM, convert it to MP4 first.</p>
+  <p style="margin:1rem 0;line-height:1.7;">It suits any table that changes over time: ranking videos about populations or subscriber counts, a class's quiz scores across a term, or a monthly sales leaderboard for a team meeting.</p>
+</section>
+
+<hr class="div">
+<section class="section">
   <p class="eyebrow">FAQ</p>
   <h2>Frequently asked questions</h2>
   <div class="faq-list" style="margin-top:1.5rem;">
@@ -211,6 +241,8 @@ Srushti,3,100,309,509,709,940</textarea>
     <div class="faq-item"><button class="faq-q">Is my data uploaded anywhere?<span>+</span></button><div class="faq-a">No. Everything runs in your browser, so your numbers and photos never leave your device.</div></div>
     <div class="faq-item"><button class="faq-q">Why must I keep the tab visible while exporting?<span>+</span></button><div class="faq-a">The video is recorded from the live canvas, and browsers pause animation in background tabs to save power. Leave the tab in front and the recording will be smooth.</div></div>
     <div class="faq-item"><button class="faq-q">What video format does it produce?<span>+</span></button><div class="faq-a">WebM, which plays in Chrome, Edge, Firefox and VLC, and uploads directly to YouTube, Instagram and TikTok.</div></div>
+    <div class="faq-item"><button class="faq-q">Why are my numbers landing in the wrong columns?<span>+</span></button><div class="faq-a">Usually because a comma-separated file contains thousands separators or text with commas inside it, which splits one cell into two. Remove the separators, or paste the table straight from Excel or Google Sheets so it arrives tab-separated.</div></div>
+    <div class="faq-item"><button class="faq-q">Can I load more rows than the chart shows?<span>+</span></button><div class="faq-a">Yes. Bars shown only sets how many rows are visible at once, from 4 to 14. Every row is still tracked, can climb into view when its value rises, and counts towards the running total, average and number of entries.</div></div>
   </div>
 </section>
 

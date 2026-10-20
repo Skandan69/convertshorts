@@ -5,7 +5,8 @@ seen=set()
 for slug in ['creative-studio','creative-studio-pricing','ai-image-generator','ai-video-generator','ai-music-generator','ai-workflow-builder']:
  s=(m.ROOT/(slug+'.html')).read_text();p=m.Page(s);url=m.BASE+'/'+slug
  assert p.h1==p.mains==1
- assert p.canonicals==[url] and url in m.urls
+ noindex='content="noindex' in s.split('</head>')[0]  # coming-soon pages stay out of search until launch
+ assert p.canonicals==[url] and (url in m.urls)==(not noindex)
  assert p.title==p.meta['og:title']==p.meta['twitter:title'] and p.title not in seen
  assert p.meta['description']==p.meta['og:description']==p.meta['twitter:description']
  assert p.meta['og:image'].endswith('/assets/creative/desert-arch.webp')

@@ -10,6 +10,13 @@ const cors=(req:Request)=>({'Access-Control-Allow-Origin':req.headers.get('origi
 const reply=(req:Request,value:unknown,status=200)=>Response.json(value,{status,headers:cors(req)});
 const testMode=()=>paymentKeyId().startsWith('rzp_test_');
 const hostedEnabled=()=>env('CONVERTSHORTS_HOSTED_ENABLED')==='true'&&!!env('CONVERTSHORTS_FAL_KEY')&&!testMode();
+// Soft launch: when CONVERTSHORTS_HOSTED_ALLOWLIST lists Supabase user ids (comma
+// separated), live checkout and paid generation work only for those accounts.
+// Everyone else keeps seeing "coming soon". Remove the variable to open to all.
+const allowlist=()=>env('CONVERTSHORTS_HOSTED_ALLOWLIST').split(',').map(s=>s.trim().toLowerCase()).filter(Boolean);
+const softLaunch=()=>!testMode()&&allowlist().length>0;
+const allowed=(id:unknown)=>!softLaunch()||allowlist().includes(String(id).toLowerCase());
+async function currentUser(req:Request){const authorization=req.headers.get('authorization');if(!authorization?.startsWith('Bearer '))return null;const r=await fetch(base()+'/auth/v1/user',{headers:{apikey:env('SUPABASE_ANON_KEY'),Authorization:authorization},signal:AbortSignal.timeout(10000)});return r.ok?await r.json():null;}
 const merchantConfigured=()=>!!(paymentKeySecret()&&env('CONVERTSHORTS_RAZORPAY_WEBHOOK_SECRET'))&&(/^rzp_live_\w+$/.test(paymentKeyId())||testMode()&&env('CONVERTSHORTS_BILLING_TEST_MODE')==='true');
 async function db(path:string,method='GET',body?:unknown){const r=await fetch(base()+'/rest/v1/'+path,{method,headers:{apikey:secret(),Authorization:'Bearer '+secret(),'Content-Type':'application/json',Prefer:'return=representation'},body:body?JSON.stringify(body):undefined,signal:AbortSignal.timeout(15000)});const d=await r.json();if(!r.ok){if(d.message==='Insufficient workspace credits')throw new StudioError('Not enough balance. Add a small top-up in Pricing & credits.',402);throw Error('Billing data request failed');}return d;}
 class PaymentProviderError extends StudioError {
@@ -52,6 +59,9 @@ async function confirmPayment(order:any,paymentId:string){
  // Real test payments never become spendable credits or fund live Fal jobs.
  if(order.test_mode)return {verified:true,testMode:true,credited:false};
  const applied=await db('rpc/convertshorts_apply_razorpay_payment','POST',{o:order.id,p:paymentId});
+ // null: this order was already paid by a different payment. The duplicate is
+ // recorded for the owner to refund; it never grants a second balance.
+ if(applied===null){console.error(JSON.stringify({event:'razorpay_duplicate_capture'}));return {verified:true,credited:false,duplicate:true,message:'This top-up was already paid. The extra payment will be refunded to you.'};}
  return {verified:true,credited:true,alreadyCredited:applied===false,amountInr:order.amount_paise/100};
 }
 export async function handleBilling(req:Request){try{
@@ -59,16 +69,33 @@ export async function handleBilling(req:Request){try{
  if(!['GET','POST'].includes(req.method))return reply(req,{error:'Unsupported method'},405);
  if(new URL(req.url).searchParams.get('action')==='config'){
   let fx=null;try{fx=await getExchangeRate(env);}catch{}
-  const generationEnabled=hostedEnabled()&&!!fx,paymentStatus=await paymentApiStatus(),enabled=paymentStatus==='ready'&&(testMode()||generationEnabled);
-  return reply(req,{enabled,generationEnabled,paymentApiStatus:paymentStatus,paymentProvider:'razorpay',testMode:testMode(),currency:'INR',customerCreditInr:CUSTOMER_CREDIT_INR,markupPercent:MARKUP_PERCENT,pricingVersion:PRICING_VERSION,usdInr:fx?.rate||null,fxDate:fx?.date||null,fxSource:fx?.source||null,hostedModels:MODELS.filter(supportsHostedPricing).map(m=>m.id),plans:CREDIT_PLANS.map(p=>({...p,available:enabled}))});
+  let ownerPreview=false;if(softLaunch()){try{const u=await currentUser(req);ownerPreview=!!u&&allowed(u.id);}catch{}}
+  const generationEnabled=hostedEnabled()&&!!fx&&(!softLaunch()||ownerPreview),paymentStatus=await paymentApiStatus(),enabled=paymentStatus==='ready'&&(testMode()||generationEnabled);
+  return reply(req,{enabled,generationEnabled,softLaunch:softLaunch(),ownerPreview,paymentApiStatus:paymentStatus,paymentProvider:'razorpay',testMode:testMode(),currency:'INR',customerCreditInr:CUSTOMER_CREDIT_INR,markupPercent:MARKUP_PERCENT,pricingVersion:PRICING_VERSION,usdInr:fx?.rate||null,fxDate:fx?.date||null,fxSource:fx?.source||null,hostedModels:MODELS.filter(supportsHostedPricing).map(m=>m.id),plans:CREDIT_PLANS.map(p=>({...p,available:enabled}))});
  }
  if(new URL(req.url).searchParams.get('action')==='webhook'){
   const key=env('CONVERTSHORTS_RAZORPAY_WEBHOOK_SECRET');if(!key)return reply(req,{error:'Webhook not configured'},503);
   const raw=await req.text();if(raw.length>1000000||!await verifyHmac(raw,req.headers.get('x-razorpay-signature')||'',key))return reply(req,{error:'Invalid signature'},400);
-  const event=JSON.parse(raw);
-  if(['payment.captured','order.paid'].includes(event.event)){
-   const payment=event.payload?.payment?.entity;if(!payment?.order_id||!payment?.id)throw new StudioError('Missing payment event.');
-   const order=await checkoutOrder(payment.order_id);await confirmPayment(order,payment.id);
+  const event=JSON.parse(raw),type=String(event.event||'');
+  try{
+   if(['payment.captured','order.paid'].includes(type)){
+    const payment=event.payload?.payment?.entity;if(!payment?.order_id||!payment?.id)throw new StudioError('Missing payment event.');
+    const order=await checkoutOrder(payment.order_id);await confirmPayment(order,payment.id);
+   }else if(type==='refund.processed'||type==='payment.dispute.lost'){
+    // Money went back to the customer: take the same amount of unspent balance back.
+    const entity=type==='refund.processed'?event.payload?.refund?.entity:event.payload?.dispute?.entity;
+    if(!/^(rfnd|disp)_[a-zA-Z0-9]+$/.test(entity?.id||'')||!/^pay_[a-zA-Z0-9]+$/.test(entity?.payment_id||'')||!Number.isInteger(entity?.amount)||entity.amount<=0)throw new StudioError('Missing reversal event.');
+    const result=await db('rpc/convertshorts_reverse_razorpay_payment','POST',{r:entity.id,p:entity.payment_id,amount:entity.amount,reason:type==='refund.processed'?'refund':'dispute'});
+    if(result?.shortfall>0)console.error(JSON.stringify({event:'razorpay_reversal_shortfall',type}));
+   }else if(type.startsWith('payment.dispute.')){
+    const entity=event.payload?.dispute?.entity;
+    if(/^pay_[a-zA-Z0-9]+$/.test(entity?.payment_id||''))await db('rpc/convertshorts_record_payment_alert','POST',{p:entity.payment_id,kind:type,ref:String(entity.id||'').slice(0,64)});
+   }
+  }catch(e){
+   // Orders from another site or payment mode are acknowledged so Razorpay does
+   // not keep retrying and eventually disable the webhook. Real failures retry.
+   if(e instanceof StudioError&&[400,404,409].includes(e.status)){console.error(JSON.stringify({event:'razorpay_webhook_ignored',type,status:e.status}));return reply(req,{received:true,ignored:true});}
+   throw e;
   }
   return reply(req,{received:true});
  }
@@ -76,21 +103,22 @@ export async function handleBilling(req:Request){try{
  const authorization=req.headers.get('authorization');if(!authorization?.startsWith('Bearer '))return reply(req,{error:'Sign in first'},401);const userResponse=await fetch(base()+'/auth/v1/user',{headers:{apikey:env('SUPABASE_ANON_KEY'),Authorization:authorization},signal:AbortSignal.timeout(10000)});if(!userResponse.ok)return reply(req,{error:'Sign in again'},401);const user=await userResponse.json();
  const accounts=await db('convertshorts_billing_accounts?user_id=eq.'+user.id),account=accounts[0];
  if(new URL(req.url).searchParams.get('action')==='status'){
-  const id=new URL(req.url).searchParams.get('job');if(!/^[0-9a-f-]{36}$/.test(id||''))return reply(req,{error:'Invalid job'},400);const jobs=await db('convertshorts_generation_requests?id=eq.'+id+'&user_id=eq.'+user.id),job=jobs[0];if(!job)return reply(req,{error:'Job not found'},404);if(job.status==='FAILED_REFUNDED')return reply(req,{error:'Generation failed. Workspace credits refunded.'},422);if(!job.provider)return reply(req,{error:'Submission status is uncertain. Ask the owner to review this request.'},409);
+  const id=new URL(req.url).searchParams.get('job');if(!/^[0-9a-f-]{36}$/.test(id||''))return reply(req,{error:'Invalid job'},400);const jobs=await db('convertshorts_generation_requests?id=eq.'+id+'&user_id=eq.'+user.id),job=jobs[0];if(!job)return reply(req,{error:'Job not found'},404);if(job.status==='FAILED_REFUNDED')return reply(req,{error:'Generation failed. Workspace credits refunded.'},422);
+  const refund=async(failure:string,afterCompletion=false)=>{const ok=await db('rpc/convertshorts_refund_generation','POST',{j:id})===true;if(afterCompletion)console.error(JSON.stringify({event:'refund_after_provider_completion',model:job.model}));return reply(req,{error:failure+(ok?' Workspace credits refunded.':' Ask the owner to review this request.')},422);};if(!job.provider)return reply(req,{error:'Submission status is uncertain. Ask the owner to review this request.'},409);
   const key=env('CONVERTSHORTS_FAL_KEY');for(const field of ['status_url','response_url'])validateQueueURL(job.provider[field]);const status=await fetch(job.provider.status_url,{headers:{Authorization:'Key '+key},signal:AbortSignal.timeout(30000)});if(!status.ok)return reply(req,{error:'Provider status temporarily unavailable'},502);const d=await status.json();if(d.status==='COMPLETED'){
-   const result=await fetch(job.provider.response_url,{headers:{Authorization:'Key '+key},signal:AbortSignal.timeout(30000)});if(!result.ok){if([400,422].includes(result.status)){await db('rpc/convertshorts_refund_generation','POST',{j:id});return reply(req,{error:'Generation failed. Workspace credits refunded.'},422);}return reply(req,{error:'Provider result temporarily unavailable'},502);}
-   let media;try{media=normalizeMedia(await result.json(),MODELS.find(m=>m.id===job.model)?.kind);}catch{await db('rpc/convertshorts_refund_generation','POST',{j:id});return reply(req,{error:'Generation produced no media. Workspace credits refunded.'},422);}await db('convertshorts_generation_requests?id=eq.'+id,'PATCH',{status:'COMPLETED'});return reply(req,{status:'COMPLETED',media});
-  }if(['FAILED','CANCELLED','ERROR'].includes(d.status)){await db('rpc/convertshorts_refund_generation','POST',{j:id});return reply(req,{error:'Generation failed. Workspace credits refunded.'},422);}return reply(req,{status:d.status,queuePosition:d.queue_position});
+   const result=await fetch(job.provider.response_url,{headers:{Authorization:'Key '+key},signal:AbortSignal.timeout(30000)});if(!result.ok){if([400,422].includes(result.status))return refund('Generation failed.',true);return reply(req,{error:'Provider result temporarily unavailable'},502);}
+   let media;try{media=normalizeMedia(await result.json(),MODELS.find(m=>m.id===job.model)?.kind);}catch{return refund('Generation produced no media.',true);}await db('convertshorts_generation_requests?id=eq.'+id,'PATCH',{status:'COMPLETED'});return reply(req,{status:'COMPLETED',media});
+  }if(['FAILED','CANCELLED','ERROR'].includes(d.status))return refund('Generation failed.');return reply(req,{status:d.status,queuePosition:d.queue_position});
  }
  if(req.method==='GET'){const grants=await db('convertshorts_credit_grants?user_id=eq.'+user.id+'&valid_from=lte.'+encodeURIComponent(new Date().toISOString()));const credits=grants.filter((g:any)=>!g.expires_at||Date.parse(g.expires_at)>Date.now()).reduce((n:number,g:any)=>n+g.remaining,0);return reply(req,{plan:account?.plan||'Free',credits,generationCredits:credits/100/CUSTOMER_CREDIT_INR,balanceInr:credits/100,customerCreditInr:CUSTOMER_CREDIT_INR,currency:'INR'});}
  const raw=await req.text();if(raw.length>4200000)return reply(req,{error:'Request too large'},413);const body=JSON.parse(raw);
  if(body.action==='quote'||body.action==='generate'){
-  if(!hostedEnabled())return reply(req,{error:'AI generation is coming soon. Your local editors and account are available.'},503);const generation=prepareGeneration(body.generation);let quote;try{quote=quoteCredits(generation.endpoint,generation.input,(await getExchangeRate(env)).rate);}catch(e){throw new StudioError(e instanceof Error?e.message:'This model is not priced.');}
+  if(!hostedEnabled()||!allowed(user.id))return reply(req,{error:'AI generation is coming soon. Your local editors and account are available.'},503);const generation=prepareGeneration(body.generation);let quote;try{quote=quoteCredits(generation.endpoint,generation.input,(await getExchangeRate(env)).rate);}catch(e){throw new StudioError(e instanceof Error?e.message:'This model is not priced.');}
   if(body.action==='quote')return reply(req,quote);
   if(body.expectedCredits!==quote.credits||body.pricingVersion!==quote.version)return reply(req,{error:'The generation price changed. Review the current credits and submit again.',quote:{credits:quote.credits,version:quote.version}},409);
   const id=crypto.randomUUID();await db('rpc/convertshorts_reserve_credits','POST',{u:user.id,j:id,m:generation.model.id,amount:quote.credits});
   let response;try{response=await fetch('https://queue.fal.run/'+generation.endpoint,{method:'POST',headers:{Authorization:'Key '+env('CONVERTSHORTS_FAL_KEY'),'Content-Type':'application/json'},body:JSON.stringify(generation.input),signal:AbortSignal.timeout(40000)});}catch{return reply(req,{error:'Provider submission is uncertain. Credits are reserved; ask the owner to review job '+id},502);}
-  if(!response.ok){await db('rpc/convertshorts_refund_generation','POST',{j:id});return reply(req,{error:'Provider rejected the request. Credits refunded.'},422);}const provider=await response.json();for(const key of ['status_url','response_url','cancel_url'])if(provider[key])validateQueueURL(provider[key]);await db('convertshorts_generation_requests?id=eq.'+id,'PATCH',{provider,status:provider.status||'IN_QUEUE'});return reply(req,{cloudJobID:id,requestId:provider.request_id,status:provider.status||'IN_QUEUE'},202);
+  if(!response.ok){const ok=await db('rpc/convertshorts_refund_generation','POST',{j:id})===true;return reply(req,{error:'Provider rejected the request.'+(ok?' Credits refunded.':' Ask the owner to review job '+id+'.')},422);}const provider=await response.json();for(const key of ['status_url','response_url','cancel_url'])if(provider[key])validateQueueURL(provider[key]);await db('convertshorts_generation_requests?id=eq.'+id,'PATCH',{provider,status:provider.status||'IN_QUEUE'});return reply(req,{cloudJobID:id,requestId:provider.request_id,status:provider.status||'IN_QUEUE'},202);
  }
 
  if(body.action==='verify'){
@@ -100,7 +128,7 @@ export async function handleBilling(req:Request){try{
  }
  if(body.action==='checkout'){
   const p=CREDIT_PLANS.find(p=>p.id===body.plan);if(!p)return reply(req,{error:'Unknown top-up amount'},400);
-  if(!merchantConfigured()||(!testMode()&&!hostedEnabled()))return reply(req,{error:'Payments are coming soon. No purchase has been made.'},503);
+  if(!merchantConfigured()||(!testMode()&&(!hostedEnabled()||!allowed(user.id))))return reply(req,{error:'Payments are coming soon. No purchase has been made.'},503);
   if(!testMode())await getExchangeRate(env);
   const order=await razorpay('orders',{amount:p.amountCents,currency:'INR',receipt:'cs_'+crypto.randomUUID().replaceAll('-',''),notes:{service:'convertshorts',pack:p.id,user:user.id}});
   if(!/^order_[a-zA-Z0-9]+$/.test(order.id||'')||order.amount!==p.amountCents||order.currency!=='INR')throw Error('The payment order could not be verified.');

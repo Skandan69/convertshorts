@@ -5,7 +5,7 @@ import {validRate,getExchangeRate} from '../server/billing-fx.mjs';
 const user='11111111-1111-4111-8111-111111111111',other='22222222-2222-4222-8222-222222222222';
 const values={SUPABASE_URL:'https://fixture.supabase.co',SUPABASE_ANON_KEY:'public-fixture',SUPABASE_SERVICE_ROLE_KEY:'service-fixture',CONVERTSHORTS_HOSTED_ENABLED:'true',CONVERTSHORTS_FAL_KEY:'fal-fixture',CONVERTSHORTS_RAZORPAY_KEY_ID:'rzp_live_fixture',CONVERTSHORTS_RAZORPAY_KEY_SECRET:'payment-fixture',CONVERTSHORTS_RAZORPAY_WEBHOOK_SECRET:'webhook-fixture',CONVERTSHORTS_USD_INR:'100',CONVERTSHORTS_USD_INR_DATE:new Date().toISOString().slice(0,10)};
 const original=fetch;globalThis.Deno={env:{get:k=>values[k]}};
-const orders=new Map(),applied=new Set();let granted=0,paymentStatus='captured',paymentAmount=10000,paymentOwner=null,paymentCurrency='INR',refunded=0,counter=0,providerError=null,providerReads=0;
+const orders=new Map(),applied=new Set();const reversals=[],alerts=[];let duplicateCapture=false;let granted=0,paymentStatus='captured',paymentAmount=10000,paymentOwner=null,paymentCurrency='INR',refunded=0,counter=0,providerError=null,providerReads=0;
 globalThis.fetch=async(url,options={})=>{
  const u=String(url),body=options.body?JSON.parse(options.body):null;
  if(u.endsWith('/auth/v1/user'))return Response.json({id:options.headers.Authorization==='Bearer other'?other:user,email:'fixture@example.invalid'});
@@ -16,6 +16,9 @@ globalThis.fetch=async(url,options={})=>{
    if(options.method==='POST'){orders.set(body.id,{...body});return Response.json([body]);}
    return Response.json([orders.get(new URL(u).searchParams.get('id').slice(3))].filter(Boolean));
   }
+  if(u.endsWith('rpc/convertshorts_reverse_razorpay_payment')){reversals.push(body);const debited=Math.min(granted,body.amount);granted-=debited;return Response.json({applied:true,debited,shortfall:body.amount-debited});}
+  if(u.endsWith('rpc/convertshorts_record_payment_alert')){alerts.push(body);return Response.json(true);}
+  if(u.endsWith('rpc/convertshorts_apply_razorpay_payment')&&duplicateCapture)return Response.json(null);
   if(u.endsWith('rpc/convertshorts_apply_razorpay_payment')){if(applied.has(body.o))return Response.json(false);applied.add(body.o);granted+=orders.get(body.o).amount_paise;return Response.json(true);}
   if(u.includes('convertshorts_credit_grants'))return Response.json([{remaining:granted}]);
   throw Error('Unexpected DB request '+u);
@@ -24,7 +27,7 @@ globalThis.fetch=async(url,options={})=>{
   assert.equal(options.headers.Authorization,'Basic '+btoa(values.CONVERTSHORTS_RAZORPAY_KEY_ID.trim()+':'+values.CONVERTSHORTS_RAZORPAY_KEY_SECRET.trim()));
   if(providerError)return Response.json({error:{description:providerError.description},privateData:'Do not expose payment-fixture or fixture@example.invalid'},{status:providerError.status});
   if(u.endsWith('/orders?count=1')){providerReads++;return Response.json({items:[]});}
-  if(u.endsWith('/orders')){assert.equal(body.currency,'INR');assert.ok([10000,50000,100000].includes(body.amount));assert.equal(body.notes.user,user);counter++;return Response.json({id:'order_fixture'+counter,amount:body.amount,currency:'INR'});}
+  if(u.endsWith('/orders')){assert.equal(body.currency,'INR');assert.ok([10000,50000,100000].includes(body.amount));assert.ok([user,other].includes(body.notes.user));counter++;return Response.json({id:'order_fixture'+counter,amount:body.amount,currency:'INR'});}
   const id=u.split('/').pop();return Response.json({id,order_id:paymentOwner||'order_fixture1',amount:paymentAmount,currency:paymentCurrency,status:paymentStatus,captured:paymentStatus==='captured',amount_refunded:refunded});
  }
  throw Error('Unexpected URL '+u);
@@ -51,6 +54,27 @@ try{
  assert.equal((await handleBilling(hook(event))).status,200);assert.equal(granted,10000,'Callback/webhook replay cannot grant twice');
  assert.equal((await(await handleBilling(verify())).json()).alreadyCredited,true);
  const balance=await(await handleBilling(new Request('https://fixture.supabase.co/',{headers:{Authorization:'Bearer fixture'}}))).json();assert.equal(balance.balanceInr,100);
+ // A second, different payment for a paid order is reported, never credited.
+ duplicateCapture=true;const duplicate=await(await handleBilling(verify())).json();assert.equal(duplicate.duplicate,true);assert.equal(duplicate.credited,false);assert.equal(granted,10000);duplicateCapture=false;
+ // Webhooks for unknown orders (another site, deleted test data) are acknowledged so Razorpay keeps the webhook enabled.
+ const unknown=await handleBilling(hook({event:'payment.captured',payload:{payment:{entity:{order_id:'order_elsewhere',id:'pay_elsewhere'}}}}));assert.equal(unknown.status,200);assert.equal((await unknown.json()).ignored,true);assert.equal(granted,10000);
+ // Dispute notices are recorded for the owner without changing the balance.
+ assert.equal((await handleBilling(hook({event:'payment.dispute.created',payload:{dispute:{entity:{id:'disp_fixture1',payment_id:'pay_fixture1',amount:10000}}}}))).status,200);assert.equal(alerts.length,1);assert.equal(alerts[0].kind,'payment.dispute.created');assert.equal(granted,10000);
+ // Refunds and lost disputes take the money's balance back, through the server-only ledger function.
+ assert.equal((await handleBilling(hook({event:'refund.processed',payload:{refund:{entity:{id:'rfnd_fixture1',payment_id:'pay_fixture1',amount:4000}}}},false))).status,400,'Unsigned refund events are rejected');assert.equal(granted,10000);
+ assert.equal((await handleBilling(hook({event:'refund.processed',payload:{refund:{entity:{id:'rfnd_fixture1',payment_id:'pay_fixture1',amount:4000}}}}))).status,200);assert.equal(granted,6000);assert.deepEqual(reversals.at(-1),{r:'rfnd_fixture1',p:'pay_fixture1',amount:4000,reason:'refund'});
+ assert.equal((await handleBilling(hook({event:'payment.dispute.lost',payload:{dispute:{entity:{id:'disp_fixture1',payment_id:'pay_fixture1',amount:6000}}}}))).status,200);assert.equal(granted,0);assert.equal(reversals.at(-1).reason,'dispute');
+ assert.equal((await(await handleBilling(hook({event:'refund.processed',payload:{refund:{entity:{id:'rfnd_bad',payment_id:'pay_fixture1'}}}}))).json()).ignored,true,'Malformed reversal is acknowledged, not retried');assert.equal(reversals.length,2);
+ granted=10000;
+ // Soft launch: only allowlisted accounts can buy or generate; everyone else still sees "coming soon".
+ values.CONVERTSHORTS_HOSTED_ALLOWLIST=' '+other.toUpperCase()+' ';
+ const publicConfig=await(await handleBilling(new Request('https://fixture.supabase.co/?action=config'))).json();assert.equal(publicConfig.softLaunch,true);assert.equal(publicConfig.enabled,false);assert.equal(publicConfig.generationEnabled,false);
+ const ownerConfig=await(await handleBilling(new Request('https://fixture.supabase.co/?action=config',{headers:{Authorization:'Bearer other'}}))).json();assert.equal(ownerConfig.ownerPreview,true);assert.equal(ownerConfig.enabled,true);assert.equal(ownerConfig.generationEnabled,true);
+ const strangerConfig=await(await handleBilling(new Request('https://fixture.supabase.co/?action=config',{headers:{Authorization:'Bearer fixture'}}))).json();assert.equal(strangerConfig.ownerPreview,false);assert.equal(strangerConfig.enabled,false);
+ const ordersBefore=orders.size;assert.equal((await handleBilling(req({action:'checkout',plan:'topup-100'}))).status,503);assert.equal(orders.size,ordersBefore);
+ assert.equal((await handleBilling(req({action:'quote',generation:{model:'flux-fast',prompt:'A lamp'}}))).status,503);
+ {const r=await handleBilling(req({action:'checkout',plan:'topup-100'},'other'));const b=await r.json();assert.equal(r.status,200,JSON.stringify(b));}
+ delete values.CONVERTSHORTS_HOSTED_ALLOWLIST;
  values.CONVERTSHORTS_RAZORPAY_KEY_ID='rzp_test_fixture';values.CONVERTSHORTS_BILLING_TEST_MODE='true';
  const testConfig=await(await handleBilling(new Request('https://fixture.supabase.co/?action=config'))).json();assert.equal(testConfig.enabled,true);assert.equal(testConfig.generationEnabled,false);
  const testCheckout=await(await handleBilling(req({action:'checkout',plan:'topup-100'}))).json();paymentOwner=testCheckout.orderId;
@@ -72,5 +96,5 @@ try{
  assert.throws(()=>validRate({rate:100,date:'2020-01-01'}));assert.throws(()=>validRate({rate:'NaN',date:new Date().toISOString()}));
  assert.equal((await getExchangeRate(k=>values[k])).rate,100);
  const liveFX=await getExchangeRate(()=>'',async()=>Response.json({base:'USD',quote:'INR',rate:91.25,date:new Date().toISOString().slice(0,10)}));assert.equal(liveFX.rate,91.25);
- console.log('PASS INR top-ups, server-owned order prices, capture checks, payment ownership, raw-body signatures, callback/webhook replay, balance display, isolated test mode and fresh FX validation (HTTP fixtures; no purchases).');
+ console.log('PASS INR top-ups, refund/dispute reversals, duplicate-capture alerts, unknown-order webhooks, owner-only soft launch, server-owned order prices, capture checks, payment ownership, raw-body signatures, callback/webhook replay, balance display, isolated test mode and fresh FX validation (HTTP fixtures; no purchases).');
 }finally{globalThis.fetch=original;delete globalThis.Deno;}

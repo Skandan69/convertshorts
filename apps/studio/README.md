@@ -54,6 +54,7 @@ Set these **ConvertShorts-specific** secrets in the [existing Supabase Edge Func
 | `CONVERTSHORTS_RAZORPAY_WEBHOOK_SECRET` | A dedicated secret you choose when adding the webhook. |
 | `CONVERTSHORTS_FAL_KEY` | Dedicated, funded business Fal API key. |
 | `CONVERTSHORTS_HOSTED_ENABLED` | `true` after the live merchant and provider flow is ready. |
+| `CONVERTSHORTS_HOSTED_ALLOWLIST` | Optional soft launch: comma-separated Supabase user IDs. While set (with live keys), only these accounts can buy credits and generate; everyone else still sees "coming soon". Delete it to open to all. |
 
 Generate the Razorpay ID/secret in **Dashboard → Account & Settings → API Keys**, selecting the intended Live or Test mode. Complete Razorpay account activation before live payments. Customers never enter a Fal key. A merchant API key alone cannot fund generation; the business Fal account must also be funded.
 
@@ -61,7 +62,7 @@ Razorpay webhook URL:
 
 `https://yttbbgsgjxemftjwyzdd.supabase.co/functions/v1/convertshorts-billing?action=webhook`
 
-Subscribe to `payment.captured` and `order.paid`. Configure automatic payment capture. The backend verifies HMAC over the exact raw request body, then fetches the payment from Razorpay and checks the stored order, INR amount, capture state and absence of refunds. Customer callbacks also verify `order_id|payment_id` with the API secret. Both paths use the same row-locked, idempotent SQL transaction, so replay or a callback plus webhook cannot award balance twice. The order owner comes from verified Supabase Auth and the server's stored order; client-submitted amounts and credit counts are ignored.
+Subscribe to `payment.captured`, `order.paid`, `refund.processed`, `payment.dispute.created` and `payment.dispute.lost`. Refunds and lost disputes remove up to the same amount of unspent balance (`server/launch-hardening.sql`); anything already spent is listed in `convertshorts_private.owner_review`. Webhooks for unknown orders are acknowledged so Razorpay does not disable the endpoint. Configure automatic payment capture. The backend verifies HMAC over the exact raw request body, then fetches the payment from Razorpay and checks the stored order, INR amount, capture state and absence of refunds. Customer callbacks also verify `order_id|payment_id` with the API secret. Both paths use the same row-locked, idempotent SQL transaction, so replay or a callback plus webhook cannot award balance twice. The order owner comes from verified Supabase Auth and the server's stored order; client-submitted amounts and credit counts are ignored.
 
 Checkout opens at `/payments/checkout`, outside the media editors' cross-origin isolation headers, so third-party checkout frames and payment popups can work. The payment page initializes account authentication without downloading/syncing a user's media workspace. Checkout cancellation retries the same stored order. A captured payment with an interrupted callback can be fulfilled by the signed webhook.
 

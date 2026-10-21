@@ -94,4 +94,16 @@
   <url><loc>https://convertshorts.com/apps/editors/</loc></url>
 <url><loc>https://convertshorts.com/creative-studio</loc><lastmod>2026-10-10</lastmod><changefreq>weekly</changefreq></url>
 <url><loc>https://convertshorts.com/ai-workflow-builder</loc><lastmod>2026-10-10</lastmod><changefreq>weekly</changefreq></url>
+  <url>
+    <loc>https://convertshorts.com/refund-policy</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://convertshorts.com/shipping-policy</loc>
+    <lastmod>2026-10-21</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
 </urlset>

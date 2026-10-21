@@ -31,14 +31,14 @@
 <main class="section" style="max-width:780px;">
 <h1 style="font-size:clamp(1.6rem,3vw,2.2rem);margin-bottom:1rem;">About ConvertShorts</h1>
 <div class="seo-text">
-<p>ConvertShorts is a small collection of free tools that run entirely inside your web browser.</p>
+<p>ConvertShorts is a collection of free tools that run entirely inside your web browser, plus an optional <a href="/creative-studio">Creative Studio</a> with a private cloud library and paid AI generation.</p>
 
 <h3>Why it exists</h3>
 <p>It started with a frustration. Converting a landscape video into the vertical format that Instagram Reels, YouTube Shorts and TikTok require should be simple, but nearly every free tool made it painful: sign up, upload the file, wait, then discover a watermark stamped across the result or a paywall in the way.</p>
 <p>The technology to do that work in the browser already exists. So we built it that way instead, and kept adding tools that had the same problem.</p>
 
 <h3>How it works</h3>
-<p>Every tool here runs as JavaScript and WebAssembly on your own machine. When you drop in a video, your browser does the encoding. When you convert a PDF, your browser reads and rewrites it. Nothing is transmitted to a server at any point.</p>
+<p>Every tool here runs as JavaScript and WebAssembly on your own machine. When you drop in a video, your browser does the encoding. When you convert a PDF, your browser reads and rewrites it. For the quick tools, nothing is transmitted to a server at any point.</p>
 <p>That has three consequences worth knowing. It is fast, because there is no upload or download wait. It is private, because your files never leave your device. And it is genuinely free, because we pay no bandwidth or processing costs for the work your own computer does.</p>
 
 <h3>What's here</h3>
@@ -54,16 +54,16 @@
 
 <h3>Why browser-based, and what it costs you</h3>
 <p>Running everything locally is not just a privacy decision, it changes the economics. A conversion site that uploads files pays for bandwidth in both directions and for the server time spent encoding. Those costs have to come from somewhere, which is why such sites cap your daily conversions, watermark the output, or ask you to subscribe.</p>
-<p>Because your own machine does the work here, our costs do not rise with usage. That is the reason there is no daily limit, no watermark and no paid tier. It is not generosity; the bill simply does not exist.</p>
+<p>Because your own machine does the work here, our costs do not rise with usage. That is the reason the quick tools have no daily limit, no watermark and no paid tier. It is not generosity; the bill simply does not exist. AI generation is different: every image, clip or song costs us money at the AI provider, so the Creative Studio sells it through optional prepaid credits.</p>
 <p>The trade-off is real and worth stating. Your device sets the ceiling. A long 4K video will convert more slowly on an old laptop than a new one, and a very large file can exhaust the memory a browser tab is allowed. Server-based tools do not have that problem because the server is always the same speed. We think the trade is worth it for most people, most of the time.</p>
 <h3>How the tools are built</h3>
 <p>The video converter uses FFmpeg compiled to WebAssembly, the same engine behind most video software, running inside your browser rather than on a machine we own. The PDF tools use PDF.js for reading and jsPDF for writing. The animation tools draw to an HTML canvas and record it with the browser’s own MediaRecorder. All of these are open-source libraries doing the work locally.</p>
 <h3>What we collect, briefly</h3>
-<p>Google Analytics tells us which tools people use so we know what to improve. It records page views, rough location and device type. It does not and cannot see the contents of your files, because those never reach a server. The full detail is in our <a href="/privacy">Privacy Policy</a>.</p>
+<p>Google Analytics tells us which tools people use so we know what to improve. It records page views, rough location and device type. It does not and cannot see the contents of your files. Quick-tool files never reach a server; what the Creative Studio stores for signed-in users, and what goes to the AI provider, is set out in the Privacy Policy. The full detail is in our <a href="/privacy">Privacy Policy</a>.</p>
 <h3>Who makes this</h3>
 <p>ConvertShorts is built and maintained by one person, not a company. That means fixes ship quickly when something breaks, and it also means replies to email take a few days rather than minutes. Feature requests genuinely shape what gets built next &mdash; several of the tools here exist because someone asked.</p>
 <h3>What we will not add</h3>
-<p>Two things, deliberately. We will not add an account system, because nothing here needs one. And we will not add server-side conversion for formats like PowerPoint, even though people ask, because it would mean uploading your file and that breaks the one promise every tool on this site makes.</p>
+<p>We will not add accounts, uploads or payments to the quick tools: they will keep working with nothing to sign up for. Accounts exist only for the optional Creative Studio cloud library and AI credits. And we will not add server-side conversion for formats like PowerPoint to the quick tools, even though people ask, because it would mean uploading your file and that breaks the one promise those tools make.</p>
 <h3>Get in touch</h3>
 <p>Feedback and bug reports are welcome. See the <a href="/contact">Contact page</a>.</p>
 </div>
@@ -72,7 +72,7 @@
 <footer>
   <p style="margin-bottom:6px;"><strong>ConvertShorts</strong> — Free browser-based tools</p>
   <p><a href="/" style="color:var(--muted);">Video</a> &middot; <a href="/pdf" style="color:var(--muted);">PDF &amp; Docs</a> &middot; <a href="/stickmotion" style="color:var(--muted);">Stickman Animator</a> &middot; <a href="/stickman-studio" style="color:var(--muted);">Stickman Studio</a> &middot; <a href="/canvas" style="color:var(--muted);">Infinite Canvas</a> &middot; <a href="/art-studio" style="color:var(--muted);">Art Studio</a> &middot; <a href="/stickframe" style="color:var(--muted);">Stickframe</a></p>
-  <p style="margin-top:8px;"><a href="/about" style="color:var(--muted);">About</a> &middot; <a href="/privacy" style="color:var(--muted);">Privacy Policy</a> &middot; <a href="/terms" style="color:var(--muted);">Terms</a> &middot; <a href="/contact" style="color:var(--muted);">Contact</a></p>
+  <p style="margin-top:8px;"><a href="/about" style="color:var(--muted);">About</a> &middot; <a href="/privacy" style="color:var(--muted);">Privacy Policy</a> &middot; <a href="/terms" style="color:var(--muted);">Terms</a> &middot; <a href="/refund-policy" style="color:var(--muted);">Refunds</a> &middot; <a href="/shipping-policy" style="color:var(--muted);">Delivery</a> &middot; <a href="/contact" style="color:var(--muted);">Contact</a></p>
   <p style="margin-top:10px;font-size:12px;">More from us: <a href="https://devaigames.com" rel="noopener" style="color:var(--muted);">DevAI Games</a> — free browser games, nothing to install</p>
 </footer>
 </body>

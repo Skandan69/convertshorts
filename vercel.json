@@ -175,7 +175,7 @@
       "permanent": true
     }
   ],
-  "buildCommand": "node scripts/build-creative-apps.mjs",
+  "buildCommand": "node scripts/build-legal-pages.mjs && node scripts/build-creative-apps.mjs",
   "outputDirectory": "dist",
   "functions": {
     "api/studio.mjs": {

@@ -2,7 +2,7 @@
 
 Customer credits have a fixed value: **1 generation credit = ₹1**. Fractional credits are supported. Top-ups award their full value: ₹100 → 100 credits, ₹500 → 500, ₹1,000 → 1,000. The database and legacy API accounting remain INR paise; no grant or balance data is converted.
 
-Every quoted generation uses **reviewed Fal cost × 1.20 × current USD/INR rate**, rounded up once to the final paise. A ₹200 provider cost consumes 240 generation credits (₹240), leaving 760 from 1,000. The markup is not also applied to top-ups and is not net profit.
+Every quoted generation uses **reviewed Fal cost × 1.50 × current USD/INR rate**, rounded up once to the final paise (markup raised from 20% to 50% on 2026-10-21, pricing version `2026-10-21-inr-v4-markup50`). A ₹200 provider cost consumes 300 generation credits (₹300), leaving 700 from 1,000. The markup is not also applied to top-ups and is not net profit.
 
 ## Scope and limitations
 
@@ -10,7 +10,7 @@ Official public pricing pages were fetched for all **74 Fal endpoints represente
 
 57 endpoints have reviewed unit rates; 12 need actual usage metering, two contain tentative rates, two have conflicting prices, and one displays an unverified zero rate. Unit rates, promotional figures, and image-output-only rates must never be used as an exact total without all billable inputs. The hosted allowlist remains the initial seven exact-priced endpoints. Catalog entries do not add new generation capabilities or certify real paid output.
 
-Seedance 1.5 uses tokens = height × width × FPS × duration / 1024. Its provider example of roughly $0.26 for a five-second 720p clip with audio becomes roughly $0.312 before FX. Exact charging needs verified dimensions/FPS and provider reconciliation. Tripo provider credits are a different unit from ConvertShorts customer credits. GPT image token pricing needs actual text/reasoning/reference/image tokens. MiniMax H3 text-to-video shows inconsistent promotional dates/rates and stays blocked. BiRefNet video's $0/compute-second notice is not advertised as free AI.
+Seedance 1.5 uses tokens = height × width × FPS × duration / 1024. Its provider example of roughly $0.26 for a five-second 720p clip with audio becomes roughly $0.39 at the 50% markup before FX. Exact charging needs verified dimensions/FPS and provider reconciliation. Tripo provider credits are a different unit from ConvertShorts customer credits. GPT image token pricing needs actual text/reasoning/reference/image tokens. MiniMax H3 text-to-video shows inconsistent promotional dates/rates and stays blocked. BiRefNet video's $0/compute-second notice is not advertised as free AI.
 
 The UI shows USD rates even if live FX is unavailable; it does not invent a rupee price. Daily INR unit equivalents are illustrative and rounded individually. Billing rounds complete requests once after summing the total, checks the price version and amount on the server, reserves balance atomically, and refunds confirmed failed jobs. Fal may charge some client-side failures; customer refunds then become an operating cost. Uncertain submission status requires owner reconciliation.
 

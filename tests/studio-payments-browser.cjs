@@ -26,7 +26,7 @@ const BASE=process.env.BASE_URL||'http://localhost:4173';
  const page=await context.newPage();page.on('pageerror',e=>errors.push(String(e)));
  await page.goto(BASE+'/apps/#billing');await page.getByRole('heading',{name:'Simple pay-as-you-go'}).waitFor();
  assert.equal(await page.locator('[data-checkout]').count(),3);await page.waitForFunction(()=>document.querySelectorAll('[data-checkout]:disabled').length===0);assert.ok((await page.locator('.pricing-grid').textContent()).includes('₹1,000.00'));assert.equal(await page.getByRole('button',{name:'Manage subscription'}).count(),0);
- assert.ok((await page.locator('.credit-table').textContent()).includes('$0.0144'),'Cheap song price must retain its 20% markup precision');
+ assert.ok((await page.locator('.credit-table').textContent()).includes('$0.018'),'Cheap song price must retain its 50% markup precision');
  assert.equal(orders,0);await page.locator('[data-checkout="topup-100"]').click();await page.waitForURL('**/payments/checkout?pack=topup-100');
  await page.getByRole('heading',{name:'Add ₹100.00'}).waitFor();assert.equal(await page.evaluate(()=>crossOriginIsolated),false,'Razorpay checkout must run outside the isolated media editor');
  await page.getByRole('button',{name:'Pay with Razorpay'}).click();await page.getByRole('status').filter({hasText:'Payment verified. ₹100.00'}).waitFor();assert.equal(orders,1);assert.equal(verifications,1);assert.equal(providerRequests,0);

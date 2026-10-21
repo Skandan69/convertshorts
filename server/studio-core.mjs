@@ -25,7 +25,10 @@ function imageInput(value){
 }
 export function prepareGeneration(body){
   const model=MODELS.find(m=>m.id===body.model);if(!model)throw new StudioError('This model is not supported.');
-  if(model.adapter==='schema'){const input=validateSchema(body.input,model.schema,'input');return {model,endpoint:model.endpoint,input};}
+  if(model.adapter==='schema'){const input=validateSchema(body.input,model.schema,'input');
+    // Generation runs on the business provider account: never let a request switch off a provider safety filter.
+    if(input&&model.schema?.properties?.enable_safety_checker)input.enable_safety_checker=true;
+    return {model,endpoint:model.endpoint,input};}
   const prompt=typeof body.prompt==='string'?body.prompt.trim():'';
   if(prompt.length>10000)throw new StudioError('Keep the prompt under 10,000 characters.');
   if(!prompt&&!['object','world','background'].includes(model.kind))throw new StudioError('Describe what you want to create.');
@@ -33,7 +36,7 @@ export function prepareGeneration(body){
   const input={};let endpoint=model.endpoint;
   if(model.kind==='image'||model.kind==='edit'){
     input.prompt=prompt;input.num_images=integer(body.count,1,4,1);
-    if(model.id.startsWith('nano')){input.aspect_ratio=ratio;input.resolution=['1K','2K','4K'].includes(body.resolution)?body.resolution:'1K';input.output_format='png';
+    if(model.id.startsWith('nano')){input.aspect_ratio=ratio;input.resolution=['0.5K','1K','2K','4K'].includes(body.resolution)?body.resolution:'1K';input.output_format='png';
       if(body.reference||model.kind==='edit'){endpoint='fal-ai/nano-banana-2/edit';input.image_urls=(body.references?.length?body.references:[body.reference]).slice(0,6).map(imageInput);}
     }else{input.image_size={'1:1':'square_hd','16:9':'landscape_16_9','9:16':'portrait_16_9','3:2':'landscape_4_3','2:3':'portrait_4_3','4:3':'landscape_4_3','3:4':'portrait_4_3'}[ratio];input.output_format='png';}
     if(body.seed!==undefined&&body.seed!=='')input.seed=integer(body.seed,0,2147483647,0);

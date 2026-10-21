@@ -63,7 +63,10 @@ begin
   end if;
   return false;
  end if;
- if payment_order.user_id is null then raise exception 'Order owner no longer exists';end if;
+ if payment_order.user_id is null then
+  insert into convertshorts_private.payment_alerts(order_id,payment_id,kind) values(o,p,'payment_for_deleted_account');
+  return null;
+ end if;
  perform public.convertshorts_apply_billing_event('razorpay:'||p,payment_order.user_id,null,'Prepaid',null,payment_order.amount_paise,'pack',now(),1);
  update public.convertshorts_checkout_orders set payment_id=p,paid_at=now() where id=o;
  return true;
@@ -76,7 +79,7 @@ grant execute on function public.convertshorts_apply_razorpay_payment(text,text)
 --    Whatever was already spent is recorded as a shortfall for the owner.
 --    Idempotent per refund/dispute id; total reversals never exceed the order.
 create or replace function public.convertshorts_reverse_razorpay_payment(r text,p text,amount integer,reason text) returns jsonb language plpgsql security definer set search_path='' as $$
-declare o public.convertshorts_checkout_orders;g public.convertshorts_credit_grants;need integer;take integer;debited integer:=0;cap integer;
+declare o public.convertshorts_checkout_orders;g public.convertshorts_credit_grants;res record;a jsonb;kept jsonb;need integer;take integer;debited integer:=0;held integer:=0;cap integer;owed integer;
 begin
  if coalesce((select auth.role()),'')<>'service_role' then raise exception 'Server access required' using errcode='42501';end if;
  if r !~ '^(rfnd|disp)_[a-zA-Z0-9]+$' or p !~ '^pay_[a-zA-Z0-9]+$' or amount is null or amount<=0 or reason not in ('refund','dispute') then raise exception 'Invalid reversal';end if;
@@ -88,20 +91,38 @@ begin
   return jsonb_build_object('applied',false,'unknown',true);
  end if;
  cap:=greatest(0,o.amount_paise-o.reversed_paise);
- need:=least(amount,cap);
+ owed:=least(amount,cap);need:=owed;
  if o.user_id is not null then
+  -- Lock this user's grants in the same order as convertshorts_reserve_credits to avoid deadlocks.
+  perform 1 from public.convertshorts_credit_grants where user_id=o.user_id order by expires_at nulls last,id for update;
+  -- 1) Unspent balance, starting with the refunded purchase.
   for g in select * from public.convertshorts_credit_grants where user_id=o.user_id and remaining>0
-           order by (id='razorpay:'||p||':0') desc,expires_at nulls last,id for update loop
+           order by (id='razorpay:'||p||':0') desc,expires_at nulls last,id loop
    exit when need<=0;
    take:=least(need,g.remaining);
    update public.convertshorts_credit_grants set remaining=remaining-take where id=g.id;
    debited:=debited+take;need:=need-take;
   end loop;
+  -- 2) Credits held by jobs that have not finished: shrink what a later failure refund
+  --    or owner release would give back, so a pending job cannot be used to keep them.
+  if need>0 then
+   for res in select c.* from convertshorts_private.credit_reservations c join public.convertshorts_generation_requests q on q.id=c.job_id
+              where q.user_id=o.user_id and not c.refunded and q.status not in ('COMPLETED','FAILED_REFUNDED') order by q.created_at for update of c loop
+    exit when need<=0;
+    kept:='[]';
+    for a in select * from jsonb_array_elements(res.allocations) loop
+     take:=least(need,(a->>'amount')::integer);
+     need:=need-take;held:=held+take;
+     if (a->>'amount')::integer-take>0 then kept:=kept||jsonb_build_object('id',a->>'id','amount',(a->>'amount')::integer-take);end if;
+    end loop;
+    update convertshorts_private.credit_reservations set allocations=kept where job_id=res.job_id;
+   end loop;
+  end if;
  end if;
  insert into convertshorts_private.payment_reversals(id,order_id,payment_id,reason,amount_paise,debited_paise,shortfall_paise)
-  values(r,o.id,p,reason,amount,debited,greatest(0,least(amount,cap)-debited));
- update public.convertshorts_checkout_orders set reversed_paise=reversed_paise+least(amount,cap) where id=o.id;
- return jsonb_build_object('applied',true,'debited',debited,'shortfall',greatest(0,least(amount,cap)-debited));
+  values(r,o.id,p,reason,amount,debited+held,greatest(0,need));
+ update public.convertshorts_checkout_orders set reversed_paise=reversed_paise+owed where id=o.id;
+ return jsonb_build_object('applied',true,'debited',debited,'heldBack',held,'shortfall',greatest(0,need));
 end $$;
 revoke all on function public.convertshorts_reverse_razorpay_payment(text,text,integer,text) from public,anon,authenticated;
 grant execute on function public.convertshorts_reverse_razorpay_payment(text,text,integer,text) to service_role;
@@ -128,6 +149,10 @@ create or replace view convertshorts_private.owner_review as
  union all
  select 'payment_alert',coalesce(order_id,'')||' '||payment_id,kind||coalesce(' '||ref,''),null,created_at
    from convertshorts_private.payment_alerts where resolved_at is null
+ union all
+ select 'unchecked_generation',id::text,model||' '||status,credits,created_at
+   from public.convertshorts_generation_requests
+  where provider is not null and status not in ('COMPLETED','FAILED_REFUNDED') and created_at<now()-interval '1 day'
  union all
  select 'reversal_shortfall',order_id||' '||payment_id,reason||' '||id,shortfall_paise,created_at
    from convertshorts_private.payment_reversals where shortfall_paise>0;

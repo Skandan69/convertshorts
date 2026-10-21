@@ -89,7 +89,7 @@ ${seller}
 <li>Credits are sold as one-time top-ups of ${packs}. 1 credit = ₹1. There is no subscription and nothing renews automatically.</li>
 <li>Each AI generation uses credits. The exact price is shown before you submit and depends on the model, resolution, duration and number of outputs. Prices are the AI provider's published cost plus our ${MARKUP_LABEL} service margin, converted from US dollars at a daily reference rate. Current rates are on the <a href="/creative-studio-pricing">pricing page</a>.</li>
 <li>Credits do not expire while your account exists. They have no cash value, cannot be transferred to another account and cannot be exchanged except as set out in the <a href="/refund-policy">Refund &amp; Cancellation Policy</a>.</li>
-<li>If a generation fails on the provider's side, the credits reserved for it are returned to your balance automatically.</li>
+<li>If a generation fails on the provider's side, the credits reserved for it are returned to your balance when the studio checks the job, which it does while you have the studio open. If a job is still unresolved after a day, we review it and return the credits if it did not complete.</li>
 <li>If a payment is refunded or reversed (for example a chargeback), the same amount of unused credits is removed from your balance.</li>
 <li>Prices for future generations can change when provider prices or exchange rates change. Credits you already hold keep their ₹1 value.</li>
 </ul>
@@ -126,7 +126,7 @@ ${seller}
 
 <h3>What we collect</h3>
 <ul>
-<li><strong>Account:</strong> your email address and a securely hashed password (handled by Supabase Auth), plus sign-in timestamps.</li>
+<li><strong>Account:</strong> your email address and either a securely hashed password or, if you sign in with Google, your Google account's basic profile (name, email and picture), handled by Supabase Auth, plus sign-in timestamps.</li>
 <li><strong>Cloud library:</strong> files, projects and settings you choose to save, with their names and sizes.</li>
 <li><strong>AI generation:</strong> your prompts, settings, and any reference images or audio you attach, the resulting media, and a record of each request (model, status, credits used, time).</li>
 <li><strong>Payments:</strong> order and payment identifiers, amounts, dates and status. Card, UPI and bank details are entered on Razorpay's checkout and are never received or stored by us.</li>
@@ -150,7 +150,7 @@ ${seller}
 <h3>How long we keep it</h3>
 <ul>
 <li>Cloud files and synced projects: deleted automatically 30 days after first save.</li>
-<li>Generated media held for you in the studio: under the same 30-day library rule. Providers may keep request data for a short period under their own policies.</li>
+<li>Generated media: copies you save to the library follow the same 30-day rule. The original result file is hosted by fal.ai at a hard-to-guess web link that anyone holding the link can open, and fal.ai keeps it, and the request data, under its own retention policy.</li>
 <li>Account data: until you delete your account or ask us to.</li>
 <li>Payment and credit records: kept for up to 8 years for tax and accounting law, even after an account is deleted (without your login details).</li>
 </ul>
@@ -179,7 +179,7 @@ ${seller}
 <p>There are no subscriptions. Each top-up is a single payment and nothing renews automatically, so there is nothing to cancel. You can stop using the service at any time.</p>
 
 <h3>Failed generations</h3>
-<p>If an AI generation fails on the provider's side, the credits reserved for it are returned to your balance automatically. If a request stays "uncertain" (for example the provider timed out), email us with the job number shown in the studio; we check the provider's records and return the credits if it did not run.</p>
+<p>If an AI generation fails on the provider's side, the credits reserved for it are returned to your balance when the studio checks the job (it does this while the studio is open); unresolved jobs are reviewed by us after a day. If a request stays "uncertain" (for example the provider timed out), email us with the job number shown in the studio; we check the provider's records and return the credits if it did not run.</p>
 
 <h3>Unused top-ups</h3>
 <p>You can request a full refund of a top-up within 7 days of purchase if none of its credits have been used. After that, or once credits from it have been used, top-ups are not refundable, except where the law requires otherwise or under the cases below.</p>

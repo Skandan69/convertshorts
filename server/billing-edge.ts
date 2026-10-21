@@ -61,7 +61,7 @@ async function confirmPayment(order:any,paymentId:string){
  const applied=await db('rpc/convertshorts_apply_razorpay_payment','POST',{o:order.id,p:paymentId});
  // null: this order was already paid by a different payment. The duplicate is
  // recorded for the owner to refund; it never grants a second balance.
- if(applied===null){console.error(JSON.stringify({event:'razorpay_duplicate_capture'}));return {verified:true,credited:false,duplicate:true,message:'This top-up was already paid. The extra payment will be refunded to you.'};}
+ if(applied===null){console.error(JSON.stringify({event:'razorpay_payment_needs_owner_review'}));return {verified:true,credited:false,duplicate:true,message:'This top-up was already paid. The extra payment will be refunded to you.'};}
  return {verified:true,credited:true,alreadyCredited:applied===false,amountInr:order.amount_paise/100};
 }
 export async function handleBilling(req:Request){try{

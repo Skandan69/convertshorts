@@ -35,7 +35,7 @@ jobs:
       - run: node tests/studio-retention.mjs
       - run: node tests/studio-auth.mjs
       - run: python3 tests/seo-studio.py
-      - run: python3 tests/legal-pages.py
+      - run: python3 tests/legal-pages.py --launch
       - name: Install browser test runtime
         run: |
           npm install --prefix tests --no-save --package-lock=false --ignore-scripts playwright@1.62.1

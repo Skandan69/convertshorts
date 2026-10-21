@@ -35,7 +35,7 @@ if 'We will not add an account system' in about: problems.append('about: still s
 if problems:
     print('FAIL legal pages:\n  ' + '\n  '.join(problems)); sys.exit(1)
 if pending:
-    msg = 'business details still placeholders in: ' + ', '.join(pending) + ' (edit BUSINESS in scripts/build-legal-pages.mjs and the Contact page)'
+    msg = 'business details still placeholders in: ' + ', '.join(pending) + ' (fill in business-details.json, then run node scripts/build-legal-pages.mjs)'
     if launch: print('FAIL ' + msg); sys.exit(1)
     print('WARN ' + msg)
 print('PASS legal pages: terms, privacy, refunds, delivery and contact are present, linked from checkout, in the sitemap and match current pricing')

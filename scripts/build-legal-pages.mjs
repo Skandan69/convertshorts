@@ -1,5 +1,5 @@
 // Builds the Terms, Privacy, Refund & Cancellation and Shipping & Delivery pages.
-// Business details live here once. Fill in every BUSINESS value before paid launch:
+// Business details live in business-details.json. Fill in every value before paid launch:
 // Razorpay and the Consumer Protection (E-Commerce) Rules 2020 expect the seller's
 // name, address and contact details, and a grievance officer, on the website.
 import fs from 'node:fs/promises';
@@ -7,18 +7,11 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {CREDIT_PLANS,MARKUP_LABEL} from '../apps/studio/pricing.js';
 
-export const BUSINESS = {
-  seller: '[Seller legal name]',            // individual's legal name or registered business name
-  address: '[Postal address with PIN code]',
-  phone: '[Support phone number]',
-  email: 'skandan.kovuri@gmail.com',
-  grievanceOfficer: '[Grievance officer name]',
-  courts: 'Hyderabad, Telangana',
-  updated: '2026-10-21'
-};
+// Business details are edited in business-details.json at the repository root.
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+export const BUSINESS = JSON.parse(await fs.readFile(path.join(root,'business-details.json'),'utf8'));
 export const PLACEHOLDER = /\[(Seller legal name|Postal address with PIN code|Support phone number|Grievance officer name)\]/;
 
-const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const B=Object.fromEntries(Object.entries(BUSINESS).map(([k,v])=>[k,esc(v)]));
 const mail=`<a href="mailto:${B.email}">${B.email}</a>`;
@@ -88,7 +81,7 @@ ${seller}
 <ul>
 <li>Credits are sold as one-time top-ups of ${packs}. 1 credit = ₹1. There is no subscription and nothing renews automatically.</li>
 <li>Each AI generation uses credits. The exact price is shown before you submit and depends on the model, resolution, duration and number of outputs. Prices are the AI provider's published cost plus our ${MARKUP_LABEL} service margin, converted from US dollars at a daily reference rate. Current rates are on the <a href="/creative-studio-pricing">pricing page</a>.</li>
-<li>Credits do not expire while your account exists. They have no cash value, cannot be transferred to another account and cannot be exchanged except as set out in the <a href="/refund-policy">Refund &amp; Cancellation Policy</a>.</li>
+<li>Credits do not expire while your account exists. They are non-refundable, have no cash value and cannot be transferred to another account, except for the payment errors set out in the <a href="/refund-policy">Refund &amp; Cancellation Policy</a>.</li>
 <li>If a generation fails on the provider's side, the credits reserved for it are returned to your balance when the studio checks the job, which it does while you have the studio open. If a job is still unresolved after a day, we review it and return the credits if it did not complete.</li>
 <li>If a payment is refunded or reversed (for example a chargeback), the same amount of unused credits is removed from your balance.</li>
 <li>Prices for future generations can change when provider prices or exchange rates change. Credits you already hold keep their ₹1 value.</li>
@@ -173,6 +166,7 @@ ${seller}
 
 const refunds=shell('refund-policy','Refund & Cancellation Policy','How refunds and cancellations work for ConvertShorts prepaid AI credit top-ups, failed generations and duplicate payments.','Refund &amp; Cancellation Policy',`
 <p>This policy covers prepaid AI credit top-ups (${packs}) bought on convertshorts.com. The free tools and editors cost nothing, so there is nothing to refund for them.</p>
+<p><strong>All top-ups are final. We do not offer refunds for change of mind, unused credits or credits already spent.</strong> Please choose your top-up amount carefully; prices for each generation are shown before you submit it. The only exceptions are the payment errors listed below.</p>
 ${seller}
 
 <h3>Cancellation</h3>
@@ -181,17 +175,14 @@ ${seller}
 <h3>Failed generations</h3>
 <p>If an AI generation fails on the provider's side, the credits reserved for it are returned to your balance when the studio checks the job (it does this while the studio is open); unresolved jobs are reviewed by us after a day. If a request stays "uncertain" (for example the provider timed out), email us with the job number shown in the studio; we check the provider's records and return the credits if it did not run.</p>
 
-<h3>Unused top-ups</h3>
-<p>You can request a full refund of a top-up within 7 days of purchase if none of its credits have been used. After that, or once credits from it have been used, top-ups are not refundable, except where the law requires otherwise or under the cases below.</p>
-
-<h3>Payment problems</h3>
+<h3>Payment errors we always fix</h3>
 <ul>
 <li><strong>Charged twice:</strong> if you were charged more than once for the same top-up, the extra payment is refunded in full.</li>
 <li><strong>Paid but no credits:</strong> if your payment succeeded but credits did not appear within 1 hour, contact us. We either add the credits or refund the payment.</li>
-<li><strong>Service fault:</strong> if a fault on our side stops you using credits you bought, we refund the unused amount.</li>
+<li><strong>Service fault:</strong> if a fault on our side stops you using credits you bought and we cannot fix it, we refund the unused amount.</li>
 </ul>
 
-<h3>How to request a refund</h3>
+<h3>How to report a payment error</h3>
 <p>Email ${mail} from the address on your account with the Razorpay payment ID (starting <code>pay_</code>) or order ID, the date and the amount. We reply within 2 working days.</p>
 
 <h3>How refunds are paid</h3>
@@ -218,6 +209,16 @@ ${seller}
 <p>${B.seller}, ${B.address}. Phone ${B.phone}. Email ${mail}.</p>
 `);
 
+const contactPath=path.join(root,'contact.html');
+let contact=await fs.readFile(contactPath,'utf8');
+const contactBlock=`<!-- business:start -->
+<h3>Business details</h3>
+<p>ConvertShorts is operated by <strong>${B.seller}</strong>, ${B.address}, India.<br>Phone: ${B.phone} · Email: ${mail}<br>Grievance officer: ${B.grievanceOfficer}, at the same email and phone. We acknowledge complaints within 48 hours and aim to resolve them within one month.</p>
+<p>For payments and AI credits, see the <a href="/refund-policy">Refund &amp; Cancellation Policy</a>, <a href="/shipping-policy">Delivery Policy</a> and <a href="/terms">Terms</a>. Include your Razorpay payment ID (starting <code>pay_</code>) when writing about a payment.</p>
+<!-- business:end -->`;
+if(!/<!-- business:start -->[\s\S]*?<!-- business:end -->/.test(contact))throw Error('contact.html is missing its business:start/end markers');
+contact=contact.replace(/<!-- business:start -->[\s\S]*?<!-- business:end -->/,contactBlock);
+await fs.writeFile(contactPath,contact);
 for(const [file,html] of [['terms.html',terms],['privacy.html',privacy],['refund-policy.html',refunds],['shipping-policy.html',delivery]])await fs.writeFile(path.join(root,file),html);
 const pending=Object.values(BUSINESS).some(v=>PLACEHOLDER.test(v));
-console.log('Built Terms, Privacy, Refund & Cancellation and Delivery pages.'+(pending?' WARNING: business details are still placeholders; fill BUSINESS in scripts/build-legal-pages.mjs before paid launch.':''));
+console.log('Built Terms, Privacy, Refund & Cancellation and Delivery pages.'+(pending?' WARNING: business details are still placeholders; fill in business-details.json before paid launch.':''));

@@ -3,7 +3,7 @@
 Do these in order. Steps 1–4 are safe on the live site: generation stays switched off on the server until step 7.
 
 ## 1. Business details (blocks merge)
-Fill `BUSINESS` at the top of `scripts/build-legal-pages.mjs` (seller legal name, postal address with PIN, support phone, grievance officer) and the same four placeholders in `contact.html`. Then:
+Fill in `business-details.json` at the repository root (seller legal name, postal address with PIN, support phone, grievance officer). It can be edited directly on GitHub: every deploy and CI run rebuilds Terms, Privacy, Refunds, Delivery and Contact from it. Locally:
 
 ```
 node scripts/build-legal-pages.mjs

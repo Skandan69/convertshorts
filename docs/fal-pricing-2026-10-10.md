@@ -2,7 +2,7 @@
 
 Customer credits have a fixed value: **1 generation credit = ₹1**. Fractional credits are supported. Top-ups award their full value: ₹100 → 100 credits, ₹500 → 500, ₹1,000 → 1,000. The database and legacy API accounting remain INR paise; no grant or balance data is converted.
 
-Every quoted generation uses **reviewed Fal cost × 1.20 × current USD/INR rate**, rounded up once to the final paise. A ₹200 provider cost consumes 240 generation credits (₹240), leaving 760 from 1,000. The markup is not also applied to top-ups and is not net profit.
+Every quoted generation uses **reviewed Fal cost × 1.50 × current USD/INR rate**, rounded up once to the final paise (markup raised from 20% to 50% on 2026-10-21, pricing version `2026-10-21-inr-v4-markup50`). A ₹200 provider cost consumes 300 generation credits (₹300), leaving 700 from 1,000. The markup is not also applied to top-ups and is not net profit.
 
 ## Scope and limitations
 

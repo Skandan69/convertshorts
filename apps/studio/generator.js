@@ -1,7 +1,7 @@
 import {icon,escape as esc} from './icons.js';
 import {scopedStorage,uid,referenceData} from './storage.js';
 import {uploadReference} from './cloud.js';
-import {quoteDraft,formatINR,formatCredits} from './pricing.js';
+import {quoteDraft,formatINR,formatCredits,MARKUP_LABEL} from './pricing.js';
 import {schemaShape as shape,audioCapabilities,musicStyle} from './generation-controls.js';
 const label=k=>({lyrics:'Lyrics',lyrics_prompt:'Lyrics',duration:'Duration (seconds)',duration_seconds:'Duration (seconds)',seconds_total:'Duration (seconds)',generate_audio:'Include generated audio',voice:'Voice'}[k]||k.replaceAll('_',' ').replace(/\b\w/g,c=>c.toUpperCase()));
 const audioName=m=>m.id==='stable-audio'?'Stable Audio 2.5 · instrumentals / sounds':m.endpoint==='fal-ai/ace-step'?'ACE-Step · songs / instrumentals':m.endpoint==='fal-ai/minimax-music/v2'?'MiniMax Music · songs with lyrics':m.name;
@@ -65,7 +65,7 @@ export async function mountGenerator(view,{kind,models,ready,modeForModel=()=> '
   el('generation-access-details').textContent=payments.testMode&&payments.enabled?'Try a test payment. AI generation is still coming soon; test payments do not add real credits.':mode==='planned'?'This capability is not included in the initial AI launch. Explore our free editors today.':mode==='comingsoon'?'Paid generation will open after backend testing. No purchase is needed to use the free creative editors.':'Add a balance from ₹100. Each generation uses the shown price; no subscription or provider API key is required.';
   el('generation-credits').textContent=payments.testMode&&payments.enabled?'Try test checkout':payments.enabled?'Add credits':'View plans & credits';
  let text=mode==='planned'?'This capability is planned and is not included in the initial AI launch. Preview its controls or use our free local editors. ':mode==='comingsoon'?'AI generation is coming soon. Create an account and explore the editors while we complete backend testing. ':mode==='signin'?'Sign in to generate using your prepaid balance. ':'Your prepaid balance pays for this generation. ';let suffix='',invalid=false;
-  if(mode==='hosted'||mode==='signin')try{const q=quoteDraft(m,{...state(),reference:refs[0]},pricingRate());if(!q.credits)throw Error('A current INR price is unavailable.');text=formatINR(q.retailInr)+' · '+formatCredits(q.retailInr)+' for this request · cost + 20%. '+(mode==='signin'?'Sign in to use your prepaid balance. ':'');suffix=' · '+formatINR(q.retailInr);}catch(e){text=e.message+' ';invalid=true;}
+  if(mode==='hosted'||mode==='signin')try{const q=quoteDraft(m,{...state(),reference:refs[0]},pricingRate());if(!q.credits)throw Error('A current INR price is unavailable.');text=formatINR(q.retailInr)+' · '+formatCredits(q.retailInr)+' for this request · cost + '+MARKUP_LABEL+'. '+(mode==='signin'?'Sign in to use your prepaid balance. ':'');suffix=' · '+formatINR(q.retailInr);}catch(e){text=e.message+' ';invalid=true;}
   el('model-hint').innerHTML=esc(text)+(mode==='signin'?'<a href="#account">Sign in</a> · ':'')+'<a href="#billing">Plans & pricing</a> · <a href="#guide">How it works</a>';
   const b=el('generate');b.disabled=['planned','comingsoon'].includes(mode)||invalid;b.innerHTML=icon('background',16)+(mode==='planned'?'Planned':mode==='comingsoon'?'Coming soon':' Generate'+suffix);
  }

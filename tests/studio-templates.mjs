@@ -32,6 +32,7 @@ for (const t of TEMPLATES) {
   if (t.settings.ratio) assert.ok(ratios.includes(t.settings.ratio), `${t.id}: ratio ${t.settings.ratio} not offered by ${t.model}`);
   if (t.settings.duration) assert.ok(model.kind === 'video' && [5, 10].includes(t.settings.duration), `${t.id}: duration`);
   if (t.category === 'remix') assert.equal(t.hosted, false, `${t.id}: remix models are planned, not hosted`);
+  if (t.preview) for (const w of [384, 768]) assert.ok(fs.existsSync(new URL(`..${t.preview}-${w}.webp`, import.meta.url)), `${t.id}: missing ${t.preview}-${w}.webp`);
   assert.equal(templateById(t.id), t);
   assert.equal(templateLink(t), `/apps/#${t.route}?template=${t.id}`);
   const draft = templateDraft(t);

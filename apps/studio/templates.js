@@ -7,9 +7,11 @@
 // `hosted: true` only for models in the hosted pricing allowlist
 // (PRICE_SOURCES in pricing.js); tests/studio-templates.mjs enforces this.
 //
-// `preview` is optional: add '/assets/explore/<id>.webp' (or .mp4) once a real
-// sample has been generated with the studio. Until then the card shows a
-// designed poster, never a fake "output".
+// `preview` is the base path of the card image: /assets/explore/<id>-768.webp
+// and -384.webp. The current set are example images made in Google Flow
+// (Nano Banana 2.1, 4:3) to illustrate each template's idea; they are not
+// outputs of the studio models. A template without a preview shows a designed
+// poster instead.
 
 export const TEMPLATE_CATEGORIES = [
   {id: 'video', label: 'Video'},
@@ -238,6 +240,9 @@ export const TEMPLATES = [
     colors: ['#ff9f6b', '#2b1b33']
   }
 ];
+
+// Every current template has a Flow example image (see the note above).
+for (const t of TEMPLATES) t.preview = `/assets/explore/${t.id}`;
 
 export const templateById = id => TEMPLATES.find(t => t.id === id) || null;
 

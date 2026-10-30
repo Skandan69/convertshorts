@@ -54,3 +54,4 @@
 .tpl-play{position:absolute;left:50%;top:50%;z-index:1;transform:translate(-50%,-50%);width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:#0f0f14a6;border:1px solid #ffffff4d;color:#fffdf8;font-size:15px;backdrop-filter:blur(3px);opacity:.85;transition:opacity .25s}
 .tpl:hover .tpl-play{opacity:1}
 @media(prefers-reduced-motion:reduce){.tpl-poster img{transition:none}.tpl:hover .tpl-poster img{transform:none}}
+.teaser-more{text-align:center;margin-top:24px}

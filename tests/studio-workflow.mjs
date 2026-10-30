@@ -6,12 +6,12 @@ const cinema=makeWorkflow('cinematic',id),gens=cinema.nodes.filter(n=>['image','
 assert.deepEqual(workflowWaves(cinema),[[image.id],[video.id]]);
 validateReady(cinema,[]);
 const quote=estimateWorkflow(cinema,100);
-assert.equal(quote.credits,5160);assert.equal(quote.retailInr,51.6);
+assert.equal(quote.credits,6450);assert.equal(quote.retailInr,64.5);
 assert.equal(quote.steps[1].body.reference,'https://workflow.invalid/reference.jpg');
 video.duration=10;video.audio=true;
-assert.equal(estimateWorkflow(cinema,100).retailInr,177.6);
+assert.equal(estimateWorkflow(cinema,100).retailInr,222);
 const realistic=estimateWorkflow(makeWorkflow('cinematic',id),96.64);
-assert.equal(realistic.retailInr,49.87,'Sum separately rounded server reservations');
+assert.equal(realistic.retailInr,62.34,'Sum separately rounded server reservations');
 assert.equal(estimateWorkflow(cinema,null).credits,null);
 const storyboard=makeWorkflow('storyboard',id);
 assert.deepEqual(workflowWaves(storyboard).map(w=>w.length),[3,3]);

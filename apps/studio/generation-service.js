@@ -1,12 +1,11 @@
 import {scopedStorage,currentNamespace,uid} from './storage.js';
-import {cloudRequest,cloudState} from './cloud.js';
-import {getBillingConfig} from './config.js';
+import {cloudRequest,cloudState,getStudioBillingConfig} from './cloud.js';
 import {quoteDraft,supportsHostedPricing} from './pricing.js';
 
 const polling=new Map();
 const notice=()=>window.dispatchEvent(new Event('studio-generation-changed'));
 export async function submitHostedGeneration(body,model,{expected,metadata={},guard=()=>true}={}){
- const store=scopedStorage(),config=await getBillingConfig();
+ const store=scopedStorage(),config=await getStudioBillingConfig();
  const check=()=>{store.check();if(!guard())throw Error('Workflow paused before submission.');if(!cloudState().user)throw Error('Sign in to generate.');};
  let price;
  try{

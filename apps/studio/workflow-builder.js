@@ -1,7 +1,7 @@
 import {icon,escape as esc} from './icons.js';
 import {scopedStorage,currentNamespace,uid,referenceData,downloadAsset} from './storage.js';
-import {cloudState,cloudRequest,uploadReference} from './cloud.js';
-import {getBillingConfig,unavailableBilling} from './config.js';
+import {cloudState,cloudRequest,uploadReference,getStudioBillingConfig} from './cloud.js';
+import {unavailableBilling} from './config.js';
 import {formatINR,formatCredits,formatUSD} from './pricing.js';
 import {submitHostedGeneration,pollHostedJob} from './generation-service.js';
 import {WORKFLOW_MODELS,WORKFLOW_TEMPLATES,NODE_TYPES,generationNode,workflowModel,normalizeWorkflow,validateGraph,validateReady,estimateWorkflow,connectedNode,nodePrompt,workflowBody,buildPrompt,makeWorkflow,executeWorkflow} from './workflow-core.js';
@@ -226,10 +226,10 @@ export async function mountWorkflowBuilder(view,{toast,assetURL,isActive=()=>tru
  view.addEventListener('pointerdown',e=>{const port=e.target.closest('[data-wf-output]');if(port&&!busy)connectFrom=port.dataset.wfOutput;},{signal:events.signal});
  window.addEventListener('pointermove',move,{signal:events.signal});window.addEventListener('pointerup',up,{signal:events.signal});
  window.addEventListener('keydown',e=>{if(e.key==='Escape'){connectFrom='';drag=null;drawWires();const tip=el('wf-canvas-tip');if(tip)tip.textContent='Drag a step to move it. Connect an output to a matching input.';}},{signal:events.signal});
- window.addEventListener('studio-pricing-ready',async()=>{config=await getBillingConfig();if(alive()){budget();drawCanvas();}},{signal:events.signal});
+ window.addEventListener('studio-pricing-ready',async()=>{config=await getStudioBillingConfig();if(alive()){budget();drawCanvas();}},{signal:events.signal});
  // Register the stylesheet callback after asynchronous storage initialization.
  // A cached stylesheet can load while a new workflow is still being saved.
  if(!document.getElementById('workflow-styles')){const link=document.createElement('link');link.id='workflow-styles';link.rel='stylesheet';link.href='/apps/studio/workflow.css';link.onload=()=>{if(alive())fit();};document.head.append(link);}
- layout();fit();getBillingConfig().then(info=>{config=info;if(alive()){budget();drawCanvas();}});
+ layout();fit();getStudioBillingConfig().then(info=>{config=info;if(alive()){budget();drawCanvas();}});
  return ()=>{disposed=true;stopRequested=true;clearTimeout(saveTimer);events.abort();el('wf-dialog')?.close();if(store.isCurrent())save();};
 }

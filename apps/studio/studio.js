@@ -1,11 +1,11 @@
 import {workflowGuide,workflowHelp} from './workflows.js';
 import {icon,escape as esc} from './icons.js';
-import {initializeCloud,mountAccount,cloudState,uploadReference,cloudRequest,receiveAuthCallback} from './cloud.js';
+import {initializeCloud,mountAccount,cloudState,uploadReference,cloudRequest,receiveAuthCallback,getStudioBillingConfig} from './cloud.js';
 import {mountProjects,mountCharacters,exportWorkspace,importWorkspace} from './projects.js';
 import {mountBilling} from './billing.js';
 import {supportsHostedPricing} from './pricing.js';
 import {submitHostedGeneration,pollHostedJob} from './generation-service.js';
-import {getBillingConfig,unavailableBilling} from './config.js';
+import {unavailableBilling} from './config.js';
 import {retentionText,isExpired} from './customer.js';
 import {all,get,put,uid,scopedStorage,currentNamespace,importFile,referenceData,downloadAsset,downloadBlob,mediaAsset} from './storage.js';
 const view=document.querySelector('#view'),dialog=document.querySelector('#asset-dialog');
@@ -25,7 +25,7 @@ const TOOLS=[
 ];
 const LOCAL=['workflow','edit-3d','edit-image','edit-video','background-change','moodboard','frame-extractor'];
 const FALLBACK_MODELS=[{id:'flux-fast',name:'FLUX Schnell',kind:'image',endpoint:'fal-ai/flux/schnell'},{id:'flux-2',name:'FLUX 2',kind:'image',endpoint:'fal-ai/flux-2'},{id:'nano-banana',name:'Nano Banana 2',kind:'image',endpoint:'fal-ai/nano-banana-2',reference:true},{id:'nano-edit',name:'Nano Banana 2 Edit',kind:'edit',endpoint:'fal-ai/nano-banana-2/edit',reference:true},{id:'kling',name:'Kling 2.6 Pro',kind:'video',endpoint:'fal-ai/kling-video/v2.6/pro/text-to-video',reference:true},{id:'stable-audio',name:'Stable Audio 2.5',kind:'audio',endpoint:'fal-ai/stable-audio-25/text-to-audio'},{id:'trellis',name:'Trellis 2',kind:'object',endpoint:'fal-ai/trellis-2',reference:true},{id:'hunyuan-world',name:'Hunyuan World',kind:'world',endpoint:'fal-ai/hunyuan_world/image-to-world',reference:true},{id:'remove-background',name:'Bria Background Removal',kind:'background',endpoint:'fal-ai/bria/background/remove',reference:true},{id:'replace-background',name:'Background Change',kind:'background',endpoint:'fal-ai/image-editing/background-change',reference:true}];
-let models=FALLBACK_MODELS,config={},billingConfig=unavailableBilling(),cloudUserId='',assets=[],folders=[],jobs=[],route='home',dispose=()=>{},ticket=0,toastTimer,libraryFilter='all',reference='',referenceName='',pendingAsset=null,pollBusy=false;
+let models=FALLBACK_MODELS,config={},billingConfig=unavailableBilling(),cloudUserId='',billingRequest=0,workspaceViewReset=false,assets=[],folders=[],jobs=[],route='home',dispose=()=>{},ticket=0,toastTimer,libraryFilter='all',reference='',referenceName='',pendingAsset=null,pollBusy=false;
 const drafts=new Map(),urls=new Map(),selectedAssets=new Set();
 const el=id=>document.getElementById(id);
 export function toast(message){const node=el('toast');node.textContent=message;node.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>node.hidden=true,6000);}
@@ -79,8 +79,15 @@ window.addEventListener('hashchange',async()=>{await receiveAuthCallback();windo
 const catalogReady=(async()=>{try{const response=await fetch('/apps/studio/model-catalog.json',{signal:AbortSignal.timeout(12000)});if(response.ok)models=FALLBACK_MODELS.concat(await response.json());}catch{}})();
 // Paint local tools immediately; billing, authentication and media sync run in parallel.
 connection();await render();
-getBillingConfig().then(info=>{billingConfig=info;connection();if(['billing','settings'].includes(route))render();else if(route.startsWith('create-')||['ai-edit','video-vfx','image-background','workflow'].includes(route))window.dispatchEvent(new Event('studio-pricing-ready'));});
-initializeCloud({toast,onChange:()=>{cloudUserId=cloudState().user?.id||'';connection();if(['home','account','billing','library','favorites','trash','folders','projects','characters','workflow'].includes(route))return render();window.dispatchEvent(new Event('studio-pricing-ready'));},onBeforeSwitch:()=>{dialog.close();dialog.innerHTML='';dispose();dispose=()=>{};ticket++;drafts.clear();pendingAsset=null;reference='';referenceName='';for(const entry of urls.values())URL.revokeObjectURL(entry.url);urls.clear();assets=[];folders=[];jobs=[];}}).then(()=>{if(['account','billing','library','favorites','trash'].includes(route))render();});
+async function refreshBillingAccess(){
+ const request=++billingRequest,info=await getStudioBillingConfig();
+ if(request!==billingRequest)return;
+ billingConfig=info;connection();
+ if(['billing','settings'].includes(route))render();
+ else window.dispatchEvent(new Event('studio-pricing-ready'));
+}
+refreshBillingAccess();
+initializeCloud({toast,onChange:()=>{const refreshView=workspaceViewReset;workspaceViewReset=false;const userId=cloudState().user?.id||'';if(userId!==cloudUserId){cloudUserId=userId;billingConfig=unavailableBilling();refreshBillingAccess();}connection();if(refreshView||['home','account','billing','library','favorites','trash','folders','projects','characters','workflow'].includes(route))return render();window.dispatchEvent(new Event('studio-pricing-ready'));},onBeforeSwitch:()=>{workspaceViewReset=true;dialog.close();dialog.innerHTML='';dispose();dispose=()=>{};ticket++;drafts.clear();pendingAsset=null;reference='';referenceName='';for(const entry of urls.values())URL.revokeObjectURL(entry.url);urls.clear();assets=[];folders=[];jobs=[];}}).then(()=>{if(['account','billing','library','favorites','trash'].includes(route))render();});
 window.addEventListener('studio-cloud-synced',()=>{if(['home','library','favorites','trash','folders'].includes(route))render();});
 window.addEventListener('studio-generation-changed',()=>refreshData().catch(()=>{}));
 setInterval(pollJobs,5000);

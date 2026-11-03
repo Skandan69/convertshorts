@@ -74,6 +74,23 @@ try{
   providerError=null;values.CONVERTSHORTS_RAZORPAY_KEY_SECRET=' payment-fixture\n';values.CONVERTSHORTS_RAZORPAY_KEY_ID=' rzp_test_fixture\n';
   const fixedConfig=await(await handleBilling(new Request('https://fixture.supabase.co/?action=config'))).json();assert.equal(fixedConfig.enabled,true);assert.equal(fixedConfig.testMode,true);assert.equal(fixedConfig.generationEnabled,false,'Test payments cannot activate live AI');
  }finally{console.error=originalError;providerError=null;}
+ values.CONVERTSHORTS_RAZORPAY_KEY_ID='rzp_live_fixture';
+ values.CONVERTSHORTS_HOSTED_ENABLED='false';
+ values.CONVERTSHORTS_BILLING_PILOT_USER_ID=user;
+ const access=(token)=>handleBilling(new Request('https://fixture.supabase.co/?action=access',{headers:{Authorization:'Bearer '+token}}));
+ const publicConfig=await(await handleBilling(new Request('https://fixture.supabase.co/?action=config'))).json();
+ assert.equal(publicConfig.enabled,false);
+ assert.equal(publicConfig.generationEnabled,false);
+ assert.equal((await access('')).status,401);
+ assert.deepEqual(await(await access('other')).json(),{pilot:false});
+ const pilot=await(await access('fixture')).json();
+ assert.equal(pilot.enabled,true);
+ assert.equal(pilot.generationEnabled,true);
+ assert.deepEqual(pilot.plans.filter(p=>p.available).map(p=>p.id),['topup-100']);
+ assert.equal((await handleBilling(req({action:'checkout',plan:'topup-100'},'other'))).status,503);
+ assert.equal((await handleBilling(req({action:'generate'},'other'))).status,503);
+ assert.equal((await handleBilling(req({action:'checkout',plan:'topup-500'}))).status,503);
+ assert.equal((await handleBilling(req({action:'checkout',plan:'topup-100'}))).status,200);
  delete values.CONVERTSHORTS_RAZORPAY_KEY_SECRET;assert.equal((await handleBilling(req({action:'checkout',plan:'topup-100'}))).status,503);
  assert.ok(await verifyHmac('hello',signature('hello','k'),'k'));assert.equal(await verifyHmac('hello!',signature('hello','k'),'k'),false);
  assert.throws(()=>validRate({rate:100,date:'2020-01-01'}));assert.throws(()=>validRate({rate:'NaN',date:new Date().toISOString()}));

@@ -42,7 +42,7 @@ async function paymentApiStatus(){
  return paymentHealth.result;
 }
 export async function verifyHmac(raw:string,signature:string,key:string){if(!key||! /^[0-9a-f]{64}$/.test(signature))return false;const cryptoKey=await crypto.subtle.importKey('raw',new TextEncoder().encode(key),{name:'HMAC',hash:'SHA-256'},false,['sign']);const digest=new Uint8Array(await crypto.subtle.sign('HMAC',cryptoKey,new TextEncoder().encode(raw)));const expected=Array.from(digest,b=>b.toString(16).padStart(2,'0')).join('');let difference=0;for(let i=0;i<expected.length;i++)difference|=signature.charCodeAt(i)^expected.charCodeAt(i);return difference===0;}
-async function checkoutOrder(id:string){if(!/^order_[a-zA-Z0-9]+$/.test(id||''))throw new StudioError('Invalid payment order.');const rows=await db('convertshorts_checkout_orders?id=eq.'+id);if(!rows[0])throw new StudioError('Payment order not found.',404);return rows[0];}
+async function findCheckoutOrder(id:string){if(!/^order_[a-zA-Z0-9]+$/.test(id||''))throw new StudioError('Invalid payment order.');const rows=await db('convertshorts_checkout_orders?id=eq.'+id);return rows[0];}
 async function confirmPayment(order:any,paymentId:string){
  if(!/^pay_[a-zA-Z0-9]+$/.test(paymentId||''))throw new StudioError('Invalid payment reference.');
  if(order.test_mode!==testMode())throw new StudioError('This order belongs to a different payment mode.',409);
@@ -67,8 +67,11 @@ export async function handleBilling(req:Request){try{
   const raw=await req.text();if(raw.length>1000000||!await verifyHmac(raw,req.headers.get('x-razorpay-signature')||'',key))return reply(req,{error:'Invalid signature'},400);
   const event=JSON.parse(raw);
   if(['payment.captured','order.paid'].includes(event.event)){
-   const payment=event.payload?.payment?.entity;if(!payment?.order_id||!payment?.id)throw new StudioError('Missing payment event.');
-   const order=await checkoutOrder(payment.order_id);await confirmPayment(order,payment.id);
+   const payment=event.payload?.payment?.entity;if(!payment?.id)throw new StudioError('Missing payment event.');
+   // Razorpay sends events for the whole merchant account. Only fulfill orders
+   // that ConvertShorts registered before returning them to checkout.
+   const order=payment.order_id?await findCheckoutOrder(payment.order_id):null;
+   if(order)await confirmPayment(order,payment.id);
   }
   return reply(req,{received:true});
  }
@@ -94,7 +97,8 @@ export async function handleBilling(req:Request){try{
  }
 
  if(body.action==='verify'){
-  const order=await checkoutOrder(body.orderId);if(order.user_id!==user.id)return reply(req,{error:'Payment belongs to another account.'},403);
+  const order=await findCheckoutOrder(body.orderId);if(!order)throw new StudioError('Payment order not found.',404);
+  if(order.user_id!==user.id)return reply(req,{error:'Payment belongs to another account.'},403);
   if(!await verifyHmac(order.id+'|'+body.paymentId,body.signature||'',paymentKeySecret()))return reply(req,{error:'Invalid payment signature'},400);
   return reply(req,await confirmPayment(order,body.paymentId));
  }

@@ -47,6 +47,13 @@ try{
  refunded=10000;assert.equal((await handleBilling(verify())).status,409);refunded=0;
  const event={event:'payment.captured',payload:{payment:{entity:{order_id:'order_fixture1',id:'pay_fixture1'}}}};
  assert.equal((await handleBilling(hook(event,false))).status,400);assert.equal(granted,0);
+ const externalPayment={id:'pay_external',order_id:'order_external'};
+ for(const [type,payment] of [['order.paid',externalPayment],['payment.captured',{...externalPayment,order_id:null}]]){
+  const externalEvent={event:type,payload:{payment:{entity:payment}}};
+  assert.deepEqual(await (await handleBilling(hook(externalEvent))).json(),{received:true});
+ }
+ assert.equal(granted,0,'Shared merchant payments must never grant ConvertShorts credits');
+ assert.equal((await handleBilling(req({action:'verify',orderId:externalPayment.order_id,paymentId:externalPayment.id}))).status,404);
  assert.equal((await handleBilling(verify())).status,200);assert.equal(granted,10000);
  assert.equal((await handleBilling(hook(event))).status,200);assert.equal(granted,10000,'Callback/webhook replay cannot grant twice');
  assert.equal((await(await handleBilling(verify())).json()).alreadyCredited,true);

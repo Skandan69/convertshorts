@@ -53,7 +53,7 @@ const BASE=process.env.BASE_URL||'http://localhost:4173';
  await page.getByText('Private AI generation test',{exact:true}).waitFor();
  await page.locator('#generation-credits').click();
  await page.getByRole('button',{name:'Add ₹100.00',exact:true}).click();
- await page.getByRole('button',{name:'Pay with Razorpay'}).waitFor();
+ await page.getByRole('heading',{name:'Add ₹100.00',exact:true}).waitFor();
  assert.ok(await page.getByRole('button',{name:'Pay with Razorpay'}).isEnabled());
  await page.goto(BASE+'/payments/checkout?pack=topup-500');
  await page.getByRole('status').filter({hasText:'Only the ₹100 top-up'}).waitFor();

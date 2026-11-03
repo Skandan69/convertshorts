@@ -4,7 +4,7 @@ const BASE=process.env.BASE_URL||'http://localhost:4173';
  const {MODELS}=await import('../server/studio-core.mjs'),{CREDIT_PLANS,PRICING_VERSION}=await import('../apps/studio/pricing.js');
  const browser=await chromium.launch(),context=await browser.newContext({viewport:{width:1440,height:1000}}),errors=[];
  const info={enabled:true,generationEnabled:true,paymentProvider:'razorpay',usdInr:100,fxDate:'2026-10-10',fxSource:'Fixture reference rate',pricingVersion:PRICING_VERSION,plans:CREDIT_PLANS.map(p=>({...p,available:true})),hostedModels:['flux-fast','nano-banana','nano-edit','kling']};
- let orders=0,verifications=0,providerRequests=0,orderError='',verifyError='';
+ let orders=0,verifications=0,providerRequests=0,orderError='',verifyError='',pilotAccess=false;
  await context.addInitScript(()=>localStorage.setItem('convertshorts-auth',JSON.stringify({authOrigin:'https://fixture.supabase.co',access_token:'test-token',refresh_token:'test-refresh',expires_at:Math.floor(Date.now()/1000)+3600,user:{id:'11111111-1111-4111-8111-111111111111',email:'fixture@example.invalid'}})));
  await context.route('**/api/cloud',r=>r.fulfill({contentType:'application/json',body:JSON.stringify({enabled:true,url:'https://fixture.supabase.co',publishableKey:'public-fixture',bucket:'fixture'})}));
  await context.route('**/api/billing**',r=>r.fulfill({contentType:'application/json',body:JSON.stringify(info)}));
@@ -14,7 +14,10 @@ const BASE=process.env.BASE_URL||'http://localhost:4173';
   if(u.pathname==='/auth/v1/user')d={id:'11111111-1111-4111-8111-111111111111',email:'fixture@example.invalid'};
   else if(u.pathname.includes('convertshorts_workspaces'))d=[{id:'22222222-2222-4222-8222-222222222222',name:'Fixture workspace',owner_id:'11111111-1111-4111-8111-111111111111'}];
   else if(u.pathname.includes('/functions/v1/convertshorts-billing')){
-   if(r.request().method()==='GET')d={balanceInr:0,credits:0};
+   if(u.searchParams.get('action')==='access'){
+    assert.equal(r.request().headers().authorization,'Bearer test-token');
+    d=pilotAccess?{...info,pilot:true,enabled:true,generationEnabled:true,plans:CREDIT_PLANS.map(p=>({...p,available:p.id==='topup-100'}))}:{pilot:false};
+   }else if(r.request().method()==='GET')d={balanceInr:0,credits:0};
    else {const b=r.request().postDataJSON();if(b.action==='checkout'){if(orderError)return r.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:orderError})});orders++;assert.equal(b.plan,'topup-100');d={keyId:info.testMode?'rzp_test_fixture':'rzp_live_fixture',orderId:'order_fixture',amount:10000,currency:'INR',description:'100 rupees of prepaid generation balance',testMode:!!info.testMode};}
     else if(b.action==='verify'){verifications++;assert.equal(b.orderId,'order_fixture');assert.equal(b.paymentId,'pay_fixture');assert.equal(b.signature,'fixture-signature');if(verifyError)return r.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:verifyError})});d=info.testMode?{verified:true,credited:false,testMode:true}:{verified:true,credited:true,amountInr:100};}
     else throw Error('Unexpected payment action '+b.action);
@@ -45,6 +48,17 @@ const BASE=process.env.BASE_URL||'http://localhost:4173';
  await page.goto(BASE+'/apps/#billing');await page.reload();await page.locator('.commerce-banner').filter({hasText:'Payments temporarily unavailable'}).waitFor();assert.equal(await page.locator('[data-checkout]:disabled').count(),3);
  await page.setViewportSize({width:390,height:844});await page.screenshot({path:path.join(output,'prepaid-mobile.png')});const dimensions=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth,overflow:[...document.querySelectorAll('.page,.settings-grid,.panel,.table-scroll')].map(e=>({class:e.className,width:e.getBoundingClientRect().width,right:e.getBoundingClientRect().right}))}));assert.ok(dimensions.scroll<=dimensions.width+1,JSON.stringify(dimensions));assert.equal(errors.length,0,errors.join('\n'));
  assert.ok((await page.locator('.commerce-banner').textContent()).includes('correcting the payment setup'));await page.goto(BASE+'/payments/checkout?pack=topup-100');await page.getByRole('status').filter({hasText:'could not authenticate'}).waitFor();assert.equal(await page.getByRole('button',{name:'Pay with Razorpay'}).isDisabled(),true);assert.ok(!(await page.locator('body').textContent()).includes('Your own Fal key'));
+ pilotAccess=true;info.testMode=false;info.paymentApiStatus='ready';
+ await page.goto(BASE+'/apps/#create-video');await page.reload();
+ await page.getByText('Private AI generation test',{exact:true}).waitFor();
+ await page.locator('#generation-credits').click();
+ await page.getByRole('button',{name:'Add ₹100.00',exact:true}).click();
+ await page.getByRole('button',{name:'Pay with Razorpay'}).waitFor();
+ assert.ok(await page.getByRole('button',{name:'Pay with Razorpay'}).isEnabled());
+ await page.goto(BASE+'/payments/checkout?pack=topup-500');
+ await page.getByRole('status').filter({hasText:'Only the ₹100 top-up'}).waitFor();
+ assert.ok(await page.getByRole('button',{name:'Pay with Razorpay'}).isDisabled());
+ assert.equal(errors.length,0,errors.join('\n'));
  await fs.writeFile(path.join(output,'verification.json'),JSON.stringify({prepaidAmounts:[100,500,1000],subscriptionRemoved:true,standaloneCheckout:true,orderThenServerVerification:true,failedOrderCannotOpenCheckout:true,pendingVerificationBlocksRepeatPayment:true,testPaymentsCannotEnableGeneration:true,imageAndVideoPaymentLinks:true,disabledWithoutCredentials:true,mobileFits:true,providerRequests,errors},null,2));
  await browser.close();console.log('PASS prepaid pricing, standalone Razorpay checkout, authenticated server verification, missing-key availability and mobile fit (HTTP/SDK fixtures; no purchases).');
 })().catch(e=>{console.error(e);process.exit(1);});

@@ -28,7 +28,7 @@ export async function mountGenerator(view,{kind,models,ready,modeForModel=()=> '
  }
  function renderParameters(){
   const m=model();if(!m)return;const schema=m.schema,properties=schema?.properties||{},caps=m.kind==='audio'?audioCapabilities(m):{},primaryKey=caps.styleKey||(properties.text?'text':'prompt');
-  const oldRatio=el('generation-ratio').value||draft.ratio,ratios=shape(properties.aspect_ratio||{}).enum||(!schema&&['image','edit','video'].includes(m.kind)?['1:1','16:9','9:16','3:2','2:3','4:3','3:4']:[]);
+  const oldRatio=el('generation-ratio').value||draft.ratio,ratios=shape(properties.aspect_ratio||{}).enum||m.ratios||(!schema&&['image','edit','video'].includes(m.kind)?['1:1','16:9','9:16','3:2','2:3','4:3','3:4']:[]);
   el('generation-ratio').hidden=!ratios.length;el('generation-ratio').innerHTML=ratios.map(r=>`<option ${r===oldRatio?'selected':''}>${r}</option>`).join('');
   const ps=shape(properties[primaryKey]||{});el('generation-prompt').maxLength=m.endpoint==='fal-ai/minimax-music/v2'?300:ps.maxLength||10000;el('generation-prompt').minLength=ps.minLength||0;
   el('generation-prompt').required=!!schema?.required?.includes(primaryKey)||!schema&&!['object','world','background'].includes(m.kind);
@@ -66,7 +66,7 @@ export async function mountGenerator(view,{kind,models,ready,modeForModel=()=> '
   el('generation-credits').textContent=payments.testMode&&payments.enabled?'Try test checkout':payments.enabled?'Add credits':'View plans & credits';
  let text=mode==='planned'?'This capability is planned and is not included in the initial AI launch. Preview its controls or use our free local editors. ':mode==='comingsoon'?'AI generation is coming soon. Create an account and explore the editors while we complete backend testing. ':mode==='signin'?'Sign in to generate using your prepaid balance. ':'Your prepaid balance pays for this generation. ';let suffix='',invalid=false;
   if(mode==='hosted'||mode==='signin')try{const q=quoteDraft(m,{...state(),reference:refs[0]},pricingRate());if(!q.credits)throw Error('A current INR price is unavailable.');text=formatINR(q.retailInr)+' · '+formatCredits(q.retailInr)+' for this request · cost + '+MARKUP_LABEL+'. '+(mode==='signin'?'Sign in to use your prepaid balance. ':'');suffix=' · '+formatINR(q.retailInr);}catch(e){text=e.message+' ';invalid=true;}
-  el('model-hint').innerHTML=esc(text)+(mode==='signin'?'<a href="#account">Sign in</a> · ':'')+'<a href="#billing">Plans & pricing</a> · <a href="#guide">How it works</a>';
+  el('model-hint').innerHTML=esc(text)+(m.kind==='video'?'<br><strong>Video can take 2–15 minutes.</strong> You can leave this page: the clip is saved to My Library the next time you open the studio. ':'')+(mode==='signin'?'<a href="#account">Sign in</a> · ':'')+'<a href="#billing">Plans & pricing</a> · <a href="#guide">How it works</a>';
   const b=el('generate');b.disabled=['planned','comingsoon'].includes(mode)||invalid;b.innerHTML=icon('background',16)+(mode==='planned'?'Planned':mode==='comingsoon'?'Coming soon':' Generate'+suffix);
  }
  el('generation-form').addEventListener('input',updatePrice);el('generation-form').addEventListener('change',updatePrice);

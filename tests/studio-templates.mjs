@@ -28,7 +28,7 @@ for (const t of TEMPLATES) {
   assert.ok(model, `${t.id}: model ${t.model} is not in the studio catalog`);
   assert.ok(routeKinds[t.route]?.includes(model.kind), `${t.id}: ${model.kind} model cannot open on #${t.route}`);
   assert.equal(t.hosted, supportsHostedPricing(model), `${t.id}: hosted flag must match the pricing allowlist`);
-  const ratios = model.schema?.properties?.aspect_ratio?.enum || genericRatios;
+  const ratios = model.schema?.properties?.aspect_ratio?.enum || model.ratios || genericRatios;
   if (t.settings.ratio) assert.ok(ratios.includes(t.settings.ratio), `${t.id}: ratio ${t.settings.ratio} not offered by ${t.model}`);
   if (t.settings.duration) assert.ok(model.kind === 'video' && [5, 10].includes(t.settings.duration), `${t.id}: duration`);
   if (t.category === 'remix') assert.equal(t.hosted, false, `${t.id}: remix models are planned, not hosted`);

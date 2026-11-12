@@ -57,7 +57,7 @@ export function quoteCredits(endpoint,input={},usdInr=null) {
     providerMicros=200*integer(input.duration,5,240,60);
   } else if(endpoint==='fal-ai/minimax-music/v2') {
     providerMicros=30000;
-  } else throw Error('An exact price is not available for this model yet. AI generation remains coming soon.');
+  } else throw Error('An exact price is not available for this model yet. It is not available for AI generation yet.');
   const providerUsd=providerMicros/1000000,retailUsd=retailFromProvider(providerUsd);
   if(usdInr===null)return {providerUsd,retailUsd,credits:null,generationCredits:null,retailInr:null,version:PRICING_VERSION};
   if(!Number.isFinite(usdInr)||usdInr<1||usdInr>1000)throw Error('The currency rate is unavailable. Please try again later.');

@@ -54,6 +54,9 @@ async function confirmPayment(order:any,paymentId:string){
  // Real test payments never become spendable credits or fund live Fal jobs.
  if(order.test_mode)return {verified:true,testMode:true,credited:false};
  const applied=await db('rpc/convertshorts_apply_razorpay_payment','POST',{o:order.id,p:paymentId});
+ // null: this order was already paid by a different payment. The duplicate is
+ // recorded for the owner to refund; it never grants a second balance.
+ if(applied===null){console.error(JSON.stringify({event:'razorpay_payment_needs_owner_review'}));return {verified:true,credited:false,duplicate:true,message:'This top-up was already paid. The extra payment will be refunded to you.'};}
  return {verified:true,credited:true,alreadyCredited:applied===false,amountInr:order.amount_paise/100};
 }
 async function billingConfig(req:Request,userId=''){
@@ -70,13 +73,29 @@ export async function handleBilling(req:Request){try{
  if(action==='webhook'){
   const key=env('CONVERTSHORTS_RAZORPAY_WEBHOOK_SECRET');if(!key)return reply(req,{error:'Webhook not configured'},503);
   const raw=await req.text();if(raw.length>1000000||!await verifyHmac(raw,req.headers.get('x-razorpay-signature')||'',key))return reply(req,{error:'Invalid signature'},400);
-  const event=JSON.parse(raw);
-  if(['payment.captured','order.paid'].includes(event.event)){
-   const payment=event.payload?.payment?.entity;if(!payment?.id)throw new StudioError('Missing payment event.');
-   // Razorpay sends events for the whole merchant account. Only fulfill orders
-   // that ConvertShorts registered before returning them to checkout.
-   const order=payment.order_id?await findCheckoutOrder(payment.order_id):null;
-   if(order)await confirmPayment(order,payment.id);
+  const event=JSON.parse(raw),type=String(event.event||'');
+  try{
+   if(['payment.captured','order.paid'].includes(type)){
+    const payment=event.payload?.payment?.entity;if(!payment?.id)throw new StudioError('Missing payment event.');
+    // Razorpay sends events for the whole merchant account. Only fulfill orders
+    // that ConvertShorts registered before returning them to checkout.
+    const order=payment.order_id?await findCheckoutOrder(payment.order_id):null;
+    if(order)await confirmPayment(order,payment.id);
+   }else if(type==='refund.processed'||type==='payment.dispute.lost'){
+    // Money went back to the customer: take the same amount of unspent balance back.
+    const entity=type==='refund.processed'?event.payload?.refund?.entity:event.payload?.dispute?.entity;
+    if(!/^(rfnd|disp)_[a-zA-Z0-9]+$/.test(entity?.id||'')||!/^pay_[a-zA-Z0-9]+$/.test(entity?.payment_id||'')||!Number.isInteger(entity?.amount)||entity.amount<=0)throw new StudioError('Missing reversal event.');
+    const result=await db('rpc/convertshorts_reverse_razorpay_payment','POST',{r:entity.id,p:entity.payment_id,amount:entity.amount,reason:type==='refund.processed'?'refund':'dispute'});
+    if(result?.shortfall>0)console.error(JSON.stringify({event:'razorpay_reversal_shortfall',type}));
+   }else if(type.startsWith('payment.dispute.')){
+    const entity=event.payload?.dispute?.entity;
+    if(/^pay_[a-zA-Z0-9]+$/.test(entity?.payment_id||''))await db('rpc/convertshorts_record_payment_alert','POST',{p:entity.payment_id,kind:type,ref:String(entity.id||'').slice(0,64)});
+   }
+  }catch(e){
+   // Orders from another site or payment mode are acknowledged so Razorpay does
+   // not keep retrying and eventually disable the webhook. Real failures retry.
+   if(e instanceof StudioError&&[400,404,409].includes(e.status)){console.error(JSON.stringify({event:'razorpay_webhook_ignored',type,status:e.status}));return reply(req,{received:true,ignored:true});}
+   throw e;
   }
   return reply(req,{received:true});
  }
@@ -85,11 +104,12 @@ export async function handleBilling(req:Request){try{
  if(action==='access'&&req.method==='GET')return pilotEnabled(user.id)?await billingConfig(req,user.id):reply(req,{pilot:false});
  const accounts=await db('convertshorts_billing_accounts?user_id=eq.'+user.id),account=accounts[0];
  if(new URL(req.url).searchParams.get('action')==='status'){
-  const id=new URL(req.url).searchParams.get('job');if(!/^[0-9a-f-]{36}$/.test(id||''))return reply(req,{error:'Invalid job'},400);const jobs=await db('convertshorts_generation_requests?id=eq.'+id+'&user_id=eq.'+user.id),job=jobs[0];if(!job)return reply(req,{error:'Job not found'},404);if(job.status==='FAILED_REFUNDED')return reply(req,{error:'Generation failed. Workspace credits refunded.'},422);if(!job.provider)return reply(req,{error:'Submission status is uncertain. Ask the owner to review this request.'},409);
+  const id=new URL(req.url).searchParams.get('job');if(!/^[0-9a-f-]{36}$/.test(id||''))return reply(req,{error:'Invalid job'},400);const jobs=await db('convertshorts_generation_requests?id=eq.'+id+'&user_id=eq.'+user.id),job=jobs[0];if(!job)return reply(req,{error:'Job not found'},404);if(job.status==='FAILED_REFUNDED')return reply(req,{error:'Generation failed. Workspace credits refunded.'},422);
+  const refund=async(failure:string,afterCompletion=false)=>{const ok=await db('rpc/convertshorts_refund_generation','POST',{j:id})===true;if(afterCompletion)console.error(JSON.stringify({event:'refund_after_provider_completion',model:job.model}));return reply(req,{error:failure+(ok?' Workspace credits refunded.':' Ask the owner to review this request.')},422);};if(!job.provider)return reply(req,{error:'Submission status is uncertain. Ask the owner to review this request.'},409);
   const key=env('CONVERTSHORTS_FAL_KEY');for(const field of ['status_url','response_url'])validateQueueURL(job.provider[field]);const status=await fetch(job.provider.status_url,{headers:{Authorization:'Key '+key},signal:AbortSignal.timeout(30000)});if(!status.ok)return reply(req,{error:'Provider status temporarily unavailable'},502);const d=await status.json();if(d.status==='COMPLETED'){
-   const result=await fetch(job.provider.response_url,{headers:{Authorization:'Key '+key},signal:AbortSignal.timeout(30000)});if(!result.ok){if([400,422].includes(result.status)){await db('rpc/convertshorts_refund_generation','POST',{j:id});return reply(req,{error:'Generation failed. Workspace credits refunded.'},422);}return reply(req,{error:'Provider result temporarily unavailable'},502);}
-   let media;try{media=normalizeMedia(await result.json(),MODELS.find(m=>m.id===job.model)?.kind);}catch{await db('rpc/convertshorts_refund_generation','POST',{j:id});return reply(req,{error:'Generation produced no media. Workspace credits refunded.'},422);}await db('convertshorts_generation_requests?id=eq.'+id,'PATCH',{status:'COMPLETED'});return reply(req,{status:'COMPLETED',media});
-  }if(['FAILED','CANCELLED','ERROR'].includes(d.status)){await db('rpc/convertshorts_refund_generation','POST',{j:id});return reply(req,{error:'Generation failed. Workspace credits refunded.'},422);}return reply(req,{status:d.status,queuePosition:d.queue_position});
+   const result=await fetch(job.provider.response_url,{headers:{Authorization:'Key '+key},signal:AbortSignal.timeout(30000)});if(!result.ok){if([400,422].includes(result.status))return refund('Generation failed.',true);return reply(req,{error:'Provider result temporarily unavailable'},502);}
+   let media;try{media=normalizeMedia(await result.json(),MODELS.find(m=>m.id===job.model)?.kind);}catch{return refund('Generation produced no media.',true);}await db('convertshorts_generation_requests?id=eq.'+id,'PATCH',{status:'COMPLETED'});return reply(req,{status:'COMPLETED',media});
+  }if(['FAILED','CANCELLED','ERROR'].includes(d.status))return refund('Generation failed.');return reply(req,{status:d.status,queuePosition:d.queue_position});
  }
  if(req.method==='GET'){const grants=await db('convertshorts_credit_grants?user_id=eq.'+user.id+'&valid_from=lte.'+encodeURIComponent(new Date().toISOString()));const credits=grants.filter((g:any)=>!g.expires_at||Date.parse(g.expires_at)>Date.now()).reduce((n:number,g:any)=>n+g.remaining,0);return reply(req,{plan:account?.plan||'Free',credits,generationCredits:credits/100/CUSTOMER_CREDIT_INR,balanceInr:credits/100,customerCreditInr:CUSTOMER_CREDIT_INR,currency:'INR'});}
  const raw=await req.text();if(raw.length>4200000)return reply(req,{error:'Request too large'},413);const body=JSON.parse(raw);
@@ -99,7 +119,7 @@ export async function handleBilling(req:Request){try{
   if(body.expectedCredits!==quote.credits||body.pricingVersion!==quote.version)return reply(req,{error:'The generation price changed. Review the current credits and submit again.',quote:{credits:quote.credits,version:quote.version}},409);
   const id=crypto.randomUUID();await db('rpc/convertshorts_reserve_credits','POST',{u:user.id,j:id,m:generation.model.id,amount:quote.credits});
   let response;try{response=await fetch('https://queue.fal.run/'+generation.endpoint,{method:'POST',headers:{Authorization:'Key '+env('CONVERTSHORTS_FAL_KEY'),'Content-Type':'application/json'},body:JSON.stringify(generation.input),signal:AbortSignal.timeout(40000)});}catch{return reply(req,{error:'Provider submission is uncertain. Credits are reserved; ask the owner to review job '+id},502);}
-  if(!response.ok){await db('rpc/convertshorts_refund_generation','POST',{j:id});return reply(req,{error:'Provider rejected the request. Credits refunded.'},422);}const provider=await response.json();for(const key of ['status_url','response_url','cancel_url'])if(provider[key])validateQueueURL(provider[key]);await db('convertshorts_generation_requests?id=eq.'+id,'PATCH',{provider,status:provider.status||'IN_QUEUE'});return reply(req,{cloudJobID:id,requestId:provider.request_id,status:provider.status||'IN_QUEUE'},202);
+  if(!response.ok){const ok=await db('rpc/convertshorts_refund_generation','POST',{j:id})===true;return reply(req,{error:'Provider rejected the request.'+(ok?' Credits refunded.':' Ask the owner to review job '+id+'.')},422);}const provider=await response.json();for(const key of ['status_url','response_url','cancel_url'])if(provider[key])validateQueueURL(provider[key]);await db('convertshorts_generation_requests?id=eq.'+id,'PATCH',{provider,status:provider.status||'IN_QUEUE'});return reply(req,{cloudJobID:id,requestId:provider.request_id,status:provider.status||'IN_QUEUE'},202);
  }
 
  if(body.action==='verify'){

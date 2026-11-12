@@ -1,10 +1,12 @@
 // Shared browser/server policy. Prices are reviewed against the linked Fal pages.
 // Wallet accounting uses INR paise. Customer-facing balances and quotes show rupees.
-export const PRICING_VERSION = '2026-10-10-inr-v3-credits';
+export const PRICING_VERSION = '2026-10-21-inr-v4-markup50';
 // Internal wallet units remain paise. Customer credits are worth one rupee each.
 export const CREDIT_INR = 0.01;
 export const CUSTOMER_CREDIT_INR = 1;
-export const MARKUP_PERCENT = 20;
+export const MARKUP_PERCENT = 50;
+export const MARKUP_FACTOR = (100+MARKUP_PERCENT)/100;
+export const MARKUP_LABEL = MARKUP_PERCENT+'%';
 export const formatINR = n => new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:2}).format(n);
 export const formatCredits = inr => new Intl.NumberFormat('en-IN',{maximumFractionDigits:2}).format(inr/CUSTOMER_CREDIT_INR)+' credits';
 export const retailFromProvider = providerUsd => {

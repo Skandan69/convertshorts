@@ -18,7 +18,7 @@ try{
  let verificationPending=false;
  button.onclick=async()=>{button.disabled=true;say('Opening secure checkout…');try{
   if(!order)order=await cloudRequest('/functions/v1/convertshorts-billing',{method:'POST',body:{action:'checkout',plan:pack.id}});
-  const result=await openCheckout(order,{request:cloudRequest,email:cloudState().user?.email,onVerified:d=>{say(d.testMode?'Test payment verified. No real AI credits were added.':'Payment verified. '+formatINR(d.amountInr)+' ('+formatCredits(d.amountInr)+') is available in your studio.');button.hidden=true;}});
+  const result=await openCheckout(order,{request:cloudRequest,email:cloudState().user?.email,onVerified:d=>{say(d.duplicate?d.message:d.testMode?'Test payment verified. No real AI credits were added.':'Payment verified. '+formatINR(d.amountInr)+' ('+formatCredits(d.amountInr)+') is available in your studio.');button.hidden=true;}});
   if(!result)say('Checkout closed. You can retry with the same payment order.');
  }catch(e){verificationPending=!!e.paymentVerificationPending;say(verificationPending?(info.testMode?'The test payment returned, but verification is pending. No real AI credits were added. Contact support if it does not complete.':'Your payment returned, but verification is pending. Do not pay again. The verified webhook can update your balance; contact support if it does not complete.'):e.message+(!order?' Checkout did not open. No payment was made.':''));}finally{if(!button.hidden&&!verificationPending)button.disabled=false;}};
 }catch(e){say(e.message);document.querySelector('#payment-details').textContent='Your prepaid balance has not been changed.';}

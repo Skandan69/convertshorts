@@ -1,6 +1,7 @@
 import {all,get,put,setNamespace,currentNamespace,STORES,uid} from './storage.js';
 import {escape as esc} from './icons.js';
 import {isExpired} from './customer.js';
+import {getBillingConfig} from './config.js';
 import {consumeAuthCallback,authReturnURL} from './auth-callback.js';
 const SESSION='convertshorts-auth';
 const callback=consumeAuthCallback(location,history);
@@ -8,6 +9,16 @@ let recoveryError=callback?.error||'',workspaceSetupError='';
 let resolveReady;const ready=new Promise(resolve=>resolveReady=resolve);
 let config={},session=null,workspace=null,workspaces=[],syncing=false,syncTimer,refreshing=null,notify=()=>{},changed=()=>{},beforeSwitch=()=>{},generation=0,initialized=false;
 export const cloudState=()=>({enabled:config.enabled,user:session?.needsPasswordReset?null:session?.user,workspace,workspaces,syncing,loading:!initialized});
+export async function getStudioBillingConfig(){
+ const userId=cloudState().user?.id;
+ const info=await getBillingConfig();
+ if(info.enabled||info.generationEnabled||!userId||userId!==cloudState().user?.id)return info;
+ try{
+  const access=await cloudRequest('/functions/v1/convertshorts-billing?action=access');
+  if(access.pilot&&userId===cloudState().user?.id)return access;
+ }catch{}
+ return info;
+}
 export async function uploadReference(file){if(!session||!workspace)throw new Error('Sign in to upload a large media reference, or paste a public HTTPS URL.');if(file.size>150*1024*1024)throw new Error('Use media below 150 MB.');const path=workspace.id+'/'+uid();await cloudRequest('/storage/v1/object/'+config.bucket+'/'+path,{method:'POST',raw:true,body:file,headers:{'Content-Type':file.type||'application/octet-stream'}});const signed=await cloudRequest('/storage/v1/object/sign/'+config.bucket+'/'+path,{method:'POST',body:{expiresIn:7200}});return config.url+'/storage/v1'+signed.signedURL;}
 export async function resolveCloudMedia(item){
  if(!item||!item._blobPath||item.blob)return item;

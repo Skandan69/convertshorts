@@ -1,6 +1,7 @@
 import {escape as esc} from './icons.js';
 import {CREDIT_PLANS,PRICE_EXAMPLES,quoteCredits,formatINR,formatUSD,formatCredits,MARKUP_LABEL,MARKUP_FACTOR} from './pricing.js';
-import {getBillingConfig,unavailableBilling} from './config.js';
+import {getStudioBillingConfig} from './cloud.js';
+import {unavailableBilling} from './config.js';
 export async function mountBilling(view,{jobs,toast,cloudState,cloudRequest}) {
   const {priceCatalogSection,mountPriceCatalog}=await import('./price-table.js');
   if(location.hash.split('?')[0]!=='#billing')return;
@@ -20,5 +21,5 @@ export async function mountBilling(view,{jobs,toast,cloudState,cloudRequest}) {
     if(user)cloudRequest('/functions/v1/convertshorts-billing').then(d=>{const wallet=view.querySelector('#billing-wallet');if(wallet&&cloudState().user?.id===user.id)wallet.textContent=formatCredits(d.balanceInr??(d.credits||0)/100)+' ('+formatINR(d.balanceInr??(d.credits||0)/100)+')';}).catch(()=>{const wallet=view.querySelector('#billing-wallet');if(wallet)wallet.textContent='Your balance is temporarily unavailable. Please try again.';});
   }
   draw();
-  info=await getBillingConfig();if(location.hash.split('?')[0]==='#billing')draw();
+  info=await getStudioBillingConfig();if(location.hash.split('?')[0]==='#billing')draw();
 }

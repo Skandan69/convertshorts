@@ -40,10 +40,10 @@ Create a dedicated API key for the business and add funds. Set a spending alert.
 | `CONVERTSHORTS_RAZORPAY_KEY_SECRET` | live secret |
 | `CONVERTSHORTS_RAZORPAY_WEBHOOK_SECRET` | the webhook secret from step 5 |
 | `CONVERTSHORTS_FAL_KEY` | funded business key |
-| `CONVERTSHORTS_HOSTED_ENABLED` | `true` |
-| `CONVERTSHORTS_HOSTED_ALLOWLIST` | your own Supabase user id (Auth → Users) |
+| `CONVERTSHORTS_BILLING_PILOT_USER_ID` | your own Supabase user id (Auth → Users) |
+| `CONVERTSHORTS_HOSTED_ENABLED` | leave unset (or `false`) during the soft launch |
 
-Delete `CONVERTSHORTS_BILLING_TEST_MODE`. With the allowlist set, only your account can buy and generate; everyone else still sees "coming soon".
+Delete `CONVERTSHORTS_BILLING_TEST_MODE`. With only the pilot user set, only your account can buy (₹100 top-up) and generate; everyone else still sees "coming soon".
 
 ## 8. Soft-launch test (your account, real money)
 Sign in, reload the studio, then:
@@ -53,7 +53,7 @@ Sign in, reload the studio, then:
 - in the SQL editor run `select * from convertshorts_private.owner_review;` and check it lists what you expect.
 
 ## 9. Open to everyone
-Delete `CONVERTSHORTS_HOSTED_ALLOWLIST`. The marketing pages still say "coming soon" at this point: ship the launch-copy update (pricing, creative studio and AI generator pages) at the same time.
+Set `CONVERTSHORTS_HOSTED_ENABLED` to `true` (you can then delete `CONVERTSHORTS_BILLING_PILOT_USER_ID`). The marketing pages still say "coming soon" at this point: ship the launch-copy update (pricing, creative studio and AI generator pages) at the same time.
 
 ## Ongoing
 Check `select * from convertshorts_private.owner_review;` weekly: stuck or unchecked jobs, duplicate payments to refund, disputes and refund shortfalls. Release a stuck job with `select convertshorts_private.owner_release_stuck('<job id>');` only after confirming on the fal.ai dashboard that it never ran.

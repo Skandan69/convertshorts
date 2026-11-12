@@ -50,6 +50,13 @@ try{
  refunded=10000;assert.equal((await handleBilling(verify())).status,409);refunded=0;
  const event={event:'payment.captured',payload:{payment:{entity:{order_id:'order_fixture1',id:'pay_fixture1'}}}};
  assert.equal((await handleBilling(hook(event,false))).status,400);assert.equal(granted,0);
+ const externalPayment={id:'pay_external',order_id:'order_external'};
+ for(const [type,payment] of [['order.paid',externalPayment],['payment.captured',{...externalPayment,order_id:null}]]){
+  const externalEvent={event:type,payload:{payment:{entity:payment}}};
+  assert.deepEqual(await (await handleBilling(hook(externalEvent))).json(),{received:true});
+ }
+ assert.equal(granted,0,'Shared merchant payments must never grant ConvertShorts credits');
+ assert.equal((await handleBilling(req({action:'verify',orderId:externalPayment.order_id,paymentId:externalPayment.id}))).status,404);
  assert.equal((await handleBilling(verify())).status,200);assert.equal(granted,10000);
  assert.equal((await handleBilling(hook(event))).status,200);assert.equal(granted,10000,'Callback/webhook replay cannot grant twice');
  assert.equal((await(await handleBilling(verify())).json()).alreadyCredited,true);
@@ -57,7 +64,7 @@ try{
  // A second, different payment for a paid order is reported, never credited.
  duplicateCapture=true;const duplicate=await(await handleBilling(verify())).json();assert.equal(duplicate.duplicate,true);assert.equal(duplicate.credited,false);assert.equal(granted,10000);duplicateCapture=false;
  // Webhooks for unknown orders (another site, deleted test data) are acknowledged so Razorpay keeps the webhook enabled.
- const unknown=await handleBilling(hook({event:'payment.captured',payload:{payment:{entity:{order_id:'order_elsewhere',id:'pay_elsewhere'}}}}));assert.equal(unknown.status,200);assert.equal((await unknown.json()).ignored,true);assert.equal(granted,10000);
+ const unknown=await handleBilling(hook({event:'payment.captured',payload:{payment:{entity:{order_id:'order_elsewhere',id:'pay_elsewhere'}}}}));assert.equal(unknown.status,200);assert.equal((await unknown.json()).received,true);assert.equal(granted,10000);
  // Dispute notices are recorded for the owner without changing the balance.
  assert.equal((await handleBilling(hook({event:'payment.dispute.created',payload:{dispute:{entity:{id:'disp_fixture1',payment_id:'pay_fixture1',amount:10000}}}}))).status,200);assert.equal(alerts.length,1);assert.equal(alerts[0].kind,'payment.dispute.created');assert.equal(granted,10000);
  // Refunds and lost disputes take the money's balance back, through the server-only ledger function.
@@ -66,15 +73,6 @@ try{
  assert.equal((await handleBilling(hook({event:'payment.dispute.lost',payload:{dispute:{entity:{id:'disp_fixture1',payment_id:'pay_fixture1',amount:6000}}}}))).status,200);assert.equal(granted,0);assert.equal(reversals.at(-1).reason,'dispute');
  assert.equal((await(await handleBilling(hook({event:'refund.processed',payload:{refund:{entity:{id:'rfnd_bad',payment_id:'pay_fixture1'}}}}))).json()).ignored,true,'Malformed reversal is acknowledged, not retried');assert.equal(reversals.length,2);
  granted=10000;
- // Soft launch: only allowlisted accounts can buy or generate; everyone else still sees "coming soon".
- values.CONVERTSHORTS_HOSTED_ALLOWLIST=' '+other.toUpperCase()+' ';
- const publicConfig=await(await handleBilling(new Request('https://fixture.supabase.co/?action=config'))).json();assert.equal(publicConfig.softLaunch,true);assert.equal(publicConfig.enabled,false);assert.equal(publicConfig.generationEnabled,false);
- const ownerConfig=await(await handleBilling(new Request('https://fixture.supabase.co/?action=config',{headers:{Authorization:'Bearer other'}}))).json();assert.equal(ownerConfig.ownerPreview,true);assert.equal(ownerConfig.enabled,true);assert.equal(ownerConfig.generationEnabled,true);
- const strangerConfig=await(await handleBilling(new Request('https://fixture.supabase.co/?action=config',{headers:{Authorization:'Bearer fixture'}}))).json();assert.equal(strangerConfig.ownerPreview,false);assert.equal(strangerConfig.enabled,false);
- const ordersBefore=orders.size;assert.equal((await handleBilling(req({action:'checkout',plan:'topup-100'}))).status,503);assert.equal(orders.size,ordersBefore);
- assert.equal((await handleBilling(req({action:'quote',generation:{model:'flux-fast',prompt:'A lamp'}}))).status,503);
- {const r=await handleBilling(req({action:'checkout',plan:'topup-100'},'other'));const b=await r.json();assert.equal(r.status,200,JSON.stringify(b));}
- delete values.CONVERTSHORTS_HOSTED_ALLOWLIST;
  values.CONVERTSHORTS_RAZORPAY_KEY_ID='rzp_test_fixture';values.CONVERTSHORTS_BILLING_TEST_MODE='true';
  const testConfig=await(await handleBilling(new Request('https://fixture.supabase.co/?action=config'))).json();assert.equal(testConfig.enabled,true);assert.equal(testConfig.generationEnabled,false);
  const testCheckout=await(await handleBilling(req({action:'checkout',plan:'topup-100'}))).json();paymentOwner=testCheckout.orderId;
@@ -91,6 +89,23 @@ try{
   providerError=null;values.CONVERTSHORTS_RAZORPAY_KEY_SECRET=' payment-fixture\n';values.CONVERTSHORTS_RAZORPAY_KEY_ID=' rzp_test_fixture\n';
   const fixedConfig=await(await handleBilling(new Request('https://fixture.supabase.co/?action=config'))).json();assert.equal(fixedConfig.enabled,true);assert.equal(fixedConfig.testMode,true);assert.equal(fixedConfig.generationEnabled,false,'Test payments cannot activate live AI');
  }finally{console.error=originalError;providerError=null;}
+ values.CONVERTSHORTS_RAZORPAY_KEY_ID='rzp_live_fixture';
+ values.CONVERTSHORTS_HOSTED_ENABLED='false';
+ values.CONVERTSHORTS_BILLING_PILOT_USER_ID=user;
+ const access=(token)=>handleBilling(new Request('https://fixture.supabase.co/?action=access',{headers:{Authorization:'Bearer '+token}}));
+ const publicConfig=await(await handleBilling(new Request('https://fixture.supabase.co/?action=config'))).json();
+ assert.equal(publicConfig.enabled,false);
+ assert.equal(publicConfig.generationEnabled,false);
+ assert.equal((await access('')).status,401);
+ assert.deepEqual(await(await access('other')).json(),{pilot:false});
+ const pilot=await(await access('fixture')).json();
+ assert.equal(pilot.enabled,true);
+ assert.equal(pilot.generationEnabled,true);
+ assert.deepEqual(pilot.plans.filter(p=>p.available).map(p=>p.id),['topup-100']);
+ assert.equal((await handleBilling(req({action:'checkout',plan:'topup-100'},'other'))).status,503);
+ assert.equal((await handleBilling(req({action:'generate'},'other'))).status,503);
+ assert.equal((await handleBilling(req({action:'checkout',plan:'topup-500'}))).status,503);
+ assert.equal((await handleBilling(req({action:'checkout',plan:'topup-100'}))).status,200);
  delete values.CONVERTSHORTS_RAZORPAY_KEY_SECRET;assert.equal((await handleBilling(req({action:'checkout',plan:'topup-100'}))).status,503);
  assert.ok(await verifyHmac('hello',signature('hello','k'),'k'));assert.equal(await verifyHmac('hello!',signature('hello','k'),'k'),false);
  assert.throws(()=>validRate({rate:100,date:'2020-01-01'}));assert.throws(()=>validRate({rate:'NaN',date:new Date().toISOString()}));

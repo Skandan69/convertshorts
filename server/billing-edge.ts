@@ -9,14 +9,9 @@ const base=()=>env('SUPABASE_URL'),secret=()=>env('SUPABASE_SERVICE_ROLE_KEY');
 const cors=(req:Request)=>({'Access-Control-Allow-Origin':req.headers.get('origin')==='https://convertshorts.com'?'https://convertshorts.com':'null','Access-Control-Allow-Headers':'authorization, apikey, content-type','Access-Control-Allow-Methods':'GET, POST, OPTIONS','Cache-Control':'no-store'});
 const reply=(req:Request,value:unknown,status=200)=>Response.json(value,{status,headers:cors(req)});
 const testMode=()=>paymentKeyId().startsWith('rzp_test_');
-const hostedEnabled=()=>env('CONVERTSHORTS_HOSTED_ENABLED')==='true'&&!!env('CONVERTSHORTS_FAL_KEY')&&!testMode();
-// Soft launch: when CONVERTSHORTS_HOSTED_ALLOWLIST lists Supabase user ids (comma
-// separated), live checkout and paid generation work only for those accounts.
-// Everyone else keeps seeing "coming soon". Remove the variable to open to all.
-const allowlist=()=>env('CONVERTSHORTS_HOSTED_ALLOWLIST').split(',').map(s=>s.trim().toLowerCase()).filter(Boolean);
-const softLaunch=()=>!testMode()&&allowlist().length>0;
-const allowed=(id:unknown)=>!softLaunch()||allowlist().includes(String(id).toLowerCase());
-async function currentUser(req:Request){const authorization=req.headers.get('authorization');if(!authorization?.startsWith('Bearer '))return null;const r=await fetch(base()+'/auth/v1/user',{headers:{apikey:env('SUPABASE_ANON_KEY'),Authorization:authorization},signal:AbortSignal.timeout(10000)});return r.ok?await r.json():null;}
+const pilotEnabled=(userId='')=>!!userId&&userId===env('CONVERTSHORTS_BILLING_PILOT_USER_ID').trim();
+const publicHostedEnabled=()=>env('CONVERTSHORTS_HOSTED_ENABLED')==='true';
+const hostedEnabled=(userId='')=>(publicHostedEnabled()||pilotEnabled(userId))&&!!env('CONVERTSHORTS_FAL_KEY')&&!testMode();
 const merchantConfigured=()=>!!(paymentKeySecret()&&env('CONVERTSHORTS_RAZORPAY_WEBHOOK_SECRET'))&&(/^rzp_live_\w+$/.test(paymentKeyId())||testMode()&&env('CONVERTSHORTS_BILLING_TEST_MODE')==='true');
 async function db(path:string,method='GET',body?:unknown){const r=await fetch(base()+'/rest/v1/'+path,{method,headers:{apikey:secret(),Authorization:'Bearer '+secret(),'Content-Type':'application/json',Prefer:'return=representation'},body:body?JSON.stringify(body):undefined,signal:AbortSignal.timeout(15000)});const d=await r.json();if(!r.ok){if(d.message==='Insufficient workspace credits')throw new StudioError('Not enough balance. Add a small top-up in Pricing & credits.',402);throw Error('Billing data request failed');}return d;}
 class PaymentProviderError extends StudioError {
@@ -49,7 +44,7 @@ async function paymentApiStatus(){
  return paymentHealth.result;
 }
 export async function verifyHmac(raw:string,signature:string,key:string){if(!key||! /^[0-9a-f]{64}$/.test(signature))return false;const cryptoKey=await crypto.subtle.importKey('raw',new TextEncoder().encode(key),{name:'HMAC',hash:'SHA-256'},false,['sign']);const digest=new Uint8Array(await crypto.subtle.sign('HMAC',cryptoKey,new TextEncoder().encode(raw)));const expected=Array.from(digest,b=>b.toString(16).padStart(2,'0')).join('');let difference=0;for(let i=0;i<expected.length;i++)difference|=signature.charCodeAt(i)^expected.charCodeAt(i);return difference===0;}
-async function checkoutOrder(id:string){if(!/^order_[a-zA-Z0-9]+$/.test(id||''))throw new StudioError('Invalid payment order.');const rows=await db('convertshorts_checkout_orders?id=eq.'+id);if(!rows[0])throw new StudioError('Payment order not found.',404);return rows[0];}
+async function findCheckoutOrder(id:string){if(!/^order_[a-zA-Z0-9]+$/.test(id||''))throw new StudioError('Invalid payment order.');const rows=await db('convertshorts_checkout_orders?id=eq.'+id);return rows[0];}
 async function confirmPayment(order:any,paymentId:string){
  if(!/^pay_[a-zA-Z0-9]+$/.test(paymentId||''))throw new StudioError('Invalid payment reference.');
  if(order.test_mode!==testMode())throw new StudioError('This order belongs to a different payment mode.',409);
@@ -64,23 +59,28 @@ async function confirmPayment(order:any,paymentId:string){
  if(applied===null){console.error(JSON.stringify({event:'razorpay_payment_needs_owner_review'}));return {verified:true,credited:false,duplicate:true,message:'This top-up was already paid. The extra payment will be refunded to you.'};}
  return {verified:true,credited:true,alreadyCredited:applied===false,amountInr:order.amount_paise/100};
 }
+async function billingConfig(req:Request,userId=''){
+  const pilot=!publicHostedEnabled()&&pilotEnabled(userId);
+  let fx=null;try{fx=await getExchangeRate(env);}catch{}
+  const generationEnabled=hostedEnabled(userId)&&!!fx,paymentStatus=await paymentApiStatus(),enabled=paymentStatus==='ready'&&(testMode()||generationEnabled);
+  return reply(req,{enabled,generationEnabled,pilot,paymentApiStatus:paymentStatus,paymentProvider:'razorpay',testMode:testMode(),currency:'INR',customerCreditInr:CUSTOMER_CREDIT_INR,markupPercent:MARKUP_PERCENT,pricingVersion:PRICING_VERSION,usdInr:fx?.rate||null,fxDate:fx?.date||null,fxSource:fx?.source||null,hostedModels:MODELS.filter(supportsHostedPricing).map(m=>m.id),plans:CREDIT_PLANS.map(p=>({...p,available:enabled&&(!pilot||p.id==='topup-100')}))});
+}
 export async function handleBilling(req:Request){try{
  if(req.method==='OPTIONS')return new Response(null,{headers:cors(req)});
  if(!['GET','POST'].includes(req.method))return reply(req,{error:'Unsupported method'},405);
- if(new URL(req.url).searchParams.get('action')==='config'){
-  let fx=null;try{fx=await getExchangeRate(env);}catch{}
-  let ownerPreview=false;if(softLaunch()){try{const u=await currentUser(req);ownerPreview=!!u&&allowed(u.id);}catch{}}
-  const generationEnabled=hostedEnabled()&&!!fx&&(!softLaunch()||ownerPreview),paymentStatus=await paymentApiStatus(),enabled=paymentStatus==='ready'&&(testMode()||generationEnabled);
-  return reply(req,{enabled,generationEnabled,softLaunch:softLaunch(),ownerPreview,paymentApiStatus:paymentStatus,paymentProvider:'razorpay',testMode:testMode(),currency:'INR',customerCreditInr:CUSTOMER_CREDIT_INR,markupPercent:MARKUP_PERCENT,pricingVersion:PRICING_VERSION,usdInr:fx?.rate||null,fxDate:fx?.date||null,fxSource:fx?.source||null,hostedModels:MODELS.filter(supportsHostedPricing).map(m=>m.id),plans:CREDIT_PLANS.map(p=>({...p,available:enabled}))});
- }
- if(new URL(req.url).searchParams.get('action')==='webhook'){
+ const action=new URL(req.url).searchParams.get('action');
+ if(action==='config')return await billingConfig(req);
+ if(action==='webhook'){
   const key=env('CONVERTSHORTS_RAZORPAY_WEBHOOK_SECRET');if(!key)return reply(req,{error:'Webhook not configured'},503);
   const raw=await req.text();if(raw.length>1000000||!await verifyHmac(raw,req.headers.get('x-razorpay-signature')||'',key))return reply(req,{error:'Invalid signature'},400);
   const event=JSON.parse(raw),type=String(event.event||'');
   try{
    if(['payment.captured','order.paid'].includes(type)){
-    const payment=event.payload?.payment?.entity;if(!payment?.order_id||!payment?.id)throw new StudioError('Missing payment event.');
-    const order=await checkoutOrder(payment.order_id);await confirmPayment(order,payment.id);
+    const payment=event.payload?.payment?.entity;if(!payment?.id)throw new StudioError('Missing payment event.');
+    // Razorpay sends events for the whole merchant account. Only fulfill orders
+    // that ConvertShorts registered before returning them to checkout.
+    const order=payment.order_id?await findCheckoutOrder(payment.order_id):null;
+    if(order)await confirmPayment(order,payment.id);
    }else if(type==='refund.processed'||type==='payment.dispute.lost'){
     // Money went back to the customer: take the same amount of unspent balance back.
     const entity=type==='refund.processed'?event.payload?.refund?.entity:event.payload?.dispute?.entity;
@@ -101,6 +101,7 @@ export async function handleBilling(req:Request){try{
  }
  const origin=req.headers.get('origin');if(origin&&origin!=='https://convertshorts.com')return reply(req,{error:'Use ConvertShorts'},403);
  const authorization=req.headers.get('authorization');if(!authorization?.startsWith('Bearer '))return reply(req,{error:'Sign in first'},401);const userResponse=await fetch(base()+'/auth/v1/user',{headers:{apikey:env('SUPABASE_ANON_KEY'),Authorization:authorization},signal:AbortSignal.timeout(10000)});if(!userResponse.ok)return reply(req,{error:'Sign in again'},401);const user=await userResponse.json();
+ if(action==='access'&&req.method==='GET')return pilotEnabled(user.id)?await billingConfig(req,user.id):reply(req,{pilot:false});
  const accounts=await db('convertshorts_billing_accounts?user_id=eq.'+user.id),account=accounts[0];
  if(new URL(req.url).searchParams.get('action')==='status'){
   const id=new URL(req.url).searchParams.get('job');if(!/^[0-9a-f-]{36}$/.test(id||''))return reply(req,{error:'Invalid job'},400);const jobs=await db('convertshorts_generation_requests?id=eq.'+id+'&user_id=eq.'+user.id),job=jobs[0];if(!job)return reply(req,{error:'Job not found'},404);if(job.status==='FAILED_REFUNDED')return reply(req,{error:'Generation failed. Workspace credits refunded.'},422);
@@ -113,7 +114,7 @@ export async function handleBilling(req:Request){try{
  if(req.method==='GET'){const grants=await db('convertshorts_credit_grants?user_id=eq.'+user.id+'&valid_from=lte.'+encodeURIComponent(new Date().toISOString()));const credits=grants.filter((g:any)=>!g.expires_at||Date.parse(g.expires_at)>Date.now()).reduce((n:number,g:any)=>n+g.remaining,0);return reply(req,{plan:account?.plan||'Free',credits,generationCredits:credits/100/CUSTOMER_CREDIT_INR,balanceInr:credits/100,customerCreditInr:CUSTOMER_CREDIT_INR,currency:'INR'});}
  const raw=await req.text();if(raw.length>4200000)return reply(req,{error:'Request too large'},413);const body=JSON.parse(raw);
  if(body.action==='quote'||body.action==='generate'){
-  if(!hostedEnabled()||!allowed(user.id))return reply(req,{error:'AI generation is coming soon. Your local editors and account are available.'},503);const generation=prepareGeneration(body.generation);let quote;try{quote=quoteCredits(generation.endpoint,generation.input,(await getExchangeRate(env)).rate);}catch(e){throw new StudioError(e instanceof Error?e.message:'This model is not priced.');}
+  if(!hostedEnabled(user.id))return reply(req,{error:'AI generation is coming soon. Your local editors and account are available.'},503);const generation=prepareGeneration(body.generation);let quote;try{quote=quoteCredits(generation.endpoint,generation.input,(await getExchangeRate(env)).rate);}catch(e){throw new StudioError(e instanceof Error?e.message:'This model is not priced.');}
   if(body.action==='quote')return reply(req,quote);
   if(body.expectedCredits!==quote.credits||body.pricingVersion!==quote.version)return reply(req,{error:'The generation price changed. Review the current credits and submit again.',quote:{credits:quote.credits,version:quote.version}},409);
   const id=crypto.randomUUID();await db('rpc/convertshorts_reserve_credits','POST',{u:user.id,j:id,m:generation.model.id,amount:quote.credits});
@@ -122,13 +123,14 @@ export async function handleBilling(req:Request){try{
  }
 
  if(body.action==='verify'){
-  const order=await checkoutOrder(body.orderId);if(order.user_id!==user.id)return reply(req,{error:'Payment belongs to another account.'},403);
+  const order=await findCheckoutOrder(body.orderId);if(!order)throw new StudioError('Payment order not found.',404);
+  if(order.user_id!==user.id)return reply(req,{error:'Payment belongs to another account.'},403);
   if(!await verifyHmac(order.id+'|'+body.paymentId,body.signature||'',paymentKeySecret()))return reply(req,{error:'Invalid payment signature'},400);
   return reply(req,await confirmPayment(order,body.paymentId));
  }
  if(body.action==='checkout'){
   const p=CREDIT_PLANS.find(p=>p.id===body.plan);if(!p)return reply(req,{error:'Unknown top-up amount'},400);
-  if(!merchantConfigured()||(!testMode()&&(!hostedEnabled()||!allowed(user.id))))return reply(req,{error:'Payments are coming soon. No purchase has been made.'},503);
+  if(!merchantConfigured()||(!testMode()&&(!hostedEnabled(user.id)||!publicHostedEnabled()&&p.id!=='topup-100')))return reply(req,{error:'Payments are coming soon. No purchase has been made.'},503);
   if(!testMode())await getExchangeRate(env);
   const order=await razorpay('orders',{amount:p.amountCents,currency:'INR',receipt:'cs_'+crypto.randomUUID().replaceAll('-',''),notes:{service:'convertshorts',pack:p.id,user:user.id}});
   if(!/^order_[a-zA-Z0-9]+$/.test(order.id||'')||order.amount!==p.amountCents||order.currency!=='INR')throw Error('The payment order could not be verified.');

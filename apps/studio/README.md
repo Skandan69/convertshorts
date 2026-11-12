@@ -54,7 +54,7 @@ Set these **ConvertShorts-specific** secrets in the [existing Supabase Edge Func
 | `CONVERTSHORTS_RAZORPAY_WEBHOOK_SECRET` | A dedicated secret you choose when adding the webhook. |
 | `CONVERTSHORTS_FAL_KEY` | Dedicated, funded business Fal API key. |
 | `CONVERTSHORTS_HOSTED_ENABLED` | `true` after the live merchant and provider flow is ready. |
-| `CONVERTSHORTS_HOSTED_ALLOWLIST` | Optional soft launch: comma-separated Supabase user IDs. While set (with live keys), only these accounts can buy credits and generate; everyone else still sees "coming soon". Delete it to open to all. |
+| `CONVERTSHORTS_BILLING_PILOT_USER_ID` | Optional private test: one Supabase user ID that can buy the ₹100 top-up and generate while `CONVERTSHORTS_HOSTED_ENABLED` is off. Everyone else sees "coming soon". |
 
 Generate the Razorpay ID/secret in **Dashboard → Account & Settings → API Keys**, selecting the intended Live or Test mode. Complete Razorpay account activation before live payments. Customers never enter a Fal key. A merchant API key alone cannot fund generation; the business Fal account must also be funded.
 

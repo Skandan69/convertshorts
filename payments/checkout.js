@@ -1,7 +1,6 @@
-import {initializeCloud,cloudState,cloudRequest} from '/apps/studio/cloud.js';
+import {initializeCloud,cloudState,cloudRequest,getStudioBillingConfig} from '/apps/studio/cloud.js';
 import {CREDIT_PLANS,formatINR,formatCredits} from '/apps/studio/pricing.js';
 import {openCheckout} from '/apps/studio/razorpay.js';
-import {getBillingConfig} from '/apps/studio/config.js';
 const message=document.querySelector('#payment-message'),button=document.querySelector('#pay-now');
 const say=text=>message.textContent=text;
 await initializeCloud({accountOnly:true,toast:say,onChange:()=>{if(!cloudState().user)button.disabled=true;}});
@@ -10,8 +9,9 @@ let order;
 try{
  if(!pack)throw Error('Choose a top-up amount from the studio.');
  if(!cloudState().user)throw Error('Sign in in the studio, then return here to top up.');
- const info=await getBillingConfig({refresh:true});
+ const info=await getStudioBillingConfig();
  if(!info.enabled)throw Error(info.paymentApiStatus==='invalid_credentials'?'The payment service could not authenticate with Razorpay. Please contact ConvertShorts support.':info.paymentApiStatus==='unavailable'?'Razorpay is temporarily unavailable. Please retry shortly.':'Payments are being set up. Explore the free editors while we finish testing.');
+ if(info.pilot&&!info.plans.some(p=>p.id===pack.id&&p.available))throw Error('Only the ₹100 top-up is available during the private test.');
  document.querySelector('#payment-title').textContent='Add '+formatINR(pack.amountCents/100);
  document.querySelector('#payment-details').textContent=info.testMode?'Razorpay test mode. No real generation balance will be awarded.':formatINR(pack.amountCents/100)+' buys '+formatCredits(pack.amountCents/100)+' of prepaid AI balance. 1 credit = ₹1. No subscription, no automatic renewal and no expiry.';
  button.disabled=false;

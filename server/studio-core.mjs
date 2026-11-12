@@ -7,7 +7,7 @@ export const MODELS = [
   {id:'flux-2',name:'FLUX 2',kind:'image',endpoint:'fal-ai/flux-2',note:'Detailed image generation',reference:false},
   {id:'nano-banana',name:'Nano Banana 2',kind:'image',endpoint:'fal-ai/nano-banana-2',note:'Image generation and reference editing',reference:true},
   {id:'nano-edit',name:'Nano Banana 2 Edit',kind:'edit',endpoint:'fal-ai/nano-banana-2/edit',note:'Prompted edits with references',reference:true},
-  {id:'kling',name:'Kling 2.6 Pro',kind:'video',endpoint:'fal-ai/kling-video/v2.6/pro/text-to-video',note:'Text or image to video with optional audio',reference:true},
+  {id:'kling',name:'Kling 2.6 Pro',kind:'video',endpoint:'fal-ai/kling-video/v2.6/pro/text-to-video',note:'Text or image to video with optional audio',reference:true,ratios:['16:9','9:16','1:1'],slow:true},
   {id:'stable-audio',name:'Stable Audio 2.5',kind:'audio',endpoint:'fal-ai/stable-audio-25/text-to-audio',note:'Music and sound effects',reference:false},
   {id:'trellis',name:'Trellis 2',kind:'object',endpoint:'fal-ai/trellis-2',note:'Image to a textured GLB model',reference:true},
   {id:'hunyuan-world',name:'Hunyuan World',kind:'world',endpoint:'fal-ai/hunyuan_world/image-to-world',note:'Image to a downloadable world asset',reference:true},
